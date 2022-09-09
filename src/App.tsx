@@ -1,17 +1,27 @@
+import { makeStyles } from '@mui/styles';
 import React from 'react';
-import './App.css';
 import Playground from './components/Playground';
 import { LoggerProvider } from './contexts/LoggerProvider';
 import Sandbox from './Sandbox';
+import OperationView from './views/OperationView';
+
+const useStyles = makeStyles(() => ({
+  root: {
+    width: '100%',
+    height: '100%',
+    minHeight: '100vh',
+    position: 'fixed',
+  }
+}))
 
 function App() {
+  const classes = useStyles()
+
   return (
-    <div className="App">
-      <header className="App-header">
+    <div className={classes.root}>
         <LoggerProvider>
-          <Playground />
+          <OperationView />
         </LoggerProvider>
-      </header>
     </div>
   );
 }
