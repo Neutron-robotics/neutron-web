@@ -5,6 +5,9 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import CloseIcon from '@mui/icons-material/Close';
 import NetworkWifi1BarTwoToneIcon from '@mui/icons-material/NetworkWifi1BarTwoTone';
 import Header from "./Header"
+import { connect, useRos } from "rosreact";
+import { useEffect, useState } from "react";
+import useLogger from "../utils/useLogger";
 
 const useStyle = makeStyles(() => ({
     root: {
@@ -70,6 +73,34 @@ interface HeaderBodyProps {
 const HeaderBody = (props: HeaderBodyProps) => {
     const classes = useStyle()
     const { parts } = props
+    const ros = useRos()
+    const [isConnected, setIsConnected] = useState(false)
+    const logger = useLogger("Ros")
+
+    useEffect(() => {
+        ros.addListener("connection", (...values) => {
+            console.log("Connected", values)
+            setIsConnected(true)
+            logger.logInfo("Connected")
+        })
+        ros.addListener("close", (...values) => {
+            console.log("Closed", values)
+            setIsConnected(false)
+            logger.logInfo("Connected")
+        })
+        ros.addListener("error", (...values) => {
+            console.log("Error", values)
+            logger.logError("Unknown error happens")
+        })
+        return () => {
+            ros.removeAllListeners()
+        }
+    }, [ros, logger])
+
+    const handleWifiClick = () => {
+        console.log("wifi")
+        connect(ros, "ws://192.168.1.102:9090")
+    }
 
     return (
         <div className={classes.root}>
@@ -90,9 +121,10 @@ const HeaderBody = (props: HeaderBodyProps) => {
                 edge="start"
                 aria-label="menu"
                 color="inherit"
+                onClick={handleWifiClick}
                 sx={{ display: 'flex' }}
             >
-                <Badge color="primary" variant="dot">
+                <Badge color={isConnected ? "success" : "error"} variant="dot">
                     <NetworkWifi1BarTwoToneIcon htmlColor="black" />
                 </Badge>
             </IconButton>

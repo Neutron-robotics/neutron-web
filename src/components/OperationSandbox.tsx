@@ -1,5 +1,9 @@
 import { makeStyles } from "@mui/styles"
-import OperationComponent from "./OperationComponent"
+import RobotBaseComponent from "./OperationComponents/active/RobotBaseComponent"
+import OperationComponent from "./OperationComponents/OperationComponent"
+import makeOperationComponent from "./OperationComponents/OperationComponentFactory"
+import CameraComponent from "./OperationComponents/passive/CameraComponent"
+import Console from "./OperationComponents/passive/Console"
 
 
 const useStyles = makeStyles(() => ({
@@ -12,21 +16,47 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-
 const OperationSandbox = () => {
     const classes = useStyles()
+
+    const ConsoleComponent = makeOperationComponent({
+        name: "Console",
+        type: "passive",
+        defaultWidth: 400,
+        defaultHeight: 250,
+        component: Console,
+    })
+
+    const CameraOperationComponenet = makeOperationComponent({
+        name: "Camera",
+        type: "passive",
+        defaultWidth: 400,
+        defaultHeight: 250,
+        component: CameraComponent,
+    })
+
+    const RobotBaseOperationComponent = makeOperationComponent({
+        name: "Robot Base",
+        type: "active",
+        defaultWidth: 200,
+        defaultHeight: 170,
+        component: RobotBaseComponent
+    })
 
     return (
         <>
             <div className={classes.root}>
-               <OperationComponent
+                <ConsoleComponent />
+                <CameraOperationComponenet />
+                <RobotBaseOperationComponent />
+                {/* <OperationComponent
                     onClose={() => { }}
                     width={300}
                     height={100}
                     title="test"
                 >
-                    <div>test</div>
-                </OperationComponent>
+
+                </OperationComponent> */}
             </div>
         </>
     )

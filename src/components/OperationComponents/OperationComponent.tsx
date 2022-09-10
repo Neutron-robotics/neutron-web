@@ -20,16 +20,19 @@ const useStyle = makeStyles(() => ({
     }
 }))
 
-interface OperationComponentProps {
-    onClose: () => void;
+interface ComponentProps {
     width: number;
     height: number;
+}
+
+interface OperationComponentProps extends ComponentProps {
+    onClose: () => void;
     children: JSX.Element;
-    title: string;
+    name: string;
 }
 
 const OperationComponent = (props: OperationComponentProps) => {
-    const { width, height, children, title } = props
+    const { width, height, children, name } = props
     const classes = useStyle()
     const nodeRef = React.useRef(null);
 
@@ -38,7 +41,7 @@ const OperationComponent = (props: OperationComponentProps) => {
             <Draggable bounds="parent" handle=".handle" nodeRef={nodeRef}>
                 <div ref={nodeRef} className={classes.root} style={{ width: width, height: height }}>
                     <div className={`handle ${classes.handle}`}>
-                        {title}
+                        {name}
                     </div>
                     <Paper className={classes.content}>
                         {children}

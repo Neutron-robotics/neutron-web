@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { useState } from "react";
 import useLogger from "../utils/useLogger";
-import Console from "./Console";
+import Console from "./OperationComponents/passive/Console";
 
 const Playground = () => {
     const logger = useLogger("Playground");
@@ -20,7 +20,7 @@ const Playground = () => {
             <p>Count: {count}</p>
             <Button variant="contained" onClick={handleButton}
             >Increment</Button>
-            <Console width={700} height={450} />
+            <Console width={300} height={150} />
         </div>
     );
 };

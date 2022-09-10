@@ -2,7 +2,6 @@ import { makeStyles } from '@mui/styles';
 import React from 'react';
 import Playground from './components/Playground';
 import { LoggerProvider } from './contexts/LoggerProvider';
-import Sandbox from './Sandbox';
 import OperationView from './views/OperationView';
 
 const useStyles = makeStyles(() => ({

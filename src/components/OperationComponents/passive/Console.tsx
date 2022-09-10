@@ -4,15 +4,14 @@ import {
     FormControlLabel,
     FormGroup,
     Grid,
-    Paper,
     Switch,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment';
 import React, { useCallback, useContext, useEffect, useReducer, useRef, useState } from 'react';
-import { LoggerContext } from '../contexts/LoggerProvider';
-import { ILoggerMessage } from '../utils/Logger';
+import { LoggerContext } from '../../../contexts/LoggerProvider';
+import { ILoggerMessage } from '../../../utils/Logger';
 
 enum LogType {
     DEBUG = '#4f5051',
@@ -25,8 +24,9 @@ const useStyle = makeStyles(() => ({
     console: {
         margin: 'auto',
         position: 'relative',
-        marginTop: '50px',
         textAlign: 'start',
+        width: '100%',
+        height: '100%',
     },
     consoleMessages: {
         overflowX: 'hidden',
@@ -164,7 +164,7 @@ const Console = (props: IConsoleProps) => {
     };
 
     return (
-        <Paper elevation={3} className={classes.console} style={{ height, width }}>
+        <div className={classes.console}>
             <Grid container className={classes.gridContainer}>
                 <Grid
                     item
@@ -252,7 +252,7 @@ const Console = (props: IConsoleProps) => {
                     </Grid>
                 )}
             </Grid>
-        </Paper>
+        </div>
     );
 };
 
