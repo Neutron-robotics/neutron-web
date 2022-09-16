@@ -61,7 +61,7 @@ const CameraComponent = () => {
         <div className={classes.root}>
             {isConnected ? (
                 <>
-                    <img className={classes.streamer} src={`http://192.168.1.102:8100/${new Date().getTime()}/camera.mjpg`} alt="camera" />
+                    <img className={classes.streamer} src={`http://192.168.1.176:8100/${new Date().getTime()}/camera.mjpg`} alt="camera" />
                     <Button variant="contained" onClick={handleOnDisconnect}>
                         Disconnect
                     </Button>

@@ -99,7 +99,7 @@ const HeaderBody = (props: HeaderBodyProps) => {
 
     const handleWifiClick = () => {
         console.log("wifi")
-        connect(ros, "ws://192.168.1.102:9090")
+        connect(ros, "ws://192.168.1.176:9090")
     }
 
     return (

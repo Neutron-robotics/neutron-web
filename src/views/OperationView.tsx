@@ -15,7 +15,7 @@ const OperationView = () => {
 
     return (
         <>
-            <RosConnection url={"ws://192.168.1.102:9090"}>
+            <RosConnection url={"ws://192.168.1.176:9090"}>
                 <OperationHeader
                     onConnectClick={() => { }}
                     onDisconnectClick={() => { }}
