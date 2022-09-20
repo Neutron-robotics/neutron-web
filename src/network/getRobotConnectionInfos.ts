@@ -23,7 +23,7 @@ const getErrorRobotConnection = (connection: IRobotConnectionInfo): IRobotConnec
   type: "Unknown",
   batteryInfo: {
     level: 0,
-    measurement: 'percentage',
+    measurement: 'percent',
     charging: false,
   },
   status: RobotStatus.Error,

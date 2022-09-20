@@ -14,24 +14,20 @@ export interface IRobotModuleIconProps {
 const RobotModuleIcon = (props: IRobotModuleIconProps) => {
     const { type, title } = props
 
-    const typeIconFactory = () => {
-        const dict = {
-            'base': <DirectionsCarIcon />,
-            'service': <MemoryIcon />,
-            'camera': <CameraAltIcon />,
-            'ptz': <VideocamIcon />,
-            'ultasonic': <WavesIcon />,
-            'lidar': <FlareIcon />,
-            'infrared': <LightIcon />
-        }
-        return dict[type] ?? <MemoryIcon />
+    const typeIconDict: { [key: string]: JSX.Element } = {
+        'base': <DirectionsCarIcon />,
+        'service': <MemoryIcon />,
+        'camera': <CameraAltIcon />,
+        'ptz': <VideocamIcon />,
+        'ultasonic': <WavesIcon />,
+        'lidar': <FlareIcon />,
+        'infrared': <LightIcon />
     }
-
+    return (
+        <div title={title}>
+            {typeIconDict[type]}
+        </div>
+    )
 }
 
-return (
-    <div>
-        {typeIconDict[type]}
-    </div>
-)
-}
+export default RobotModuleIcon

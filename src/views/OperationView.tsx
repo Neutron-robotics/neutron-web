@@ -1,8 +1,8 @@
-import OperationHeader from "../components/OperationHeader"
 import CameraAltTwoToneIcon from '@mui/icons-material/CameraAltTwoTone';
 import OperationSandbox from "../components/OperationSandbox";
 import CameraComponent from "../components/OperationComponents/passive/CameraComponent";
 import { RosConnection } from "rosreact";
+import OperationHeader from '../components/Header/OperationHeader';
 
 const OperationView = () => {
     const parts = [

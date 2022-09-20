@@ -4,8 +4,8 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import TurnRightIcon from '@mui/icons-material/TurnRight';
 import TurnLeftIcon from '@mui/icons-material/TurnLeft';
-import { SyntheticEvent, useEffect, useState } from "react";
-import { useRos, subscribe, Publisher } from "rosreact";
+import {  useEffect, useState } from "react";
+import { useRos } from "rosreact";
 import CancelIcon from '@mui/icons-material/Cancel';
 import { publishLoop, publishOnce } from "../../../utils/rosutils";
 

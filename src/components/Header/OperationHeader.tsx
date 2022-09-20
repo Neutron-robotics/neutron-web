@@ -7,7 +7,7 @@ import NetworkWifi1BarTwoToneIcon from '@mui/icons-material/NetworkWifi1BarTwoTo
 import Header from "./Header"
 import { connect, useRos } from "rosreact";
 import { useEffect, useState } from "react";
-import useLogger from "../utils/useLogger";
+import useLogger from "../../utils/useLogger";
 
 const useStyle = makeStyles(() => ({
     root: {

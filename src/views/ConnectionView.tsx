@@ -1,11 +1,17 @@
 import { makeStyles } from "@mui/styles"
 import { useEffect, useState } from "react"
-import { IRobotConnection, IRobotConnectionInfo, RobotConnectionType } from "../network/IRobot"
+import RobotConnection from "../components/Connection/RobotConnection"
+import Header from "../components/Header/Header"
+import { getRobotConnectionInfos } from "../network/getRobotConnectionInfos"
+import { IRobotConnection, IRobotConnectionInfo, RobotConnectionType, RobotStatus } from "../network/IRobot"
 
 const useStyles = makeStyles(() => ({
     root: {
         width: '100%',
         height: '100%',
+    },
+    title: {
+        textAlign: 'center',
     }
 }))
 
@@ -28,18 +34,52 @@ const ConnectionView = () => {
 
     useEffect(() => {
         const getRobotInfos = async () => {
-            const robotConnections = await Promise.all(robotConnectionsInfos.map(async (robotConnectionInfo) => {
+            const robotConnections: IRobotConnection[] = await Promise.all(robotConnectionsInfos.map(async (robotConnectionInfo) => {
                 const robotConnection = await getRobotConnectionInfos(robotConnectionInfo)
                 return robotConnection
-            }
+            }))
             setRobotConnections(robotConnections)
         }
+
+        setRobotConnections([
+            {
+                id: '1',
+                name: 'Osoyoo Rover',
+                type: 'OsoyooRobot',
+                batteryInfo: {
+                    level: 100,
+                    charging: false,
+                    measurement: 'percent'
+                },
+                status: RobotStatus.Disconnected,
+                connection: {
+                    type: RobotConnectionType.ROS,
+                    hostname: '192.168.1.172',
+                    port: 9090
+                },
+                parts: [
+                    {
+                        id: '1',
+                        name: 'Camera',
+                        type: 'camera'
+                    },
+                    {
+                        id: '1',
+                        name: 'Camera',
+                        type: 'base'
+                    },
+                ]
+            }
+        ])
     }, [robotConnectionsInfos])
 
     return (
         <div className={classes.root}>
-            <h1>Connect to a robot</h1>
-
+            <Header onHomeClick={() => {}}/>
+            <h1 className={classes.title}>Connect to a robot</h1>
+            {robotConnections.map((robotConnection) => (
+                <RobotConnection robotConnection={robotConnection} />
+            ))}
         </div>
     )
 }

@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { LoggerProvider } from './contexts/LoggerProvider';
 import OperationView from './views/OperationView';
 import axios from 'axios';
+import ConnectionView from './views/ConnectionView';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -30,7 +31,6 @@ function App() {
     <div className={classes.root}>
         <LoggerProvider>
           <ConnectionView />
-          <OperationView />
         </LoggerProvider>
     </div>
   );

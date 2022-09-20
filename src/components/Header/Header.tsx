@@ -12,13 +12,13 @@ const useStyle = makeStyles(() => ({
 
 interface HeaderProps {
     onHomeClick: () => void;
-    headerMenues: JSX.Element[];
+    headerMenues?: JSX.Element[];
 }
 
 const Header = (props: HeaderProps) => {
     const title = `${process.env.REACT_APP_NAME} - ${process.env.REACT_APP_VERSION}`;
     const classes = useStyle();
-    const {headerMenues} = props;
+    const { headerMenues } = props;
 
     return (
         <>
@@ -37,9 +37,11 @@ const Header = (props: HeaderProps) => {
                     <Typography variant="caption" component="div" sx={{ display: 'flex' }}>
                         {title}
                     </Typography>
-                    <Box sx={{ flexGrow: 1, display: 'flex' }} >
-                        {headerMenues.map(e => e)}
-                    </Box>
+                    {headerMenues && (
+                        <Box sx={{ flexGrow: 1, display: 'flex' }} >
+                            {headerMenues.map(e => e)}
+                        </Box>
+                    )}
 
 
                     <IconButton
@@ -54,7 +56,7 @@ const Header = (props: HeaderProps) => {
 
                 </Toolbar>
             </AppBar>
-            
+
         </>
     )
 }

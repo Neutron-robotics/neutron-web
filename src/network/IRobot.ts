@@ -30,12 +30,12 @@ enum RobotStatus {
 
 interface IBatteryInfo {
     level: number;
-    measurement: 'percentage' | 'voltage';
+    measurement: 'percent' | 'volt';
     charging: boolean;
 }
 
 interface IRobotModule {
-    id: number;
+    id: string;
     name: string;
     type: string;
 }
