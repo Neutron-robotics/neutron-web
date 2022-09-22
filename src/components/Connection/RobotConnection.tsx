@@ -4,6 +4,7 @@ import { IRobotConnection } from "../../network/IRobot"
 import RobotModuleIcon from "../RobotModuleIcon"
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import Battery80Icon from '@mui/icons-material/Battery80';
+import { useState } from "react";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -39,6 +40,11 @@ export interface IRobotConnectionProps {
 const RobotConnection = (props: IRobotConnectionProps) => {
     const classes = useStyles()
     const { robotConnection } = props
+    const [connectionModalOpen, setConnectionModalOpen] = useState(false)
+
+    const handleConnectClick = () => {
+        setConnectionModalOpen(true)
+    }
 
     return (
         <div className={classes.root}>
@@ -73,7 +79,7 @@ const RobotConnection = (props: IRobotConnectionProps) => {
                     </div>
                 </div>
                 <div className={classes.connectButton}>
-                    <Button variant="contained">
+                    <Button variant="contained" onClick={handleConnectClick}>
                         Connect
                     </Button>
                 </div>
