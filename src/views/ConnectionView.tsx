@@ -59,12 +59,40 @@ const ConnectionView = () => {
                 },
                 parts: [
                     {
-                        id: '1',
+                        id: '1dbrnrtn',
                         name: 'Camera',
                         type: 'camera'
                     },
                     {
-                        id: '1',
+                        id: '1db',
+                        name: 'Base',
+                        type: 'base'
+                    },
+                ]
+            },
+            {
+                id: '2',
+                name: 'Osoyoo Rover 2',
+                type: 'OsoyooRobot',
+                batteryInfo: {
+                    level: 100,
+                    charging: false,
+                    measurement: 'percent'
+                },
+                status: RobotStatus.Disconnected,
+                connection: {
+                    type: RobotConnectionType.ROS,
+                    hostname: '192.168.1.172',
+                    port: 9090
+                },
+                parts: [
+                    {
+                        id: '1dfb',
+                        name: 'Camera',
+                        type: 'camera'
+                    },
+                    {
+                        id: '1sd',
                         name: 'Base',
                         type: 'base'
                     },
@@ -78,7 +106,7 @@ const ConnectionView = () => {
             <Header onHomeClick={() => {}}/>
             <h1 className={classes.title}>Connect to a robot</h1>
             {robotConnections.map((robotConnection) => (
-                <RobotConnection robotConnection={robotConnection} />
+                <RobotConnection robotConnection={robotConnection} key={robotConnection.id} />
             ))}
         </div>
     )

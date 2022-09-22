@@ -40,14 +40,12 @@ const RobotConnection = (props: IRobotConnectionProps) => {
     const classes = useStyles()
     const { robotConnection } = props
 
-    console.log(`../../../assets/${robotConnection.type}.png`)
-
     return (
         <div className={classes.root}>
             <h2>{robotConnection.name}</h2>
             <p>{robotConnection.status}</p>
             <div className={classes.cardBody}>
-                <Badge
+                <Badge badgeContent=" " color="primary"
                     anchorOrigin={
                         {
                             vertical: 'bottom',
@@ -57,10 +55,10 @@ const RobotConnection = (props: IRobotConnectionProps) => {
                 >
                     <img src={require(`../../../assets/${robotConnection.type}.png`)} width={150} alt="robot-icon" />
                 </Badge>
-                <div>
+                <div className={classes.partIcons}>
                     {robotConnection.parts.map((part) => {
                         return (
-                            <RobotModuleIcon type={part.type} width={24} height={24} title={part.name} />
+                            <RobotModuleIcon type={part.type} width={24} height={24} title={part.name} key={part.id} />
                         )
                     })}
                 </div>
