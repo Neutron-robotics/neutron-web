@@ -65,7 +65,7 @@ const ConnectionView = () => {
                     },
                     {
                         id: '1',
-                        name: 'Camera',
+                        name: 'Base',
                         type: 'base'
                     },
                 ]

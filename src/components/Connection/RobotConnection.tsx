@@ -11,6 +11,23 @@ const useStyles = makeStyles(() => ({
         margin: '0 auto',
         "& h2": {
             textAlign: 'center',
+        },
+        "& p": {
+            textAlign: 'center',
+        }
+    },
+    cardBody: {
+        display: 'flex',
+    },
+    partIcons: {
+        width: '200px',
+        marginLeft: '30px',
+    },
+    connectButton: {
+        position: 'relative',
+        "& button": {
+            position: 'absolute',
+            bottom: '0',
         }
     }
 }))
@@ -23,11 +40,13 @@ const RobotConnection = (props: IRobotConnectionProps) => {
     const classes = useStyles()
     const { robotConnection } = props
 
+    console.log(`../../../assets/${robotConnection.type}.png`)
+
     return (
         <div className={classes.root}>
             <h2>{robotConnection.name}</h2>
-            <span>{robotConnection.status}</span>
-            <div>
+            <p>{robotConnection.status}</p>
+            <div className={classes.cardBody}>
                 <Badge
                     anchorOrigin={
                         {
@@ -36,12 +55,12 @@ const RobotConnection = (props: IRobotConnectionProps) => {
                         }
                     }
                 >
-                    <img src={require(`../../../assets/${robotConnection.type}.png`).default} alt="robot-icon" />
+                    <img src={require(`../../../assets/${robotConnection.type}.png`)} width={150} alt="robot-icon" />
                 </Badge>
                 <div>
                     {robotConnection.parts.map((part) => {
                         return (
-                            <RobotModuleIcon type={part.type} title={part.name} />
+                            <RobotModuleIcon type={part.type} width={24} height={24} title={part.name} />
                         )
                     })}
                 </div>
@@ -55,9 +74,11 @@ const RobotConnection = (props: IRobotConnectionProps) => {
                         <span>100%</span>
                     </div>
                 </div>
-                <Button>
-                    Connect
-                </Button>
+                <div className={classes.connectButton}>
+                    <Button variant="contained">
+                        Connect
+                    </Button>
+                </div>
             </div>
         </div>
     )

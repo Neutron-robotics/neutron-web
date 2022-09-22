@@ -9,10 +9,12 @@ import LightIcon from '@mui/icons-material/Light';
 export interface IRobotModuleIconProps {
     type: string
     title: string
+    width: number
+    height: number
 }
 
 const RobotModuleIcon = (props: IRobotModuleIconProps) => {
-    const { type, title } = props
+    const { type, title, width, height } = props
 
     const typeIconDict: { [key: string]: JSX.Element } = {
         'base': <DirectionsCarIcon />,
@@ -24,7 +26,7 @@ const RobotModuleIcon = (props: IRobotModuleIconProps) => {
         'infrared': <LightIcon />
     }
     return (
-        <div title={title}>
+        <div title={title} style={{width, height }}>
             {typeIconDict[type]}
         </div>
     )
