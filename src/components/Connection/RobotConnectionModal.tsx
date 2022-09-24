@@ -7,7 +7,8 @@ import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles(() => ({
     root: {
-        width: '500px',
+        width: '600px',
+        maxHeight: '800px',
         position: 'absolute',
         top: '50%',
         left: '50%',
@@ -23,6 +24,8 @@ const useStyles = makeStyles(() => ({
     },
     paper: {
         position: 'relative',
+        height: '100%',
+        width: '100%',
     },
     image: {
         width: '150px',
@@ -46,23 +49,27 @@ const useStyles = makeStyles(() => ({
     },
     robotParts: {
         display: 'flex',
-        justifyContent: 'space-around',
+        justifyContent: 'center',
         alignItems: 'center',
         "& h4": {
             width: '100px',
+            marginLeft: '50px',
         }
     },
     layoutSelect: {
         width: '300px',
-        marginBottom: '20px',
+        marginBottom: '50px',
         marginTop: '20px',
     },
     selectContainer: {
         textAlign: 'center',
     },
-    button: {
-        position: 'absolute',
+    buttonContainer: {
+        position: 'fixed',
         bottom: '0',
+        width: '100%',
+    },
+    button: {
         width: '100%',
     }
 }))
@@ -131,13 +138,15 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
                             <MenuItem value={2}>Customized Layout #1</MenuItem>
                         </Select>
                     </div>
-                    <Button
-                        className={classes.button}
-                        variant="contained"
-                        color="primary"
-                    >
-                        Connect
-                    </Button>
+                    <div className={classes.buttonContainer}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            className={classes.button}
+                        >
+                            Connect
+                        </Button>
+                    </div>
                 </Paper>
             </div>
         </Modal>
