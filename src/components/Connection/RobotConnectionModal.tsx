@@ -1,9 +1,11 @@
 import { Badge, Button, MenuItem, Modal, Paper, Select, Switch } from "@mui/material"
-import { IRobotConnection } from "../../network/IRobot"
+import { IRobotConnectionConfiguration, IRobotModule } from "../../network/IRobot"
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import Battery80Icon from '@mui/icons-material/Battery80';
 import RobotModuleIcon from "../RobotModuleIcon";
 import { makeStyles } from "@mui/styles";
+import { useContext, useState } from "react";
+import { ConnectionContext } from "../../contexts/ConnectionProvider";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -77,12 +79,34 @@ const useStyles = makeStyles(() => ({
 export interface RobotConnectionModalProps {
     open: boolean
     onClose: () => void
-    connection: IRobotConnection
+    connection: IRobotConnectionConfiguration
+}
+
+interface IOptionalModule extends IRobotModule {
+    enabled: boolean
 }
 
 const RobotConnectionModal = (props: RobotConnectionModalProps) => {
     const { open, onClose, connection } = props
     const classes = useStyles()
+    const [modules, setModules] = useState<IOptionalModule[]>(connection.parts.map(m => ({ ...m, enabled: true })))
+    const connectionContext = useContext(ConnectionContext)
+
+    const handleToggleModuleSwitch = (event: React.ChangeEvent<HTMLInputElement>, moduleId: string) => {
+        setModules(
+            modules.map(m => {
+                if (m.id === moduleId) {
+                    return { ...m, enabled: event.target.checked }
+                }
+                return m
+            })
+        )
+    }
+
+    const handleConnectClick = () => {
+        const modulesToConnect = modules.filter(m => m.enabled)
+        
+    }
 
     return (
         <Modal
@@ -124,11 +148,11 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
                     </div>
                     <h3>Robot components</h3>
                     <div>
-                        {connection.parts.map((part) => (
+                        {modules.map((part) => (
                             <div key={part.id} className={classes.robotParts}>
                                 <RobotModuleIcon type={part.type} title={part.name} width={24} height={24} />
                                 <h4>{part.name}</h4>
-                                <Switch defaultChecked />
+                                <Switch checked={part.enabled} onChange={(e) => handleToggleModuleSwitch(e, part.id)} />
                             </div>
                         ))}
                     </div>
@@ -143,6 +167,7 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
                             variant="contained"
                             color="primary"
                             className={classes.button}
+                            onClick={handleConnectClick}
                         >
                             Connect
                         </Button>

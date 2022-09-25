@@ -1,34 +1,40 @@
 import axios from "axios";
 import { v4 } from "uuid";
-import { IRobotConnection, IRobotConnectionInfo, RobotStatus } from "./IRobot";
+import { getRobotConnectionTypeFromString, IRobotConnection, IRobotConnectionInfo, RobotStatus } from "./IRobot";
 
 const getRobotConnectionInfos = async (
   connection: IRobotConnectionInfo
-): Promise<IRobotConnection> => {
+): Promise<IRobotConnection | null> => {
   try {
     const response = await axios.get(
-      `http://${connection.hostname}:${connection.port}/robot`
+      `http://localhost:${connection.port}/robot/configuration`
     );
     const data = response.data;
-
-    return data;
-  } catch (error) {
-    return Promise.resolve(getErrorRobotConnection(connection));
+    const payload = data.robot
+    if (!payload) 
+        throw new Error("No robot configuration found");
+    const robotConnection: IRobotConnection = {
+        id: v4(),
+        name: payload.name,
+        type: payload.type,
+        batteryInfo: {
+            level: payload.battery,
+            measurement: 'percent',
+            charging: false,
+        },
+        status: payload.status,
+        connection: {
+            hostname: connection.hostname,
+            port: payload.connection.port,
+            type: getRobotConnectionTypeFromString(payload.connection.type),
+        },
+        parts: payload.modules,
+    }
+    return robotConnection;
+  } catch (error: any) {
+    console.log(error)
+    return Promise.resolve(null);
   }
 };
-
-const getErrorRobotConnection = (connection: IRobotConnectionInfo): IRobotConnection => ({
-  id: v4(),
-  name: "Unknown",
-  type: "Unknown",
-  batteryInfo: {
-    level: 0,
-    measurement: 'percent',
-    charging: false,
-  },
-  status: RobotStatus.Error,
-  connection: connection,
-  parts: [],
-});
 
 export { getRobotConnectionInfos };

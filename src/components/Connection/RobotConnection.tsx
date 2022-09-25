@@ -1,6 +1,6 @@
 import { Badge, Button } from "@mui/material"
 import { makeStyles } from "@mui/styles"
-import { IRobotConnection } from "../../network/IRobot"
+import { IRobotConnectionConfiguration } from "../../network/IRobot"
 import RobotModuleIcon from "../RobotModuleIcon"
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import Battery80Icon from '@mui/icons-material/Battery80';
@@ -35,7 +35,7 @@ const useStyles = makeStyles(() => ({
 }))
 
 export interface IRobotConnectionProps {
-    robotConnection: IRobotConnection
+    robotConnection: IRobotConnectionConfiguration
 }
 
 const RobotConnection = (props: IRobotConnectionProps) => {

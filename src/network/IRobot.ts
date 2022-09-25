@@ -1,4 +1,4 @@
-interface IRobotConnection {
+interface IRobotConnectionConfiguration {
     id: string;
     name: string;
     type: string;
@@ -17,8 +17,21 @@ interface IRobotConnectionInfo {
 enum RobotConnectionType {
     TCP,
     UDP,
-    ROS,
+    ROSBRIDGE,
 }
+
+const getRobotConnectionTypeFromString = (type: string): RobotConnectionType => {
+    switch (type.toUpperCase()) {
+        case "TCP":
+            return RobotConnectionType.TCP;
+        case "UDP":
+            return RobotConnectionType.UDP;
+        case "ROSBRIDGE":
+            return RobotConnectionType.ROSBRIDGE;
+        default:
+            throw new Error(`Unknown robot connection type: ${type}`);
+    }
+};
 
 enum RobotStatus {
     Disconnected = "Disconnected",
@@ -41,7 +54,7 @@ interface IRobotModule {
 }
 
 export type {
-    IRobotConnection,
+    IRobotConnectionConfiguration,
     IRobotModule,
     IBatteryInfo,
     IRobotConnectionInfo,
@@ -50,4 +63,5 @@ export type {
 export {
     RobotStatus,
     RobotConnectionType,
+    getRobotConnectionTypeFromString,
 }
