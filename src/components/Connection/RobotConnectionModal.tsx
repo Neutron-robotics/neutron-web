@@ -91,6 +91,7 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
     const classes = useStyles()
     const [modules, setModules] = useState<IOptionalModule[]>(connection.parts.map(m => ({ ...m, enabled: true })))
     const connectionContext = useContext(ConnectionContext)
+    const { makeRobotConnectionContext } = connectionContext
 
     const handleToggleModuleSwitch = (event: React.ChangeEvent<HTMLInputElement>, moduleId: string) => {
         setModules(
@@ -105,7 +106,10 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
 
     const handleConnectClick = () => {
         const modulesToConnect = modules.filter(m => m.enabled)
-        
+        const context = makeRobotConnectionContext(connection.connection.type, connection.connection, modulesToConnect)
+        if (context) {
+            context.connect()
+        }
     }
 
     return (

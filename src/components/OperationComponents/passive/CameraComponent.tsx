@@ -4,6 +4,8 @@ import React from "react"
 import { ServiceResponse } from "roslib"
 import { callService, useRos } from "rosreact"
 import useLogger from "../../../utils/useLogger"
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import { IOperationComponentBuilder } from "../IOperationComponents"
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -73,6 +75,18 @@ const CameraComponent = () => {
             )}
         </div>
     )
+}
+
+export const CameraComponentBuilder: IOperationComponentBuilder = {
+    name: "Camera Viewer",
+    type: "passive",
+    partType: "camera",
+    component: CameraComponent,
+    icon: <CameraAltIcon />,
+    settings: {
+        defaultWidth: 300,
+        defaultHeight: 300,
+    }
 }
 
 export default CameraComponent

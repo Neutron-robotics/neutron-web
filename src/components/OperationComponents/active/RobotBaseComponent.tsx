@@ -8,6 +8,8 @@ import {  useEffect, useState } from "react";
 import { useRos } from "rosreact";
 import CancelIcon from '@mui/icons-material/Cancel';
 import { publishLoop, publishOnce } from "../../../utils/rosutils";
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import { IOperationComponentBuilder } from "../IOperationComponents";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -129,6 +131,18 @@ const RobotBaseComponent = () => {
             />
         </div>
     )
+}
+
+export const RobotBaseComponentBuilder: IOperationComponentBuilder = {
+    name: "Robot Base Controller",
+    type: "active",
+    partType: "robotbase",
+    component: RobotBaseComponent,
+    icon: <DirectionsCarIcon />,
+    settings: {
+        defaultWidth: 300,
+        defaultHeight: 300,
+    }
 }
 
 export default RobotBaseComponent

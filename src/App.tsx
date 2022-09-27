@@ -1,8 +1,8 @@
 import { makeStyles } from '@mui/styles';
 import { LoggerProvider } from './contexts/LoggerProvider';
-import OperationView from './views/OperationView';
-import ConnectionView from './views/ConnectionView';
 import { ConnectionProvider } from './contexts/ConnectionProvider';
+import ViewManager from './views/ViewManager';
+import { ViewProvider } from './contexts/ViewProvider';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -19,9 +19,11 @@ function App() {
   return (
     <div className={classes.root}>
       <LoggerProvider>
-        <ConnectionProvider>
-          <ConnectionView />
-        </ConnectionProvider>
+        <ViewProvider>
+          <ConnectionProvider>
+            <ViewManager />
+          </ConnectionProvider>
+        </ViewProvider>
       </LoggerProvider>
     </div>
   );

@@ -1,33 +1,41 @@
-import CameraAltTwoToneIcon from '@mui/icons-material/CameraAltTwoTone';
 import OperationSandbox from "../components/OperationSandbox";
-import CameraComponent from "../components/OperationComponents/passive/CameraComponent";
-import { RosConnection } from "rosreact";
 import OperationHeader from '../components/Header/OperationHeader';
+import { useEffect, useState } from 'react';
+import { IOperationCategory, IOperationComponentLayoutItem } from '../components/OperationComponents/IOperationComponents';
+import { operationComponentsConfiguration } from '../components/OperationComponents/components';
 
 const OperationView = () => {
-    const parts = [
-        {
-            name: "Camera",
-            icon: <CameraAltTwoToneIcon />,
-            component: <CameraComponent />
+    const [headerCategories, setHeaderCategories] = useState<IOperationCategory[]>([])
+    const [operationComponentLayoutItems, setOperationComponentLayoutItems] = useState<IOperationComponentLayoutItem[]>([])
+
+    useEffect(() => {
+        setHeaderCategories(operationComponentsConfiguration)
+    }, [])
+
+    const mountComponentLayoutItem = (component: IOperationComponentLayoutItem) => {
+        if (operationComponentLayoutItems.find(item => item.name === component.name)) {
+            return
         }
-    ]
+        setOperationComponentLayoutItems([...operationComponentLayoutItems, component])
+    }
+
+    const unmountComponentLayoutItem = (component: IOperationComponentLayoutItem) => {
+        setOperationComponentLayoutItems(operationComponentLayoutItems.filter(item => item.name !== component.name))
+    }
 
     return (
         <>
-            <RosConnection url={"ws://192.168.1.176:9090"}>
-                <OperationHeader
-                    onConnectClick={() => { }}
-                    onDisconnectClick={() => { }}
-                    onHomeClick={() => { }}
-                    isConnected={false}
-                    batteryLevel={100}
-                    wifiLevel={100}
-                    parts={parts}
-                />
-                <OperationSandbox
-                />
-            </RosConnection>
+            <OperationHeader
+                onConnectClick={() => { }}
+                onDisconnectClick={() => { }}
+                onHomeClick={() => { }}
+                isConnected={false}
+                batteryLevel={100}
+                wifiLevel={100}
+                parts={parts}
+            />
+            <OperationSandbox
+            />
         </>
     )
 }

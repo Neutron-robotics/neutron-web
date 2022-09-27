@@ -12,6 +12,8 @@ import moment from 'moment';
 import React, { useCallback, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { LoggerContext } from '../../../contexts/LoggerProvider';
 import { ILoggerMessage } from '../../../utils/Logger';
+import AdbIcon from '@mui/icons-material/Adb';
+import { IOperationComponentBuilder } from '../IOperationComponents';
 
 enum LogType {
     DEBUG = '#4f5051',
@@ -255,5 +257,17 @@ const Console = (props: IConsoleProps) => {
         </div>
     );
 };
+
+export const ConsoleComponentBuilder: IOperationComponentBuilder = {
+    name: "Console",
+    type: "passive",
+    partType: "utils",
+    component: Console,
+    icon: <AdbIcon />,
+    settings: {
+        defaultWidth: 300,
+        defaultHeight: 300,
+    }
+}
 
 export default Console;
