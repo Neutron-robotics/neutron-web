@@ -39,7 +39,7 @@ const Header = (props: HeaderProps) => {
                     </Typography>
                     {headerMenues && (
                         <Box sx={{ flexGrow: 1, display: 'flex' }} >
-                            {headerMenues.map(e => e)}
+                            {headerMenues.map(e => (<div key={'menu'}>{e}</div>))}
                         </Box>
                     )}
 

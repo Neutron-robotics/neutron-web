@@ -1,26 +1,29 @@
 import OperationSandbox from "../components/OperationSandbox";
 import OperationHeader from '../components/Header/OperationHeader';
 import { useEffect, useState } from 'react';
-import { IOperationCategory, IOperationComponentLayoutItem } from '../components/OperationComponents/IOperationComponents';
+import { IOperationCategory, IOperationComponentBuilder, IOperationComponentLayoutItem } from '../components/OperationComponents/IOperationComponents';
 import { operationComponentsConfiguration } from '../components/OperationComponents/components';
+import { makeOperationComponentLayoutItem } from "../components/OperationComponents/OperationComponentFactory";
 
 const OperationView = () => {
     const [headerCategories, setHeaderCategories] = useState<IOperationCategory[]>([])
     const [operationComponentLayoutItems, setOperationComponentLayoutItems] = useState<IOperationComponentLayoutItem[]>([])
 
+
     useEffect(() => {
         setHeaderCategories(operationComponentsConfiguration)
     }, [])
 
-    const mountComponentLayoutItem = (component: IOperationComponentLayoutItem) => {
-        if (operationComponentLayoutItems.find(item => item.name === component.name)) {
-            return
-        }
-        setOperationComponentLayoutItems([...operationComponentLayoutItems, component])
+    const mountComponent = (component: IOperationComponentBuilder) => {
+        const layoutComponent = makeOperationComponentLayoutItem(component, {
+            onClose: unmountComponentLayoutItem,
+        })
+        console.log("make layout")
+        setOperationComponentLayoutItems([...operationComponentLayoutItems, layoutComponent])
     }
 
-    const unmountComponentLayoutItem = (component: IOperationComponentLayoutItem) => {
-        setOperationComponentLayoutItems(operationComponentLayoutItems.filter(item => item.name !== component.name))
+    const unmountComponentLayoutItem = (name: string) => {
+        setOperationComponentLayoutItems(operationComponentLayoutItems.filter(item => item.id !== name))
     }
 
     return (
@@ -29,12 +32,15 @@ const OperationView = () => {
                 onConnectClick={() => { }}
                 onDisconnectClick={() => { }}
                 onHomeClick={() => { }}
+                mountComponent={mountComponent}
                 isConnected={false}
                 batteryLevel={100}
                 wifiLevel={100}
-                parts={parts}
+                parts={headerCategories}
             />
             <OperationSandbox
+                onComponentClose={unmountComponentLayoutItem}
+                components={operationComponentLayoutItems}
             />
         </>
     )

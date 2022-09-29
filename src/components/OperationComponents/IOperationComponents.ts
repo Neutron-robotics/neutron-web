@@ -20,6 +20,7 @@ export interface IOperationComponentLayoutItem extends IOperationComponentBuilde
 
 export interface IOperationCategory {
     name: string;
+    type: string;
     icon: JSX.Element;
     components: IOperationComponentBuilder[];
 }

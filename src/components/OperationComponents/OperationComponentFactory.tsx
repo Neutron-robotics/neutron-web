@@ -1,35 +1,45 @@
 import { Paper } from "@mui/material";
 import React from "react";
 import { IRobotModule } from "../../network/IRobot";
-import { componentsBuilder } from "./components";
-import { IOperationComponentBuilder, OperationComponentLayoutItem } from "./IOperationComponents";
+import { operationComponentsConfiguration } from "./components";
+import { IOperationComponentBuilder, IOperationComponentLayoutItem } from "./IOperationComponents";
 import OperationComponent from "./OperationComponent";
 
 
-export const makeOperationComponentsFromModules = (modules: IRobotModule[]): OperationComponentLayoutItem[] => {
-   return modules.reduce<OperationComponentLayoutItem[]>((acc, cur) => {
-        const components = makeOperationComponentsFromModule(cur);
-        acc.push(...components);
-        return acc;
-    }, [])
-}
+// export const makeOperationComponentsFromModules = (modules: IRobotModule[]): IOperationComponentLayoutItem[] => {
+//    return modules.reduce<IOperationComponentLayoutItem[]>((acc, cur) => {
+//         const components = makeOperationComponentsFromModule(cur);
+//         acc.push(...components);
+//         return acc;
+//     }, [])
+// }
 
-export const makeOperationComponentsFromModule = (module: IRobotModule): OperationComponentLayoutItem[] => {
-    const components = []
-    for (const componentBuilder of componentsBuilder) {
-        if (componentBuilder.partType === module.type) {
-            components.push({
-                ...componentBuilder,
-                id: `${module.id}-${componentBuilder.name}-${componentBuilder.type}`,
-                component: makeOperationComponent(componentBuilder)
-            })
-        }
+// export const makeOperationComponentsFromModule = (module: IRobotModule): IOperationComponentLayoutItem[] => {
+//     const components = []
+//     for (const componentBuilder of operationComponentsConfiguration) {
+//         if (componentBuilder.type === module.type) {
+//             components.push({
+//                 ...componentBuilder,
+//                 id: `${module.id}-${componentBuilder.name}-${componentBuilder.type}`,
+//                 component: makeOperationComponent(componentBuilder)
+//             })
+//         }
+//     }
+//     return components
+// }
+
+export const makeOperationComponentLayoutItem = (componentBuilder: IOperationComponentBuilder, props: IOperationBuilderComponentProps): IOperationComponentLayoutItem => {
+    const id = `${componentBuilder.name}-${componentBuilder.type}`
+    return {
+        ...componentBuilder,
+        id: id,
+        component: makeOperationComponent(componentBuilder, props)
     }
-    return components
 }
 
-export const makeOperationComponent = (params: IOperationComponentBuilder) => {
+export const makeOperationComponent = (params: IOperationComponentBuilder, props: IOperationBuilderComponentProps) => {
     const { name, settings, component } = params;
+    const { onClose } = props;
     const { defaultWidth, defaultHeight } = settings;
 
     const Component = component
@@ -37,7 +47,7 @@ export const makeOperationComponent = (params: IOperationComponentBuilder) => {
     return () => (
         <OperationComponent
             name={name}
-            onClose={() => { }}
+            onClose={onClose}
             width={defaultWidth}
             height={defaultHeight}
         >
@@ -46,4 +56,8 @@ export const makeOperationComponent = (params: IOperationComponentBuilder) => {
             </Paper>
         </OperationComponent>
     )
+}
+
+export interface IOperationBuilderComponentProps {
+    onClose: (id: string) => void
 }

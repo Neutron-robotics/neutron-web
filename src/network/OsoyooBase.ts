@@ -10,11 +10,10 @@ export default class OsoyooBaseROS extends RobotBase {
     id: string,
     name: string,
     configuration: IRobotBaseConfiguration,
-    context?: RosContext
+    context: RosContext
   ) {
     super(id, name, configuration);
-    const rosContext = context || new RosContext();
-    this.context = rosContext;
+    this.context = context;
   }
 
   public move(direction: Direction) {

@@ -54,7 +54,7 @@ export default class RosContext implements IRobotConnectionContext {
       this.ros.on("close", () => {
         console.log("Connection to websocket server closed.");
       });
-      this.ros.connect(this.connectionInfos.hostname);
+      this.ros.connect(`ws://${this.connectionInfos.hostname}:${this.connectionInfos.port}`);
     });
   }
 

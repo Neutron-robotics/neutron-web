@@ -9,6 +9,7 @@ import { IOperationCategory } from "./IOperationComponents";
 export const operationComponentsConfiguration: IOperationCategory[] = [
     {
         name: 'Robot Base',
+        type: 'robotbase',
         icon: <DirectionsCarIcon />,
         components: [
             RobotBaseComponentBuilder
@@ -16,6 +17,7 @@ export const operationComponentsConfiguration: IOperationCategory[] = [
     },
     {
         name: 'Camera',
+        type: 'robotbase',
         icon: <CameraAltIcon />,
         components: [
             CameraComponentBuilder
@@ -23,6 +25,7 @@ export const operationComponentsConfiguration: IOperationCategory[] = [
     },
     {
         name: 'Utils',
+        type: 'robotbase',
         icon: <AdbIcon />,
         components: [
             ConsoleComponentBuilder

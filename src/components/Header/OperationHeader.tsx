@@ -1,4 +1,4 @@
-import { Badge, Divider, IconButton, Typography } from "@mui/material"
+import { Badge, Divider, IconButton, Menu, MenuItem, Typography } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import BatteryFullTwoToneIcon from '@mui/icons-material/BatteryFullTwoTone';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
@@ -8,13 +8,22 @@ import Header from "./Header"
 import { connect, useRos } from "rosreact";
 import { useEffect, useState } from "react";
 import useLogger from "../../utils/useLogger";
+import { IOperationCategory, IOperationComponentBuilder } from "../OperationComponents/IOperationComponents";
 
 const useStyle = makeStyles(() => ({
     root: {
         minHeight: '56px !important',
         color: '#FFFFFF',
         background: '#525CD2',
-
+        display: 'flex',
+        flexDirection: 'row',
+    },
+    iconGroup: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    partIconGroup: {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
@@ -27,6 +36,11 @@ const useStyle = makeStyles(() => ({
             strokeLineJoin: 'round',
             color: 'green'
         },
+    },
+    headerPartCard: {
+        display: 'flex',
+        alignItems: 'center',
+        marginLeft: '20px'
     },
     headerMenu: {
         backgroundColor: '#525CD2',
@@ -45,10 +59,11 @@ interface OperationHeaderProps {
     onHomeClick: () => void;
     onDisconnectClick: () => void;
     onConnectClick: () => void;
+    mountComponent: (component: IOperationComponentBuilder) => void;
     isConnected: boolean;
     batteryLevel: number;
     wifiLevel: number;
-    parts: { name: string, icon: any }[]
+    parts: IOperationCategory[]
 }
 
 const OperationHeader = (props: OperationHeaderProps) => {
@@ -56,108 +71,108 @@ const OperationHeader = (props: OperationHeaderProps) => {
         <HeaderMenu />,
     ]
 
-    const { parts } = props
+    const { parts, isConnected, mountComponent } = props
 
     return (
         <>
             <Header headerMenues={headerMenues} onHomeClick={() => { }} />
-            <HeaderBody parts={parts} />
+            <HeaderBody parts={parts} mountComponent={mountComponent} isConnected={isConnected} />
         </>
     )
 }
 
 interface HeaderBodyProps {
-    parts: { name: string, icon: any }[]
+    parts: IOperationCategory[]
+    mountComponent: (component: IOperationComponentBuilder) => void;
+    isConnected: boolean
 }
 
 const HeaderBody = (props: HeaderBodyProps) => {
     const classes = useStyle()
-    const { parts } = props
-    const ros = useRos()
-    const [isConnected, setIsConnected] = useState(false)
-    const logger = useLogger("Ros")
-
-    useEffect(() => {
-        ros.addListener("connection", (...values) => {
-            console.log("Connected", values)
-            setIsConnected(true)
-            logger.logInfo("Connected")
-        })
-        ros.addListener("close", (...values) => {
-            console.log("Closed", values)
-            setIsConnected(false)
-            logger.logInfo("Connected")
-        })
-        ros.addListener("error", (...values) => {
-            console.log("Error", values)
-            logger.logError("Unknown error happens")
-        })
-        return () => {
-            ros.removeAllListeners()
-        }
-    }, [ros, logger])
+    const { parts, mountComponent, isConnected } = props
 
     const handleWifiClick = () => {
-        console.log("wifi")
-        connect(ros, "ws://192.168.1.176:9090")
     }
 
     return (
         <div className={classes.root}>
-            <IconButton
-                size="large"
-                edge="start"
-                aria-label="menu"
-                color="inherit"
-                sx={{ display: 'flex' }}
-            >
-                <BatteryFullTwoToneIcon className={classes.batteryIconButton} />
-                <Typography variant="caption" component="div" sx={{ display: 'flex' }}>
-                    22V
-                </Typography>
-            </IconButton>
-            <IconButton
-                size="large"
-                edge="start"
-                aria-label="menu"
-                color="inherit"
-                onClick={handleWifiClick}
-                sx={{ display: 'flex' }}
-            >
-                <Badge color={isConnected ? "success" : "error"} variant="dot">
-                    <NetworkWifi1BarTwoToneIcon htmlColor="black" />
-                </Badge>
-            </IconButton>
+            <div className={classes.iconGroup}>
+                <IconButton
+                    size="large"
+                    edge="start"
+                    aria-label="menu"
+                    color="inherit"
+                    sx={{ display: 'flex' }}
+                >
+                    <BatteryFullTwoToneIcon className={classes.batteryIconButton} />
+                    <Typography variant="caption" component="div" sx={{ display: 'flex' }}>
+                        22V
+                    </Typography>
+                </IconButton>
+                <IconButton
+                    size="large"
+                    edge="start"
+                    aria-label="menu"
+                    color="inherit"
+                    onClick={handleWifiClick}
+                    sx={{ display: 'flex' }}
+                >
+                    <Badge color={isConnected ? "success" : "error"} variant="dot">
+                        <NetworkWifi1BarTwoToneIcon htmlColor="black" />
+                    </Badge>
+                </IconButton>
+            </div>
 
             <Divider orientation="vertical" flexItem />
-
-            {parts.map(e => <PartCard key={e.name} name={e.name} icon={e.icon} isActivated />)}
+            <div className={classes.partIconGroup}>
+                {parts.map(e => <PartCard key={`pc-${e.name}-${e.type}`} mountComponent={mountComponent} operationCategory={e} isActivated />)}
+            </div>
         </div>
     )
 }
 
 interface PartCardProps {
-    name: string;
-    icon: any;
+    mountComponent: (component: IOperationComponentBuilder) => void;
+    operationCategory: IOperationCategory
     isActivated: boolean;
 }
 
 const PartCard = (props: PartCardProps) => {
     const classes = useStyle()
-    const { name, icon, isActivated } = props
+    const { operationCategory, mountComponent } = props
+    const { name, icon, components } = operationCategory
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+    const handleSelect = (component: IOperationComponentBuilder) => {
+        handleClose()
+        mountComponent(component)
+    }
 
     return (
-        <div className={classes.headerMenu}>
+        <div className={classes.headerPartCard} title={name}>
             <IconButton
                 size="large"
                 edge="start"
-                aria-label="menu"
                 color="inherit"
                 sx={{ display: 'flex' }}
+                onClick={handleClick}
             >
                 {icon}
             </IconButton>
             <Badge color="primary" variant="dot"></Badge>
+            <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+            >
+                {components.map(e => <MenuItem key={`mi-${e.name}-${e.partType}`} onClick={() => {handleSelect(e)}}>{e.name}</MenuItem>)}
+            </Menu>
         </div>
     )
 }

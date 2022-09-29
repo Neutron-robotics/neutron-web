@@ -1,10 +1,10 @@
 import axios from "axios";
 import { v4 } from "uuid";
-import { getRobotConnectionTypeFromString, IRobotConnection, IRobotConnectionInfo, RobotStatus } from "./IRobot";
+import { getRobotConnectionTypeFromString, IRobotConnectionConfiguration, IRobotConnectionInfo, RobotStatus } from "./IRobot";
 
 const getRobotConnectionInfos = async (
   connection: IRobotConnectionInfo
-): Promise<IRobotConnection | null> => {
+): Promise<IRobotConnectionConfiguration | null> => {
   try {
     const response = await axios.get(
       `http://localhost:${connection.port}/robot/configuration`
@@ -13,7 +13,7 @@ const getRobotConnectionInfos = async (
     const payload = data.robot
     if (!payload) 
         throw new Error("No robot configuration found");
-    const robotConnection: IRobotConnection = {
+    const robotConnection: IRobotConnectionConfiguration = {
         id: v4(),
         name: payload.name,
         type: payload.type,
