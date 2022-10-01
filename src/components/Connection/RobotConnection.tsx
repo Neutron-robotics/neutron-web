@@ -7,6 +7,7 @@ import Battery80Icon from '@mui/icons-material/Battery80';
 import { useState } from "react";
 import RobotConnectionModal from "./RobotConnectionModal";
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import Core from "../../network/Core";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -36,12 +37,12 @@ const useStyles = makeStyles(() => ({
 }))
 
 export interface IRobotConnectionProps {
-    robotConnection: IRobotConnectionConfiguration
+    coreConnection: Core
 }
 
 const RobotConnection = (props: IRobotConnectionProps) => {
     const classes = useStyles()
-    const { robotConnection } = props
+    const { coreConnection } = props
     const [connectionModalOpen, setConnectionModalOpen] = useState(false)
 
     const handleConnectClick = () => {
@@ -54,10 +55,10 @@ const RobotConnection = (props: IRobotConnectionProps) => {
 
     return (
         <>
-        {connectionModalOpen && <RobotConnectionModal open={connectionModalOpen} onClose={handleCloseConnectionModal} connection={robotConnection} />}
+        {connectionModalOpen && <RobotConnectionModal open={connectionModalOpen} onClose={handleCloseConnectionModal} coreConnection={coreConnection} />}
             <div className={classes.root}>
-                <h2>{robotConnection.name}</h2>
-                <p>{robotConnection.status}</p>
+                <h2>{coreConnection.name}</h2>
+                <p>{coreConnection.status}</p>
                 <div className={classes.cardBody}>
                     <Badge badgeContent=" " color="primary"
                         anchorOrigin={
@@ -67,12 +68,12 @@ const RobotConnection = (props: IRobotConnectionProps) => {
                             }
                         }
                     >
-                        <img src={require(`../../../assets/${robotConnection.type}.png`)} width={150} alt="robot-icon" />
+                        <img src={require(`../../../assets/${coreConnection.type}.png`)} width={150} alt="robot-icon" />
                     </Badge>
                     <div className={classes.partIcons}>
-                        {robotConnection.parts.map((part) => {
+                        {coreConnection.modules.map((module) => {
                             return (
-                                <RobotModuleIcon type={part.type} width={24} height={24} title={part.name} key={part.id} />
+                                <RobotModuleIcon type={module.type} width={24} height={24} title={module.name} key={module.id} />
                             )
                         })}
                     </div>

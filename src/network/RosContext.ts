@@ -1,6 +1,17 @@
-import ROSLIB, { Message, Service, ServiceRequest, ServiceResponse, Topic } from "roslib";
+import ROSLIB, {
+  Message,
+  Service,
+  ServiceRequest,
+  ServiceResponse,
+  Topic,
+} from "roslib";
 import { Ros } from "roslib";
-import { IRobotConnectionConfiguration, IRobotConnectionInfo, RobotConnectionType } from "./IRobot";
+import Core from "./Core";
+import {
+  IRobotConnectionConfiguration,
+  IRobotConnectionInfo,
+  RobotConnectionType,
+} from "./IRobot";
 import { TopicSettings } from "./rosInterfaces";
 
 export interface IRobotConnectionContext {
@@ -13,12 +24,11 @@ export interface IRobotConnectionContext {
 }
 
 export const makeConnectionContext = (
-  type: RobotConnectionType,
-  connectionConfiguration: IRobotConnectionConfiguration
+  coreConfiguration: Core
 ): IRobotConnectionContext => {
-  switch (type) {
+  switch (coreConfiguration.contextConfiguration.type) {
     case RobotConnectionType.ROSBRIDGE:
-      return new RosContext(connectionConfiguration);
+      return new RosContext(coreConfiguration.getConnectionInfos());
     default:
       throw new Error("Invalid connection type");
   }
@@ -57,9 +67,7 @@ export default class RosContext implements IRobotConnectionContext {
         console.log("Connection to websocket server closed.");
       });
       console.log(`Connecting to ws://${hostname}:${port}`);
-      this.ros.connect(
-        `ws://${hostname}:${port}`
-      );
+      this.ros.connect(`ws://${hostname}:${port}`);
     });
   }
 

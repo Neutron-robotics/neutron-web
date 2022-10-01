@@ -7,6 +7,7 @@ import { makeStyles } from "@mui/styles";
 import { useContext, useEffect, useState } from "react";
 import { ConnectionContext } from "../../contexts/ConnectionProvider";
 import { ViewContext, ViewType } from "../../contexts/ViewProvider";
+import Core from "../../network/Core";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -80,7 +81,7 @@ const useStyles = makeStyles(() => ({
 export interface RobotConnectionModalProps {
     open: boolean
     onClose: () => void
-    connection: IRobotConnectionConfiguration
+    coreConnection: Core
 }
 
 interface IOptionalModule extends IRobotModule {
@@ -88,9 +89,9 @@ interface IOptionalModule extends IRobotModule {
 }
 
 const RobotConnectionModal = (props: RobotConnectionModalProps) => {
-    const { open, onClose, connection } = props
+    const { open, onClose, coreConnection } = props
     const classes = useStyles()
-    const [modules, setModules] = useState<IOptionalModule[]>(connection.parts.map(m => ({ ...m, enabled: true })))
+    const [modules, setModules] = useState<IOptionalModule[]>(coreConnection.modules.map(m => ({ ...m, enabled: true })))
     const connectionContext = useContext(ConnectionContext)
     const {setViewType} = useContext(ViewContext)
     const { makeRobotConnectionContext } = connectionContext
@@ -117,8 +118,7 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
     }, [connectionContext, setViewType])
 
     const handleConnectClick = () => {
-        const modulesToConnect = modules.filter(m => m.enabled)
-        makeRobotConnectionContext(connection.connection.type, connection, modulesToConnect)
+        makeRobotConnectionContext(coreConnection)
 
         // if (context) {
         //     connectionContext.connect().then((resp) => {
@@ -134,10 +134,10 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
         >
             <div className={classes.root}>
                 <Paper elevation={3} className={classes.paper}>
-                    <h2>{connection.name}</h2>
+                    <h2>{coreConnection.name}</h2>
                     <div className={classes.groupStatus}>
                         <Badge badgeContent=" " color="primary" anchorOrigin={{ horizontal: "right", vertical: "bottom" }}>
-                            <p>{connection.status}</p>
+                            <p>{coreConnection.status}</p>
                         </Badge>
                         <div>
                             <Battery80Icon />
@@ -148,20 +148,20 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
                             <span>Home</span>
                         </div>
                     </div>
-                    <img className={classes.image} src={require(`../../../assets/${connection.type}.png`)} width={150} alt="robot-icon" />
+                    <img className={classes.image} src={require(`../../../assets/${coreConnection.type}.png`)} width={150} alt="robot-icon" />
                     <div className={classes.groupNetwork}>
                         <div>
                             <div className={classes.networkField}>
                                 <h4>Connection</h4>
-                                <p>{connection.connection.type}</p>
+                                <p>{coreConnection.contextConfiguration.type}</p>
                             </div>
                             <div className={classes.networkField}>
                                 <h4>Host</h4>
-                                <p>{connection.connection.hostname}</p>
+                                <p>{coreConnection.contextConfiguration.hostname}</p>
                             </div>
                             <div className={classes.networkField}>
                                 <h4>Port</h4>
-                                <p>{connection.connection.port}</p>
+                                <p>{coreConnection.contextConfiguration.port}</p>
                             </div>
                         </div>
                     </div>

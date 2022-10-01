@@ -1,12 +1,11 @@
 import { createContext, ReactNode, useState } from "react";
-import { IRobotConnectionConfiguration, IRobotConnectionInfo, IRobotModule, RobotConnectionType } from "../network/IRobot";
+import Core from "../network/Core";
 import { IRobotConnectionContext, makeConnectionContext } from "../network/RosContext";
-import { startRobotProcess, stopRobotProcess } from "../network/startRobotProcess";
 
 type ContextProps = {
-    makeRobotConnectionContext(type: RobotConnectionType, config: IRobotConnectionConfiguration, modules: IRobotModule[]): IRobotConnectionContext;
+    makeRobotConnectionContext(core: Core): IRobotConnectionContext;
     context?: IRobotConnectionContext;
-    modules?: IRobotModule[]
+    core?: Core;
     connected: boolean;
     connect: () => Promise<boolean>;
     disconnect: () => void;
@@ -15,46 +14,48 @@ type ContextProps = {
 
 
 export const ConnectionContext = createContext<ContextProps>({
-    makeRobotConnectionContext: (type: RobotConnectionType, config: IRobotConnectionConfiguration, modules: IRobotModule[]) => {
+    makeRobotConnectionContext: (core: Core) => {
         return null as unknown as IRobotConnectionContext;
     },
     connect: () => Promise.resolve(false),
     disconnect: () => Promise.resolve(false),
     connected: false,
     context: undefined,
-    modules: undefined
+    core: undefined
 });
 
 export const ConnectionProvider = ({ children }: { children: ReactNode }) => {
-    const [modules, setModules] = useState<IRobotModule[]>();
+    const [core, setCore] = useState<Core>();
     const [context, setContext] = useState<IRobotConnectionContext>();
 
     const connect = async (): Promise<boolean> => {
-        if (!modules || !context)
+        if (!core || !context) {
+            console.log("No core or context")
             return false;
+        }
 
         console.log(context)
-        const success = (await Promise.all(
-            modules.map(module => startRobotProcess(context, module))
-        )).reduce((acc, val) => acc && val, true);
+        // const success = (await Promise.all(
+        //     modules.map(module => startRobotProcess(context, module))
+        // )).reduce((acc, val) => acc && val, true);
+        const success = await core.startProcesses()
         context.connect()
+
         return success;
     }
 
     const disconnect = async () => {
-        if (!modules || !context)
+        if (!core || !context)
             return;
 
         context.disconnect()
-        for (const module of modules) {
-            stopRobotProcess(context, module)
-        }
+        core.stopProcesses()
     }
 
-    const makeRobotConnectionContext = (type: RobotConnectionType, config: IRobotConnectionConfiguration, modules: IRobotModule[]): IRobotConnectionContext => {
+    const makeRobotConnectionContext = (core: Core): IRobotConnectionContext => {
         try {
-            setModules(modules);
-            const connectionContext = makeConnectionContext(type, config);
+            setCore(core);
+            const connectionContext = makeConnectionContext(core);
             setContext(connectionContext);
             return connectionContext
         }
@@ -67,7 +68,7 @@ export const ConnectionProvider = ({ children }: { children: ReactNode }) => {
 
 
     return (
-        <ConnectionContext.Provider value={{ modules, context, makeRobotConnectionContext, connect, disconnect, connected: context?.isConnected ?? false }}>
+        <ConnectionContext.Provider value={{ core, context, makeRobotConnectionContext, connect, disconnect, connected: context?.isConnected ?? false }}>
             {children}
         </ConnectionContext.Provider>
     );
