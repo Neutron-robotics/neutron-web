@@ -9,7 +9,7 @@ const ViewManager = () => {
 
     return (
         <>
-            {(viewType === ViewType.Home) && <OperationView />}
+            {(viewType === ViewType.Home) && <ConnectionView />}
             {(viewType === ViewType.ConnectionView) && <ConnectionView />}
             {(viewType === ViewType.OperationView) && <OperationView />}
         </>

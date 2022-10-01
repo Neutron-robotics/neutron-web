@@ -1,11 +1,11 @@
-import ROSLIB, { Message, Topic } from "roslib";
+import ROSLIB, { Message, Service, ServiceRequest, ServiceResponse, Topic } from "roslib";
 import { Ros } from "roslib";
-import { IRobotConnectionInfo, RobotConnectionType } from "./IRobot";
+import { IRobotConnectionConfiguration, IRobotConnectionInfo, RobotConnectionType } from "./IRobot";
 import { TopicSettings } from "./rosInterfaces";
 
 export interface IRobotConnectionContext {
   type: RobotConnectionType;
-  connectionInfos: IRobotConnectionInfo;
+  connectionConfiguration: IRobotConnectionConfiguration;
   isConnected: boolean;
 
   connect(): Promise<void>;
@@ -14,11 +14,11 @@ export interface IRobotConnectionContext {
 
 export const makeConnectionContext = (
   type: RobotConnectionType,
-  connectionInfos: IRobotConnectionInfo
+  connectionConfiguration: IRobotConnectionConfiguration
 ): IRobotConnectionContext => {
   switch (type) {
     case RobotConnectionType.ROSBRIDGE:
-      return new RosContext(connectionInfos);
+      return new RosContext(connectionConfiguration);
     default:
       throw new Error("Invalid connection type");
   }
@@ -29,20 +29,22 @@ export default class RosContext implements IRobotConnectionContext {
 
   public type: RobotConnectionType;
 
-  public connectionInfos: IRobotConnectionInfo;
+  public connectionConfiguration: IRobotConnectionConfiguration;
 
   public get isConnected(): boolean {
     return this.ros.isConnected;
   }
 
-  constructor(connectionInfos: IRobotConnectionInfo) {
+  constructor(connectionConfiguration: IRobotConnectionConfiguration) {
     this.ros = new Ros({});
     this.type = RobotConnectionType.ROSBRIDGE;
-    this.connectionInfos = connectionInfos;
+    this.connectionConfiguration = connectionConfiguration;
   }
 
   public connect(): Promise<void> {
     return new Promise((resolve, reject) => {
+      const { hostname, port } = this.connectionConfiguration.connection;
+
       this.ros.on("connection", () => {
         console.log("Connected to websocket server.");
         resolve();
@@ -54,7 +56,10 @@ export default class RosContext implements IRobotConnectionContext {
       this.ros.on("close", () => {
         console.log("Connection to websocket server closed.");
       });
-      this.ros.connect(`ws://${this.connectionInfos.hostname}:${this.connectionInfos.port}`);
+      console.log(`Connecting to ws://${hostname}:${port}`);
+      this.ros.connect(
+        `ws://${hostname}:${port}`
+      );
     });
   }
 
@@ -104,6 +109,18 @@ export default class RosContext implements IRobotConnectionContext {
     const topic = this.getTopic(settings);
     topic.subscribe(callback);
     return topic;
+  }
+
+  public callService(
+    name: string,
+    serviceType: string,
+    request?: object,
+    callback: (resp: ServiceResponse) => void = (resp) => {},
+    failedCallback?: (error: any) => void
+  ) {
+    const service = new Service({ ros: this.ros, name, serviceType });
+    const serviceRequest = new ServiceRequest(request);
+    service.callService(serviceRequest, callback, failedCallback);
   }
 
   private getTopic(settings: TopicSettings): Topic {

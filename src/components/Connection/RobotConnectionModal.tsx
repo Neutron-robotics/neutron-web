@@ -4,8 +4,9 @@ import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import Battery80Icon from '@mui/icons-material/Battery80';
 import RobotModuleIcon from "../RobotModuleIcon";
 import { makeStyles } from "@mui/styles";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ConnectionContext } from "../../contexts/ConnectionProvider";
+import { ViewContext, ViewType } from "../../contexts/ViewProvider";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -91,6 +92,7 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
     const classes = useStyles()
     const [modules, setModules] = useState<IOptionalModule[]>(connection.parts.map(m => ({ ...m, enabled: true })))
     const connectionContext = useContext(ConnectionContext)
+    const {setViewType} = useContext(ViewContext)
     const { makeRobotConnectionContext } = connectionContext
 
     const handleToggleModuleSwitch = (event: React.ChangeEvent<HTMLInputElement>, moduleId: string) => {
@@ -104,12 +106,25 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
         )
     }
 
+    useEffect(() => {
+        if (connectionContext.context)
+            connectionContext.connect().then((resp) => {
+                console.log("Connected", resp)
+                if (resp) {
+                    setViewType(ViewType.OperationView)
+                }
+            })
+    }, [connectionContext, setViewType])
+
     const handleConnectClick = () => {
         const modulesToConnect = modules.filter(m => m.enabled)
-        const context = makeRobotConnectionContext(connection.connection.type, connection.connection, modulesToConnect)
-        if (context) {
-            context.connect()
-        }
+        makeRobotConnectionContext(connection.connection.type, connection, modulesToConnect)
+
+        // if (context) {
+        //     connectionContext.connect().then((resp) => {
+        //         console.log("Connected", resp)
+        //     })
+        // }
     }
 
     return (

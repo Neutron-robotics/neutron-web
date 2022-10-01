@@ -4,12 +4,15 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import TurnRightIcon from '@mui/icons-material/TurnRight';
 import TurnLeftIcon from '@mui/icons-material/TurnLeft';
-import {  useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 // import { useRos } from "rosreact";
 import CancelIcon from '@mui/icons-material/Cancel';
-import { publishLoop, publishOnce } from "../../../utils/rosutils";
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import { IOperationComponentBuilder } from "../IOperationComponents";
+import { ConnectionContext } from "../../../contexts/ConnectionProvider";
+import OsoyooBaseROS from "../../../network/OsoyooBase";
+import RosContext from "../../../network/RosContext";
+import RobotBase from "../../../network/RobotBase";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -24,7 +27,23 @@ const useStyles = makeStyles(() => ({
 
 const RobotBaseComponent = () => {
     const classes = useStyles()
-    const [move, setMove] = useState(false)
+    // const [move, setMove] = useState(false)
+    const [baseController, setBaseController] = useState<RobotBase>()
+    const { context } = useContext(ConnectionContext)
+
+    useEffect(() => {
+        if (context) {
+            const base = new OsoyooBaseROS("toto", "Robot base", {
+                rotationSpeed: 0.5,
+                directionnalSpeed: 0.5,
+            }, context as RosContext);
+            setBaseController(base)
+            return () => {
+                base.stop()
+            }
+        }
+    }, [context])
+
     // const ros2 = useRos();
 
     // useEffect(() => {
@@ -40,6 +59,7 @@ const RobotBaseComponent = () => {
     // }, [move, ros2])
 
     const handleForward = () => {
+        baseController?.move("forward")
         // publishOnce(ros2, "/move", "std_msgs/String", {
         //     data: 'forward'
         // })
@@ -47,6 +67,7 @@ const RobotBaseComponent = () => {
         console.log("forward")
     }
     const handleBackward = () => {
+        baseController?.move("backward")
         // publishOnce(ros2, "/move", "std_msgs/String", {
         //     data: 'backward'
         // })
@@ -54,6 +75,7 @@ const RobotBaseComponent = () => {
         console.log("backward")
     }
     const handleLeft = () => {
+        baseController?.move("left")
         // publishOnce(ros2, "/move", "std_msgs/String", {
         //     data: 'left'
         // })
@@ -61,6 +83,7 @@ const RobotBaseComponent = () => {
         console.log("left")
     }
     const handleRight = () => {
+        baseController?.move("right")
         // publishOnce(ros2, "/move", "std_msgs/String", {
         //     data: 'right'
         // })
@@ -69,14 +92,18 @@ const RobotBaseComponent = () => {
     }
 
     const handleStop = () => {
+        baseController?.stop()
         // publishOnce(ros2, "/stop", "std_msgs/String", {
         //     data: 'stop'
         // })
         // console.log("stop")
-        setMove(false)
+        // setMove(false)
     }
 
     const handleSpeedChange = (e: any, value: number | number[]) => {
+        if (typeof value === "number") {
+            baseController?.setSpeed(value)
+        }
         // if (value instanceof Array) {
         //     console.log("nop", value)
         //     return

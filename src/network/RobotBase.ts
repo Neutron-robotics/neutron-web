@@ -19,6 +19,8 @@ export default abstract class RobotBase {
 
     public batteryInfo: IBatteryInfo;
 
+    public speed: number;
+
     protected abstract context: IRobotConnectionContext;
 
     constructor(id: string, name: string, configuration: IRobotBaseConfiguration) {
@@ -32,6 +34,7 @@ export default abstract class RobotBase {
             measurement: "percent",
             charging: false,
         };
+        this.speed = 50;
     }
 
     public abstract move(direction: Direction): void;
@@ -39,4 +42,6 @@ export default abstract class RobotBase {
     public abstract stop(): void;
 
     public abstract rotate(direction: Direction): void;
+
+    public abstract setSpeed(speed: number): void
 }

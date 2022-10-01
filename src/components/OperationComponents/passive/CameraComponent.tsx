@@ -1,11 +1,14 @@
 import { Button } from "@mui/material"
 import { makeStyles } from "@mui/styles"
-import React from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { ServiceResponse } from "roslib"
-import { callService, useRos } from "rosreact"
+// import { callService, useRos } from "rosreact"
 import useLogger from "../../../utils/useLogger"
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { IOperationComponentBuilder } from "../IOperationComponents"
+import Camera from "../../../network/Camera"
+import { ConnectionContext } from "../../../contexts/ConnectionProvider"
+import RosContext from "../../../network/RosContext"
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -21,9 +24,24 @@ const useStyles = makeStyles(() => ({
 
 const CameraComponent = () => {
     const classes = useStyles()
-    const [isConnected, setIsConnected] = React.useState(false)
-    const ros2 = useRos();
+    const [isConnected, setIsConnected] = useState(false)
+    const [cameraController, setCameraController] = useState<Camera>()
+    const { context } = useContext(ConnectionContext)
+    const url = `http://${context?.connectionConfiguration.connection.hostname}:8100`
+    // const ros2 = useRos();
     const logger = useLogger("CameraComponent")
+
+    useEffect(() => {
+        if (context) {
+            const camera = new Camera("toto2", "Camera", {
+                ip: ''
+            }, context as RosContext);
+            setCameraController(camera)
+            return () => {
+                camera.disconnect()
+            }
+        }
+    }, [context])
 
     // const handleResolutionChange = (e) => {
 
@@ -42,7 +60,8 @@ const CameraComponent = () => {
             logger.logInfo("Failed to connect to camera")
             setIsConnected(false)
         }
-        callService(ros2, "/start_camera", "myrobotics_protocol/srv/GlobalResult", {}, handleConnectSuccess, handleConnectFailure)
+        // callService(ros2, "/start_camera", "myrobotics_protocol/srv/GlobalResult", {}, handleConnectSuccess, handleConnectFailure)
+        cameraController?.connect().then(handleConnectSuccess).catch(handleConnectFailure)
     }
 
     const handleOnDisconnect = (res: ServiceResponse) => {
@@ -55,7 +74,8 @@ const CameraComponent = () => {
             setIsConnected(true)
         }
 
-        callService(ros2, "/stop_camera", "myrobotics_protocol/srv/GlobalResult", {}, handleDisconnectSuccess, handleDisconnectFailure)
+        // callService(ros2, "/stop_camera", "myrobotics_protocol/srv/GlobalResult", {}, handleDisconnectSuccess, handleDisconnectFailure)
+        cameraController?.disconnect().then(handleDisconnectSuccess).catch(handleDisconnectFailure)
     }
 
 
@@ -63,7 +83,7 @@ const CameraComponent = () => {
         <div className={classes.root}>
             {isConnected ? (
                 <>
-                    <img className={classes.streamer} src={`http://192.168.1.176:8100/${new Date().getTime()}/camera.mjpg`} alt="camera" />
+                    <img className={classes.streamer} src={`${url}/${new Date().getTime()}/camera.mjpg`} alt="camera" />
                     <Button variant="contained" onClick={handleOnDisconnect}>
                         Disconnect
                     </Button>

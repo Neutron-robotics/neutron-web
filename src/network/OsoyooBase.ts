@@ -45,6 +45,14 @@ export default class OsoyooBaseROS extends RobotBase {
     });
   }
 
+  public setSpeed(speed: number): void {
+    if (speed < 0 || speed > 100) throw new Error("Invalid speed value");
+    this.speed = speed;
+    this.context.publishOnce("/speed", "std_msgs/Int32", {
+      data: speed,
+    });
+  }
+
   private setKeepAlive() {
     if (!this.cleanKeepAliveInterval) return;
     this.cleanKeepAliveInterval = this.context.publishLoop(
