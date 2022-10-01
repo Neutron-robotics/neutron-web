@@ -75,7 +75,7 @@ const RobotBaseComponent = () => {
         console.log("backward")
     }
     const handleLeft = () => {
-        baseController?.move("left")
+        baseController?.rotate("left")
         // publishOnce(ros2, "/move", "std_msgs/String", {
         //     data: 'left'
         // })
@@ -83,7 +83,7 @@ const RobotBaseComponent = () => {
         console.log("left")
     }
     const handleRight = () => {
-        baseController?.move("right")
+        baseController?.rotate("right")
         // publishOnce(ros2, "/move", "std_msgs/String", {
         //     data: 'right'
         // })

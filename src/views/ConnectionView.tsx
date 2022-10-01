@@ -25,11 +25,16 @@ const ConnectionView = () => {
     // data is hardcoded in the frontend
     useEffect(() => {
         setRobotConnectionsInfos([
+            // {
+            //     hostname: '192.168.1.139',
+            //     port: 8000,
+            //     type: RobotConnectionType.ROSBRIDGE,
+            // },
             {
-                hostname: '192.168.1.139',
+                hostname: '192.168.1.105',
                 port: 8000,
                 type: RobotConnectionType.ROSBRIDGE,
-            }
+            },
         ])
     }, [])
 

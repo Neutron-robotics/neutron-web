@@ -104,8 +104,8 @@ export const CameraComponentBuilder: IOperationComponentBuilder = {
     component: CameraComponent,
     icon: <CameraAltIcon />,
     settings: {
-        defaultWidth: 300,
-        defaultHeight: 300,
+        defaultWidth: 854,
+        defaultHeight: 480,
     }
 }
 

@@ -101,7 +101,7 @@ export default class RosContext implements IRobotConnectionContext {
     const publisher = this.getTopic(topicSettings);
     const period = Math.round(1000 / frequency);
     const interval = setInterval(() => {
-      console.log("publish");
+      console.log("publish", message);
       publisher.publish(message);
     }, period);
     return () => {

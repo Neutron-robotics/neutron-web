@@ -30,7 +30,7 @@ export default class OsoyooBaseROS extends RobotBase {
     if (direction === "forward" || direction === "backward")
       throw new Error("Invalid direction for rotate command");
 
-    this.context.publishOnce("/rotate", "std_msgs/String", {
+    this.context.publishOnce("/move", "std_msgs/String", {
       data: `${direction}`,
     });
     this.setKeepAlive();
@@ -48,13 +48,13 @@ export default class OsoyooBaseROS extends RobotBase {
   public setSpeed(speed: number): void {
     if (speed < 0 || speed > 100) throw new Error("Invalid speed value");
     this.speed = speed;
-    this.context.publishOnce("/speed", "std_msgs/Int32", {
+    this.context.publishOnce("/set_speed", "std_msgs/Int32", {
       data: speed,
     });
   }
 
   private setKeepAlive() {
-    if (!this.cleanKeepAliveInterval) return;
+    if (this.cleanKeepAliveInterval) this.cleanKeepAliveInterval();
     this.cleanKeepAliveInterval = this.context.publishLoop(
       "/keep_alive",
       "std_msgs/String",
