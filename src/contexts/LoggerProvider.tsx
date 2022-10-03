@@ -1,6 +1,5 @@
+import { ILoggerMessage, LiteEvent, Logger } from "neutron-core";
 import { createContext, ReactNode, useState } from "react";
-import LiteEvent from "../utils/LiteEvent";
-import Logger, { ILoggerMessage } from "../utils/Logger";
 
 type ContextProps = {
     getLogger: (name: string) => Logger;

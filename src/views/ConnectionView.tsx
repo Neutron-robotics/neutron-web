@@ -1,10 +1,8 @@
 import { makeStyles } from "@mui/styles"
+import { Core, IRobotConnectionInfo, RobotConnectionType } from "neutron-core"
 import { useEffect, useState } from "react"
 import RobotConnection from "../components/Connection/RobotConnection"
 import Header from "../components/Header/Header"
-import Core from "../network/Core"
-import { getRobotConnectionInfos } from "../network/getRobotConnectionInfos"
-import { IRobotConnectionConfiguration, IRobotConnectionInfo, RobotConnectionType, RobotStatus } from "../network/IRobot"
 
 const useStyles = makeStyles(() => ({
     root: {

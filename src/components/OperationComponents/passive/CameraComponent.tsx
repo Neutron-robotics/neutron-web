@@ -2,13 +2,11 @@ import { Button } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import React, { useContext, useEffect, useState } from "react"
 import { ServiceResponse } from "roslib"
-// import { callService, useRos } from "rosreact"
 import useLogger from "../../../utils/useLogger"
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { IOperationComponentBuilder } from "../IOperationComponents"
-import Camera from "../../../network/Camera"
 import { ConnectionContext } from "../../../contexts/ConnectionProvider"
-import RosContext from "../../../network/RosContext"
+import { Camera, RosContext } from "neutron-core"
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -28,7 +26,6 @@ const CameraComponent = () => {
     const [cameraController, setCameraController] = useState<Camera>()
     const { context } = useContext(ConnectionContext)
     const url = `http://${context?.connectionConfiguration.connection.hostname}:8100`
-    // const ros2 = useRos();
     const logger = useLogger("CameraComponent")
 
     useEffect(() => {
@@ -43,13 +40,6 @@ const CameraComponent = () => {
         }
     }, [context])
 
-    // const handleResolutionChange = (e) => {
-
-    // }
-
-    // const handleFramerateChange = (e) => {
-    // }
-
     const handleOnConnect = (res: ServiceResponse) => {
         const handleConnectSuccess = () => {
             logger.logInfo("Connected to camera")
@@ -60,7 +50,6 @@ const CameraComponent = () => {
             logger.logInfo("Failed to connect to camera")
             setIsConnected(false)
         }
-        // callService(ros2, "/start_camera", "myrobotics_protocol/srv/GlobalResult", {}, handleConnectSuccess, handleConnectFailure)
         cameraController?.connect().then(handleConnectSuccess).catch(handleConnectFailure)
     }
 
@@ -73,8 +62,6 @@ const CameraComponent = () => {
             logger.logInfo("Failed to disconnect from camera")
             setIsConnected(true)
         }
-
-        // callService(ros2, "/stop_camera", "myrobotics_protocol/srv/GlobalResult", {}, handleDisconnectSuccess, handleDisconnectFailure)
         cameraController?.disconnect().then(handleDisconnectSuccess).catch(handleDisconnectFailure)
     }
 

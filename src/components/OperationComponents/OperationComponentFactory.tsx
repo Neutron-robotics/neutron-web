@@ -1,32 +1,7 @@
 import { Paper } from "@mui/material";
 import React from "react";
-import { IRobotModule } from "../../network/IRobot";
-import { operationComponentsConfiguration } from "./components";
 import { IOperationComponentBuilder, IOperationComponentLayoutItem } from "./IOperationComponents";
 import OperationComponent from "./OperationComponent";
-
-
-// export const makeOperationComponentsFromModules = (modules: IRobotModule[]): IOperationComponentLayoutItem[] => {
-//    return modules.reduce<IOperationComponentLayoutItem[]>((acc, cur) => {
-//         const components = makeOperationComponentsFromModule(cur);
-//         acc.push(...components);
-//         return acc;
-//     }, [])
-// }
-
-// export const makeOperationComponentsFromModule = (module: IRobotModule): IOperationComponentLayoutItem[] => {
-//     const components = []
-//     for (const componentBuilder of operationComponentsConfiguration) {
-//         if (componentBuilder.type === module.type) {
-//             components.push({
-//                 ...componentBuilder,
-//                 id: `${module.id}-${componentBuilder.name}-${componentBuilder.type}`,
-//                 component: makeOperationComponent(componentBuilder)
-//             })
-//         }
-//     }
-//     return components
-// }
 
 export const makeOperationComponentLayoutItem = (componentBuilder: IOperationComponentBuilder, props: IOperationBuilderComponentProps): IOperationComponentLayoutItem => {
     const id = `${componentBuilder.name}-${componentBuilder.type}`
@@ -38,9 +13,8 @@ export const makeOperationComponentLayoutItem = (componentBuilder: IOperationCom
 }
 
 export const makeOperationComponent = (params: IOperationComponentBuilder, props: IOperationBuilderComponentProps) => {
-    const { name, settings, component } = params;
+    const { name, component } = params;
     const { onClose } = props;
-    const { defaultWidth, defaultHeight } = settings;
 
     const Component = component
 
@@ -48,8 +22,8 @@ export const makeOperationComponent = (params: IOperationComponentBuilder, props
         <OperationComponent
             name={name}
             onClose={onClose}
-            width={defaultWidth}
-            height={defaultHeight}
+            width={100}
+            height={100}
         >
             <Paper elevation={3} style={{ height: '100%', width: '100%' }}>
                 <Component {...params} />

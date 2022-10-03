@@ -1,5 +1,4 @@
 import { Badge, Button, MenuItem, Modal, Paper, Select, Switch } from "@mui/material"
-import { IRobotConnectionConfiguration, IRobotModule } from "../../network/IRobot"
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import Battery80Icon from '@mui/icons-material/Battery80';
 import RobotModuleIcon from "../RobotModuleIcon";
@@ -7,7 +6,7 @@ import { makeStyles } from "@mui/styles";
 import { useContext, useEffect, useState } from "react";
 import { ConnectionContext } from "../../contexts/ConnectionProvider";
 import { ViewContext, ViewType } from "../../contexts/ViewProvider";
-import Core from "../../network/Core";
+import { IRobotModule, Core } from "neutron-core";
 
 const useStyles = makeStyles(() => ({
     root: {

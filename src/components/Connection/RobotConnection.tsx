@@ -1,13 +1,11 @@
 import { Badge, Button } from "@mui/material"
 import { makeStyles } from "@mui/styles"
-import { IRobotConnectionConfiguration } from "../../network/IRobot"
 import RobotModuleIcon from "../RobotModuleIcon"
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import Battery80Icon from '@mui/icons-material/Battery80';
 import { useState } from "react";
 import RobotConnectionModal from "./RobotConnectionModal";
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
-import Core from "../../network/Core";
+import { Core } from "neutron-core";
 
 const useStyles = makeStyles(() => ({
     root: {

@@ -18,7 +18,7 @@ export interface IOperationSandboxProps {
 
 const OperationSandbox = (props: IOperationSandboxProps) => {
     const classes = useStyles()
-    const { components, onComponentClose } = props
+    const { components } = props
 
     return (
         <>

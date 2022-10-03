@@ -1,6 +1,5 @@
+import { Core, IRobotConnectionContext, makeConnectionContext } from "neutron-core";
 import { createContext, ReactNode, useState } from "react";
-import Core from "../network/Core";
-import { IRobotConnectionContext, makeConnectionContext } from "../network/RosContext";
 
 type ContextProps = {
     makeRobotConnectionContext(core: Core): IRobotConnectionContext;
@@ -35,9 +34,6 @@ export const ConnectionProvider = ({ children }: { children: ReactNode }) => {
         }
 
         console.log(context)
-        // const success = (await Promise.all(
-        //     modules.map(module => startRobotProcess(context, module))
-        // )).reduce((acc, val) => acc && val, true);
         const success = await core.startProcesses()
         context.connect()
 

@@ -5,9 +5,7 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import CloseIcon from '@mui/icons-material/Close';
 import NetworkWifi1BarTwoToneIcon from '@mui/icons-material/NetworkWifi1BarTwoTone';
 import Header from "./Header"
-import { connect, useRos } from "rosreact";
-import { useEffect, useState } from "react";
-import useLogger from "../../utils/useLogger";
+import { useState } from "react";
 import { IOperationCategory, IOperationComponentBuilder } from "../OperationComponents/IOperationComponents";
 
 const useStyle = makeStyles(() => ({

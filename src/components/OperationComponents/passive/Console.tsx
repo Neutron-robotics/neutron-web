@@ -11,9 +11,9 @@ import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment';
 import React, { useCallback, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { LoggerContext } from '../../../contexts/LoggerProvider';
-import { ILoggerMessage } from '../../../utils/Logger';
 import AdbIcon from '@mui/icons-material/Adb';
 import { IOperationComponentBuilder } from '../IOperationComponents';
+import { ILoggerMessage } from 'neutron-core';
 
 enum LogType {
     DEBUG = '#4f5051',
