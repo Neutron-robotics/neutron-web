@@ -1,26 +1,30 @@
-export type OperationComponentType = 'passive' | 'active'
+export type OperationComponentType = "passive" | "active";
 
 export interface IOperationComponentSettings {
-    defaultWidth: number
-    defaultHeight: number
+  defaultWidth: number;
+  defaultHeight: number;
 }
 
 export interface IOperationComponentBuilder {
-    name: string;
-    type: OperationComponentType;
-    partType: string;
-    component: (props: any) => JSX.Element;
-    icon: JSX.Element;
-    settings: IOperationComponentSettings;
+  name: string;
+  type: OperationComponentType;
+  partType: string;
+  component: (props: any) => JSX.Element;
+  icon: JSX.Element;
+  settings: IOperationComponentSettings;
+
+  framePackage?: string;
+  needModule?: boolean;
 }
 
-export interface IOperationComponentLayoutItem extends IOperationComponentBuilder {
-    id: string;
+export interface IOperationComponentLayoutItem
+  extends IOperationComponentBuilder {
+  id: string;
 }
 
 export interface IOperationCategory {
-    name: string;
-    type: string;
-    icon: JSX.Element;
-    components: IOperationComponentBuilder[];
+  name: string;
+  type: string;
+  icon: JSX.Element;
+  components: IOperationComponentBuilder[];
 }

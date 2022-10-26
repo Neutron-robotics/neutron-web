@@ -29,7 +29,7 @@ const ConnectionView = () => {
             //     type: RobotConnectionType.ROSBRIDGE,
             // },
             {
-                hostname: '192.168.1.105',
+                hostname: '192.168.1.200',
                 port: 8000,
                 type: RobotConnectionType.ROSBRIDGE,
             },
@@ -41,71 +41,13 @@ const ConnectionView = () => {
             const robotConnections: Core[] = (await Promise.all(robotConnectionsInfos.map(async (robotConnectionInfo) => {
                 // const robotConnection = await getRobotConnectionInfos(robotConnectionInfo)
                 const core = new Core(robotConnectionInfo)
-                await core.setConnectionInfo()
+                await core.getConnectionInfo()
                 return core
             }))).filter((robotConnection => robotConnection !== null)) as Core[]
 
             setCoreConnections(robotConnections)
         }
         getRobotInfos()
-        // setRobotConnections([
-        //     {
-        //         id: '1',
-        //         name: 'Osoyoo Rover',
-        //         type: 'OsoyooRobot',
-        //         batteryInfo: {
-        //             level: 100,
-        //             charging: false,
-        //             measurement: 'percent'
-        //         },
-        //         status: RobotStatus.Disconnected,
-        //         connection: {
-        //             type: RobotConnectionType.ROS,
-        //             hostname: '192.168.1.172',
-        //             port: 9090
-        //         },
-        //         parts: [
-        //             {
-        //                 id: '1dbrnrtn',
-        //                 name: 'Camera',
-        //                 type: 'camera'
-        //             },
-        //             {
-        //                 id: '1db',
-        //                 name: 'Base',
-        //                 type: 'base'
-        //             },
-        //         ]
-        //     },
-        //     {
-        //         id: '2',
-        //         name: 'Osoyoo Rover 2',
-        //         type: 'OsoyooRobot',
-        //         batteryInfo: {
-        //             level: 100,
-        //             charging: false,
-        //             measurement: 'percent'
-        //         },
-        //         status: RobotStatus.Disconnected,
-        //         connection: {
-        //             type: RobotConnectionType.ROS,
-        //             hostname: '192.168.1.172',
-        //             port: 9090
-        //         },
-        //         parts: [
-        //             {
-        //                 id: '1dfb',
-        //                 name: 'Camera',
-        //                 type: 'camera'
-        //             },
-        //             {
-        //                 id: '1sd',
-        //                 name: 'Base',
-        //                 type: 'base'
-        //             },
-        //         ]
-        //     }
-        // ])
     }, [robotConnectionsInfos])
 
     return (

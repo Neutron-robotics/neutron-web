@@ -6,7 +6,7 @@ import { makeStyles } from "@mui/styles";
 import { useContext, useEffect, useState } from "react";
 import { ConnectionContext } from "../../contexts/ConnectionProvider";
 import { ViewContext, ViewType } from "../../contexts/ViewProvider";
-import { IRobotModule, Core } from "neutron-core";
+import { IRobotModule, Core, makeConnectionContext } from "neutron-core";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -92,8 +92,9 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
     const classes = useStyles()
     const [modules, setModules] = useState<IOptionalModule[]>(coreConnection.modules.map(m => ({ ...m, enabled: true })))
     const connectionContext = useContext(ConnectionContext)
-    const {setViewType} = useContext(ViewContext)
-    const { makeRobotConnectionContext } = connectionContext
+    const [isConnecting, setIsConnecting] = useState(false)
+    const { setViewType } = useContext(ViewContext)
+    // const { makeRobotConnectionContext } = connectionContext
 
     const handleToggleModuleSwitch = (event: React.ChangeEvent<HTMLInputElement>, moduleId: string) => {
         setModules(
@@ -106,24 +107,43 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
         )
     }
 
-    useEffect(() => {
-        if (connectionContext.context)
-            connectionContext.connect().then((resp) => {
+    // useEffect(() => {
+    //     if (connectionContext.context) {
+    //         const enabledModules = modules.filter(m => m.enabled)
+    //         connectionContext.connect(coreConnection, enabledModules).then((resp) => {
+    //             console.log("Connected", resp)
+    //             if (resp) {
+    //                 setViewType(ViewType.OperationView)
+    //             }
+    //         })
+    //     }
+    // }, [connectionContext, setViewType])
+
+    const handleConnectClick = async () => {
+        // await coreConnection.stopProcesses()  // no need to turn off robot wtf
+
+        if (connectionContext.connected) {
+            console.log("Disconnecting context")
+            connectionContext.disconnect()
+        }
+
+        try {
+            setIsConnecting(true)
+            const context = makeConnectionContext(coreConnection.contextConfiguration.type, coreConnection.contextConfiguration);
+            const enabledModules = modules.filter(m => m.enabled)
+            console.log("Connecting", coreConnection, context, enabledModules)
+            connectionContext.connect(coreConnection, context, enabledModules).then((resp) => {
                 console.log("Connected", resp)
+                setIsConnecting(false)
                 if (resp) {
                     setViewType(ViewType.OperationView)
                 }
             })
-    }, [connectionContext, setViewType])
-
-    const handleConnectClick = () => {
-        makeRobotConnectionContext(coreConnection)
-
-        // if (context) {
-        //     connectionContext.connect().then((resp) => {
-        //         console.log("Connected", resp)
-        //     })
-        // }
+        }
+        catch (e) {
+            console.error(e);
+        }
+        // makeRobotConnectionContext(coreConnection.contextConfiguration.type, coreConnection.contextConfiguration)
     }
 
     return (
@@ -133,6 +153,9 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
         >
             <div className={classes.root}>
                 <Paper elevation={3} className={classes.paper}>
+                    {(isConnecting) && (
+                        <h1>Connecting</h1>
+                    )}
                     <h2>{coreConnection.name}</h2>
                     <div className={classes.groupStatus}>
                         <Badge badgeContent=" " color="primary" anchorOrigin={{ horizontal: "right", vertical: "bottom" }}>

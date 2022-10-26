@@ -1,7 +1,13 @@
 import { Paper } from "@mui/material";
+import { IRobotModule } from "neutron-core";
 import React from "react";
 import { IOperationComponentBuilder, IOperationComponentLayoutItem } from "./IOperationComponents";
 import OperationComponent from "./OperationComponent";
+
+export interface IOperationBuilderComponentProps {
+    onClose: (id: string) => void
+    module?: IRobotModule
+}
 
 export const makeOperationComponentLayoutItem = (componentBuilder: IOperationComponentBuilder, props: IOperationBuilderComponentProps): IOperationComponentLayoutItem => {
     const id = `${componentBuilder.name}-${componentBuilder.type}`
@@ -13,25 +19,23 @@ export const makeOperationComponentLayoutItem = (componentBuilder: IOperationCom
 }
 
 export const makeOperationComponent = (params: IOperationComponentBuilder, props: IOperationBuilderComponentProps) => {
-    const { name, component } = params;
+    const { name, component, settings } = params;
     const { onClose } = props;
 
     const Component = component
+
+    console.log("make component with props", props)
 
     return () => (
         <OperationComponent
             name={name}
             onClose={onClose}
-            width={100}
-            height={100}
+            width={settings.defaultWidth}
+            height={settings.defaultHeight}
         >
             <Paper elevation={3} style={{ height: '100%', width: '100%' }}>
-                <Component {...params} />
+                <Component {...{ ...params, ...props }} />
             </Paper>
         </OperationComponent>
     )
-}
-
-export interface IOperationBuilderComponentProps {
-    onClose: (id: string) => void
 }

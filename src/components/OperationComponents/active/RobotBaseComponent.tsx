@@ -9,7 +9,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import { IOperationComponentBuilder } from "../IOperationComponents";
 import { ConnectionContext } from "../../../contexts/ConnectionProvider";
-import { OsoyooBaseROS, RobotBase, RosContext } from "neutron-core";
+import { RobotBase } from "neutron-core";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -28,32 +28,36 @@ const RobotBaseComponent = () => {
     const { context } = useContext(ConnectionContext)
 
     useEffect(() => {
-        if (context) {
-            const base = new OsoyooBaseROS("toto", "Robot base", {
-                rotationSpeed: 0.5,
-                directionnalSpeed: 0.5,
-            }, context as RosContext);
-            setBaseController(base)
-            return () => {
-                base.stop()
-            }
-        }
+        // if (context) {
+        //     const base = new RobotBase(
+        //         {
+        //             id: "",
+        //             name: "",
+        //             directionnalSpeed: 0.5,
+        //             rotationSpeed: 0.5,
+        //         }, context, []
+        //     )
+        //     setBaseController(base)
+        //     return () => {
+        //         base.stop()
+        //     }
+        // }
     }, [context])
 
     const handleForward = () => {
-        baseController?.move("forward")
+        // baseController?.move("forward")
         console.log("forward")
     }
     const handleBackward = () => {
-        baseController?.move("backward")
+        // baseController?.move("backward")
         console.log("backward")
     }
     const handleLeft = () => {
-        baseController?.rotate("left")
+        // baseController?.rotate("left")
         console.log("left")
     }
     const handleRight = () => {
-        baseController?.rotate("right")
+        // baseController?.rotate("right")
         console.log("right")
     }
 

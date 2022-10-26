@@ -1,22 +1,16 @@
-import { Core, IRobotConnectionContext, makeConnectionContext } from "neutron-core";
+import { Core, IConnectionContext, IRobotModule } from "neutron-core";
 import { createContext, ReactNode, useState } from "react";
 
 type ContextProps = {
-    makeRobotConnectionContext(core: Core): IRobotConnectionContext;
-    context?: IRobotConnectionContext;
+    context?: IConnectionContext;
     core?: Core;
     connected: boolean;
-    connect: () => Promise<boolean>;
+    connect: (connectionCore: Core, context: IConnectionContext, modules?: IRobotModule[]) => Promise<boolean>;
     disconnect: () => void;
 }
 
-
-
 export const ConnectionContext = createContext<ContextProps>({
-    makeRobotConnectionContext: (core: Core) => {
-        return null as unknown as IRobotConnectionContext;
-    },
-    connect: () => Promise.resolve(false),
+    connect: (connectionCore: Core, context: IConnectionContext, modules?: IRobotModule[]) => Promise.resolve(false),
     disconnect: () => Promise.resolve(false),
     connected: false,
     context: undefined,
@@ -25,18 +19,34 @@ export const ConnectionContext = createContext<ContextProps>({
 
 export const ConnectionProvider = ({ children }: { children: ReactNode }) => {
     const [core, setCore] = useState<Core>();
-    const [context, setContext] = useState<IRobotConnectionContext>();
+    const [context, setContext] = useState<IConnectionContext>();
 
-    const connect = async (): Promise<boolean> => {
-        if (!core || !context) {
+    const connect = async (connectionCore: Core, connectionContext: IConnectionContext, modules?: IRobotModule[]): Promise<boolean> => {
+        if (!connectionCore || !connectionContext) {
             console.log("No core or context")
             return false;
         }
+        setCore(connectionCore);
+        setContext(connectionContext)
+        if (!modules) {
+            const success = await connectionCore.startProcesses(30000)
+            if (!success) {
+                console.log("Failed to start processes")
+                return false;
+            }
+        }
+        else {
+            await connectionCore.getProcessesStatus();
+            for (const module of modules) {
+                const success = await connectionCore.startRobotProcess(module.id, 30000)
+                if (!success) {
+                    console.log("Failed to start process", module.name)
+                    return false;
+                }
+            }
+        }
 
-        console.log(context)
-        const success = await core.startProcesses()
-        context.connect()
-
+        const success = connectionContext.connect()
         return success;
     }
 
@@ -48,23 +58,8 @@ export const ConnectionProvider = ({ children }: { children: ReactNode }) => {
         core.stopProcesses()
     }
 
-    const makeRobotConnectionContext = (core: Core): IRobotConnectionContext => {
-        try {
-            setCore(core);
-            const connectionContext = makeConnectionContext(core);
-            setContext(connectionContext);
-            return connectionContext
-        }
-        catch (e) {
-            console.error(e);
-        }
-        throw new Error("Could not create connection context");
-    }
-
-
-
     return (
-        <ConnectionContext.Provider value={{ core, context, makeRobotConnectionContext, connect, disconnect, connected: context?.isConnected ?? false }}>
+        <ConnectionContext.Provider value={{ core, context, connect, disconnect, connected: context?.isConnected ?? false }}>
             {children}
         </ConnectionContext.Provider>
     );

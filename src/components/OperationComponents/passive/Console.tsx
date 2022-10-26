@@ -13,14 +13,7 @@ import React, { useCallback, useContext, useEffect, useReducer, useRef, useState
 import { LoggerContext } from '../../../contexts/LoggerProvider';
 import AdbIcon from '@mui/icons-material/Adb';
 import { IOperationComponentBuilder } from '../IOperationComponents';
-import { ILoggerMessage } from 'neutron-core';
-
-enum LogType {
-    DEBUG = '#4f5051',
-    ERROR = '#d81a1a',
-    INFO = '#387a30',
-    WARNING = '#d17e32',
-}
+import { ILoggerMessage, LogType } from 'neutron-core';
 
 const useStyle = makeStyles(() => ({
     console: {
@@ -121,10 +114,10 @@ const Console = (props: IConsoleProps) => {
     
 
     const onMessage = useCallback((message: ILoggerMessage) => {
-        if (message.color === LogType.ERROR && !isErrorEnabled) return;
-        if (message.color === LogType.DEBUG && !isDebugEnabled) return;
-        if (message.color === LogType.WARNING && !isWarningEnabled) return;
-        if (message.color === LogType.INFO && !isInfoEnabled) return;
+        if (message.type === LogType.ERROR && !isErrorEnabled) return;
+        if (message.type === LogType.DEBUG && !isDebugEnabled) return;
+        if (message.type === LogType.WARNING && !isWarningEnabled) return;
+        if (message.type === LogType.INFO && !isInfoEnabled) return;
         const newMessage = { ...message, _id: uuidv4() };
 
         const logClasses = {
@@ -136,7 +129,7 @@ const Console = (props: IConsoleProps) => {
 
         if (consoleRef.current) {
             const childMessage = document.createElement('span');
-            childMessage.className = `${classes.consoleSpan} ${logClasses[message.color]
+            childMessage.className = `${classes.consoleSpan} ${logClasses[message.type]
                 }`;
             childMessage.innerText = `[${moment(newMessage.time).format('LTS')}] ${newMessage.source && `[${newMessage.source}]`
                 } ${newMessage.content}`;
@@ -265,9 +258,9 @@ export const ConsoleComponentBuilder: IOperationComponentBuilder = {
     component: Console,
     icon: <AdbIcon />,
     settings: {
-        defaultWidth: 300,
+        defaultWidth: 500,
         defaultHeight: 300,
-    }
+    },
 }
 
 export default Console;
