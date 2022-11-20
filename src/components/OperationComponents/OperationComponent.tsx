@@ -50,6 +50,7 @@ const OperationComponent = (props: OperationComponentProps) => {
     const { width, height, children, name, onClose } = props
     const classes = useStyle()
     const nodeRef = React.useRef(null);
+    console.log(nodeRef)
 
     const handleCloseButton = () => {
         onClose(name)

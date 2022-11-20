@@ -3,8 +3,7 @@ import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import Battery80Icon from '@mui/icons-material/Battery80';
 import RobotModuleIcon from "../RobotModuleIcon";
 import { makeStyles } from "@mui/styles";
-import { useContext, useEffect, useState } from "react";
-import { ConnectionContext } from "../../contexts/ConnectionProvider";
+import { useContext, useState } from "react";
 import { ViewContext, ViewType } from "../../contexts/ViewProvider";
 import { IRobotModule, Core, makeConnectionContext } from "neutron-core";
 
@@ -80,6 +79,7 @@ const useStyles = makeStyles(() => ({
 export interface RobotConnectionModalProps {
     open: boolean
     onClose: () => void
+    onConnect: (core: Core, modules: IRobotModule[]) => void
     coreConnection: Core
 }
 
@@ -88,13 +88,11 @@ interface IOptionalModule extends IRobotModule {
 }
 
 const RobotConnectionModal = (props: RobotConnectionModalProps) => {
-    const { open, onClose, coreConnection } = props
+    const { open, onClose, coreConnection, onConnect } = props
     const classes = useStyles()
     const [modules, setModules] = useState<IOptionalModule[]>(coreConnection.modules.map(m => ({ ...m, enabled: true })))
-    const connectionContext = useContext(ConnectionContext)
     const [isConnecting, setIsConnecting] = useState(false)
     const { setViewType } = useContext(ViewContext)
-    // const { makeRobotConnectionContext } = connectionContext
 
     const handleToggleModuleSwitch = (event: React.ChangeEvent<HTMLInputElement>, moduleId: string) => {
         setModules(
@@ -120,30 +118,8 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
     // }, [connectionContext, setViewType])
 
     const handleConnectClick = async () => {
-        // await coreConnection.stopProcesses()  // no need to turn off robot wtf
-
-        if (connectionContext.connected) {
-            console.log("Disconnecting context")
-            connectionContext.disconnect()
-        }
-
-        try {
-            setIsConnecting(true)
-            const context = makeConnectionContext(coreConnection.contextConfiguration.type, coreConnection.contextConfiguration);
-            const enabledModules = modules.filter(m => m.enabled)
-            console.log("Connecting", coreConnection, context, enabledModules)
-            connectionContext.connect(coreConnection, context, enabledModules).then((resp) => {
-                console.log("Connected", resp)
-                setIsConnecting(false)
-                if (resp) {
-                    setViewType(ViewType.OperationView)
-                }
-            })
-        }
-        catch (e) {
-            console.error(e);
-        }
-        // makeRobotConnectionContext(coreConnection.contextConfiguration.type, coreConnection.contextConfiguration)
+        const enabledModules = modules.filter(m => m.enabled)
+        onConnect(coreConnection, enabledModules)
     }
 
     return (

@@ -1,10 +1,7 @@
 import { Badge, Divider, IconButton, Menu, MenuItem, Typography } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import BatteryFullTwoToneIcon from '@mui/icons-material/BatteryFullTwoTone';
-import SmartToyIcon from '@mui/icons-material/SmartToy';
-import CloseIcon from '@mui/icons-material/Close';
 import NetworkWifi1BarTwoToneIcon from '@mui/icons-material/NetworkWifi1BarTwoTone';
-import Header from "./Header"
 import { useState } from "react";
 import { IOperationCategory, IOperationComponentBuilder } from "../OperationComponents/IOperationComponents";
 
@@ -54,7 +51,6 @@ const useStyle = makeStyles(() => ({
 
 
 interface OperationHeaderProps {
-    onHomeClick: () => void;
     onDisconnectClick: () => void;
     onConnectClick: () => void;
     mountComponent: (component: IOperationComponentBuilder) => void;
@@ -65,15 +61,14 @@ interface OperationHeaderProps {
 }
 
 const OperationHeader = (props: OperationHeaderProps) => {
-    const headerMenues = [
-        <HeaderMenu />,
-    ]
+    // const headerMenues = [
+    //     <HeaderMenu />,
+    // ]
 
     const { parts, isConnected, mountComponent } = props
 
     return (
         <>
-            <Header headerMenues={headerMenues} onHomeClick={() => { }} />
             <HeaderBody parts={parts} mountComponent={mountComponent} isConnected={isConnected} />
         </>
     )
@@ -175,25 +170,6 @@ const PartCard = (props: PartCardProps) => {
     )
 }
 
-const HeaderMenu = () => {
-    const classes = useStyle()
 
-    return (
-        <div className={classes.headerMenu}>
-            <SmartToyIcon />
-            <Typography style={{ color: "#FFFFFF" }} align="center" variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                PIRobot
-            </Typography>
-            <IconButton
-                size="large"
-                edge="end"
-                color="inherit"
-                aria-label="menu"
-            >
-                <CloseIcon />
-            </IconButton>
-        </div>
-    )
-}
 
 export default OperationHeader

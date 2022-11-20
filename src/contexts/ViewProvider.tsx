@@ -17,7 +17,7 @@ export const ViewContext = createContext<IViewContext>({
 });
 
 export const ViewProvider = ({ children }: { children: ReactNode }) => {
-    const [viewType, setViewType] = useState<ViewType>(ViewType.Home);    
+    const [viewType, setViewType] = useState<ViewType>(ViewType.Home);
 
     return (
         <ViewContext.Provider value={{ viewType, setViewType }}>

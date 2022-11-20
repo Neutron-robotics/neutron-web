@@ -1,29 +1,69 @@
 import OperationSandbox from "../components/OperationSandbox";
-import OperationHeader from '../components/Header/OperationHeader';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { IOperationCategory, IOperationComponentBuilder, IOperationComponentLayoutItem } from '../components/OperationComponents/IOperationComponents';
 import { operationComponentsConfiguration } from '../components/OperationComponents/components';
 import { makeOperationComponentLayoutItem } from "../components/OperationComponents/OperationComponentFactory";
 import { IRobotModule, makeModule } from "neutron-core";
 import { ConnectionContext } from "../contexts/ConnectionProvider";
+import IViewProps from "./IView";
+import OperationHeader from "../components/Header/OperationHeader";
+import { IHeaderMenuState } from "./ViewManager";
+import { MultiConnectionContext } from "../contexts/MultiConnectionProvider";
+import { v4 as uuid } from "uuid";
 
-const OperationView = () => {
+export interface IOperationMenuState extends IHeaderMenuState {
+    layout: IOperationComponentLayoutItem[]
+    modules: IRobotModule[]
+}
+
+export interface IOperationViewProps extends IViewProps {
+    commitOperationLayout: (menu: string, viewState: IOperationMenuState) => void;
+    viewState?: IOperationMenuState;
+    id: string
+}
+
+const OperationView = (props: IOperationViewProps) => {
+    const { setHeaderBody, id, commitOperationLayout, viewState } = props;
     const [headerCategories, setHeaderCategories] = useState<IOperationCategory[]>([])
     const [operationComponentLayoutItems, setOperationComponentLayoutItems] = useState<IOperationComponentLayoutItem[]>([])
     const [modules, setModules] = useState<IRobotModule[]>([])
-    const { context } = useContext(ConnectionContext)
+    const { connections } = useContext(MultiConnectionContext)
+    const context = connections[id]?.context
+    const [currentId, setCurrentId] = useState<string>(uuid())
 
     useEffect(() => {
         setHeaderCategories(operationComponentsConfiguration)
     }, [])
 
-    const mountComponent = (component: IOperationComponentBuilder) => {
-        if (!context) {
+    useEffect(() => {
+        if (id !== currentId) {
+            console.log("Id changed", id, currentId)
+            console.log("set save", viewState)
+            setCurrentId(id)
+            setOperationComponentLayoutItems(viewState?.layout || [])
+            setModules(viewState?.modules || [])
+            return () => {
+                console.log("commit", id)
+                commitOperationLayout(id, {
+                    layout: operationComponentLayoutItems,
+                    modules,
+                })
+            }
+        }
+    }, [commitOperationLayout, currentId, id, modules, operationComponentLayoutItems, viewState])
+
+    const unmountComponentLayoutItem = useCallback((name: string) => {
+        setOperationComponentLayoutItems(operationComponentLayoutItems.filter(item => item.id !== name))
+    }, [operationComponentLayoutItems])
+
+    const mountComponent = useCallback((component: IOperationComponentBuilder) => {
+        console.log(component)
+        if (component.needModule && !context) {
             console.log("No context")
             return
         }
         let module = modules.find(m => m.type === component.type)
-        if (!module && component.needModule) {
+        if (!module && component.needModule && context) {
             module = makeModule(component.partType, context, {
                 id: "",
                 name: component.name,
@@ -43,30 +83,30 @@ const OperationView = () => {
         })
         console.log("make layout")
         setOperationComponentLayoutItems([...operationComponentLayoutItems, layoutComponent])
-    }
+    }, [context, modules, operationComponentLayoutItems, unmountComponentLayoutItem])
 
-const unmountComponentLayoutItem = (name: string) => {
-    setOperationComponentLayoutItems(operationComponentLayoutItems.filter(item => item.id !== name))
-}
+    useEffect(() => {
+        setHeaderBody(
+            <OperationHeader
+                onConnectClick={() => { }}
+                onDisconnectClick={() => { }}
+                mountComponent={mountComponent}
+                isConnected={false}
+                batteryLevel={100}
+                wifiLevel={100}
+                parts={headerCategories}
+            />
+        )
+    }, [headerCategories, mountComponent, setHeaderBody])
 
-return (
-    <>
-        <OperationHeader
-            onConnectClick={() => { }}
-            onDisconnectClick={() => { }}
-            onHomeClick={() => { }}
-            mountComponent={mountComponent}
-            isConnected={false}
-            batteryLevel={100}
-            wifiLevel={100}
-            parts={headerCategories}
-        />
-        <OperationSandbox
-            onComponentClose={unmountComponentLayoutItem}
-            components={operationComponentLayoutItems}
-        />
-    </>
-)
+    return (
+        <>
+            <OperationSandbox
+                onComponentClose={unmountComponentLayoutItem}
+                components={operationComponentLayoutItems}
+            />
+        </>
+    )
 }
 
 export default OperationView

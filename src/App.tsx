@@ -3,6 +3,7 @@ import { LoggerProvider } from './contexts/LoggerProvider';
 import { ConnectionProvider } from './contexts/ConnectionProvider';
 import ViewManager from './views/ViewManager';
 import { ViewProvider } from './contexts/ViewProvider';
+import { MultiConnectionProvider } from './contexts/MultiConnectionProvider';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -20,9 +21,9 @@ function App() {
     <div className={classes.root}>
       <LoggerProvider>
         <ViewProvider>
-          <ConnectionProvider>
+          <MultiConnectionProvider>
             <ViewManager />
-          </ConnectionProvider>
+          </MultiConnectionProvider>
         </ViewProvider>
       </LoggerProvider>
     </div>

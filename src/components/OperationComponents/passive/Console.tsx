@@ -261,6 +261,7 @@ export const ConsoleComponentBuilder: IOperationComponentBuilder = {
         defaultWidth: 500,
         defaultHeight: 300,
     },
+    needModule: false,
 }
 
 export default Console;

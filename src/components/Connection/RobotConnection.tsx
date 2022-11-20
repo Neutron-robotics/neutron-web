@@ -5,7 +5,7 @@ import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import Battery80Icon from '@mui/icons-material/Battery80';
 import { useState } from "react";
 import RobotConnectionModal from "./RobotConnectionModal";
-import { Core } from "neutron-core";
+import { Core, IRobotModule } from "neutron-core";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -36,11 +36,12 @@ const useStyles = makeStyles(() => ({
 
 export interface IRobotConnectionProps {
     coreConnection: Core
+    handleOnRobotConnect: (core: Core, modules: IRobotModule[]) => void
 }
 
 const RobotConnection = (props: IRobotConnectionProps) => {
     const classes = useStyles()
-    const { coreConnection } = props
+    const { coreConnection, handleOnRobotConnect } = props
     const [connectionModalOpen, setConnectionModalOpen] = useState(false)
 
     const handleConnectClick = () => {
@@ -53,7 +54,7 @@ const RobotConnection = (props: IRobotConnectionProps) => {
 
     return (
         <>
-        {connectionModalOpen && <RobotConnectionModal open={connectionModalOpen} onClose={handleCloseConnectionModal} coreConnection={coreConnection} />}
+            {connectionModalOpen && <RobotConnectionModal open={connectionModalOpen} onConnect={handleOnRobotConnect} onClose={handleCloseConnectionModal} coreConnection={coreConnection} />}
             <div className={classes.root}>
                 <h2>{coreConnection.name}</h2>
                 <p>{coreConnection.status}</p>
