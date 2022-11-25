@@ -1,10 +1,9 @@
 import OperationSandbox from "../components/OperationSandbox";
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { IOperationCategory, IOperationComponentBuilder, IOperationComponentLayoutItem } from '../components/OperationComponents/IOperationComponents';
+import { ILayoutCoordinates, IOperationCategory, IOperationComponentBuilder, IOperationComponentLayoutItem } from '../components/OperationComponents/IOperationComponents';
 import { operationComponentsConfiguration } from '../components/OperationComponents/components';
 import { makeOperationComponentLayoutItem } from "../components/OperationComponents/OperationComponentFactory";
 import { IRobotModule, makeModule } from "neutron-core";
-import { ConnectionContext } from "../contexts/ConnectionProvider";
 import IViewProps from "./IView";
 import OperationHeader from "../components/Header/OperationHeader";
 import { IHeaderMenuState } from "./ViewManager";
@@ -35,6 +34,24 @@ const OperationView = (props: IOperationViewProps) => {
         setHeaderCategories(operationComponentsConfiguration)
     }, [])
 
+    const onLayoutComponentPositionUpdate = (pos: ILayoutCoordinates, id: string) => {
+        console.log("update layout component position", pos, id)
+        setOperationComponentLayoutItems((prev) => {
+            console.log("prev", prev)
+            const updated = prev.map((e) => {
+                if (e.name === id) {
+                    console.log("saving position", pos, "for", id)
+                    return {
+                        ...e,
+                        defaultPosition: pos
+                    }
+                }
+                return e
+            })
+            return updated
+        })
+    }
+
     useEffect(() => {
         if (id !== currentId) {
             console.log("Id changed", id, currentId)
@@ -43,8 +60,8 @@ const OperationView = (props: IOperationViewProps) => {
             setOperationComponentLayoutItems(viewState?.layout || [])
             setModules(viewState?.modules || [])
             return () => {
-                console.log("commit", id)
-                commitOperationLayout(id, {
+                console.log("commit", currentId, operationComponentLayoutItems, modules)
+                commitOperationLayout(currentId, {
                     layout: operationComponentLayoutItems,
                     modules,
                 })
@@ -79,6 +96,7 @@ const OperationView = (props: IOperationViewProps) => {
         }
         const layoutComponent = makeOperationComponentLayoutItem(component, {
             onClose: unmountComponentLayoutItem,
+            onPositionUpdate: onLayoutComponentPositionUpdate,
             module: module
         })
         console.log("make layout")

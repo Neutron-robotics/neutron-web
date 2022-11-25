@@ -15,6 +15,12 @@ export interface IOperationComponentBuilder {
 
   framePackage?: string;
   needModule?: boolean;
+  defaultPosition?: ILayoutCoordinates;
+}
+
+export interface ILayoutCoordinates {
+  x: number;
+  y: number;
 }
 
 export interface IOperationComponentLayoutItem

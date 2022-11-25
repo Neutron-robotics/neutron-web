@@ -1,11 +1,12 @@
 import { Paper } from "@mui/material";
 import { IRobotModule } from "neutron-core";
 import React from "react";
-import { IOperationComponentBuilder, IOperationComponentLayoutItem } from "./IOperationComponents";
+import { ILayoutCoordinates, IOperationComponentBuilder, IOperationComponentLayoutItem } from "./IOperationComponents";
 import OperationComponent from "./OperationComponent";
 
 export interface IOperationBuilderComponentProps {
     onClose: (id: string) => void
+    onPositionUpdate: (pos: ILayoutCoordinates, id: string) => void
     module?: IRobotModule
 }
 
@@ -19,8 +20,8 @@ export const makeOperationComponentLayoutItem = (componentBuilder: IOperationCom
 }
 
 export const makeOperationComponent = (params: IOperationComponentBuilder, props: IOperationBuilderComponentProps) => {
-    const { name, component, settings } = params;
-    const { onClose } = props;
+    const { name, component, settings, defaultPosition } = params;
+    const { onClose, onPositionUpdate } = props;
 
     const Component = component
 
@@ -32,6 +33,8 @@ export const makeOperationComponent = (params: IOperationComponentBuilder, props
             onClose={onClose}
             width={settings.defaultWidth}
             height={settings.defaultHeight}
+            onPositionUpdate={onPositionUpdate}
+            defaultPosition={defaultPosition}
         >
             <Paper elevation={3} style={{ height: '100%', width: '100%' }}>
                 <Component {...{ ...params, ...props }} />

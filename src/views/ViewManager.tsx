@@ -19,7 +19,10 @@ const ViewManager = () => {
     const [activeMenuId, setActiveMenuId] = useState<string>();
     const [removeMenuId, setRemoveMenuId] = useState<string>();
 
+    console.log('headermenues are', headerMenues)
+
     const commitOperationLayout = (id: string, viewState: IHeaderMenuState) => {
+        console.log("commit", id, viewState, headerMenues[id])
         if (headerMenues[id]) {
             const commit = {
                 ...headerMenues,

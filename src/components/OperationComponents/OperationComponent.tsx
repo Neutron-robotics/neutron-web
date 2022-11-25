@@ -1,8 +1,9 @@
 import { IconButton, Paper } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import React from "react";
+import React, { useEffect } from "react";
 import Draggable from "react-draggable";
 import CloseIcon from '@mui/icons-material/Close';
+import { ILayoutCoordinates } from "./IOperationComponents";
 
 const useStyle = makeStyles(() => ({
     root: {
@@ -44,31 +45,46 @@ interface OperationComponentProps extends ComponentProps {
     onClose: (id: string) => void;
     children: JSX.Element;
     name: string;
+    defaultPosition?: ILayoutCoordinates;
+    onPositionUpdate: (pos: ILayoutCoordinates, id: string) => void;
 }
 
 const OperationComponent = (props: OperationComponentProps) => {
-    const { width, height, children, name, onClose } = props
+    const { width, height, children, name, onClose, defaultPosition, onPositionUpdate } = props
     const classes = useStyle()
     const nodeRef = React.useRef(null);
-    console.log(nodeRef)
+    const [position, setPosition] = React.useState<ILayoutCoordinates>(defaultPosition || { x: 0, y: 0 })
+
+    console.log(props)
+
+    useEffect(() => {
+        return () => {
+            console.log(`Unmounting ${name}`, onPositionUpdate)
+            onPositionUpdate(position, name)
+        }
+    }, [position, name, onPositionUpdate])
 
     const handleCloseButton = () => {
         onClose(name)
     }
 
+    const handlePositionUpdate = (position: ILayoutCoordinates) => {
+        setPosition(position)
+    }
+
     return (
         <>
-            <Draggable bounds="parent" handle=".handle" nodeRef={nodeRef}>
+            <Draggable defaultPosition={defaultPosition} bounds="parent" handle=".handle" nodeRef={nodeRef} onDrag={(_, data) => handlePositionUpdate({x: data.x, y: data.y})}>
                 <div ref={nodeRef} className={classes.root} style={{ width: width, height: height }}>
                     <div className={`handle ${classes.handle}`}>
                         <h5>{name}</h5>
                         <div className={classes.closeButtonContainer}>
-                        <IconButton
-                            edge="end"
-                            onClick={handleCloseButton}
-                        >
-                            <CloseIcon  />
-                        </IconButton>
+                            <IconButton
+                                edge="end"
+                                onClick={handleCloseButton}
+                            >
+                                <CloseIcon />
+                            </IconButton>
                         </div>
                     </div>
                     <Paper className={classes.content}>
