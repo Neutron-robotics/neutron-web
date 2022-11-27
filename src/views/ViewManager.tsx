@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import Header, { IHeaderMenu } from "../components/Header/Header";
 import { ViewContext, ViewType } from "../contexts/ViewProvider";
 import ConnectionView from "./ConnectionView";
-import OperationView, { IOperationMenuState } from "./OperationView";
+import OperationView from "./OperationView";
 
 export interface IHeaderMenuState {
 }
@@ -20,21 +20,6 @@ const ViewManager = () => {
     const [removeMenuId, setRemoveMenuId] = useState<string>();
 
     console.log('headermenues are', headerMenues)
-
-    const commitOperationLayout = (id: string, viewState: IHeaderMenuState) => {
-        console.log("commit", id, viewState, headerMenues[id])
-        if (headerMenues[id]) {
-            const commit = {
-                ...headerMenues,
-                [id]: {
-                    ...headerMenues[id],
-                    state: viewState
-                }
-            } as IHeaderMenues;
-            setHeaderMenues(commit);
-        }
-
-    }
 
     useEffect(() => {
         if (!removeMenuId) return;
@@ -119,7 +104,7 @@ const ViewManager = () => {
             <Button onClick={test}>toto</Button>
             {(viewType === ViewType.Home) && <ConnectionView setHeaderBody={setHeaderBody} setHeaderMenues={handleAddHeaderMenu} />}
             {(viewType === ViewType.ConnectionView) && <ConnectionView setHeaderBody={setHeaderBody} setHeaderMenues={handleAddHeaderMenu} />}
-            {(viewType === ViewType.OperationView) && <OperationView id={activeMenuId ?? ""} setHeaderBody={setHeaderBody} setHeaderMenues={handleAddHeaderMenu} commitOperationLayout={commitOperationLayout} viewState={headerMenues[activeMenuId ?? ""]?.state as IOperationMenuState} />}
+            {(viewType === ViewType.OperationView) && <OperationView id={activeMenuId ?? ""} setHeaderBody={setHeaderBody} setHeaderMenues={handleAddHeaderMenu} />}
         </>
     );
 }

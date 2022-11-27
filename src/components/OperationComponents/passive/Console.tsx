@@ -12,7 +12,7 @@ import moment from 'moment';
 import React, { useCallback, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { LoggerContext } from '../../../contexts/LoggerProvider';
 import AdbIcon from '@mui/icons-material/Adb';
-import { IOperationComponentBuilder } from '../IOperationComponents';
+import { IOperationComponentDescriptor } from '../IOperationComponents';
 import { ILoggerMessage, LogType } from 'neutron-core';
 
 const useStyle = makeStyles(() => ({
@@ -251,7 +251,7 @@ const Console = (props: IConsoleProps) => {
     );
 };
 
-export const ConsoleComponentBuilder: IOperationComponentBuilder = {
+export const ConsoleComponentBuilder: IOperationComponentDescriptor = {
     name: "Console",
     type: "passive",
     partType: "utils",
@@ -261,7 +261,6 @@ export const ConsoleComponentBuilder: IOperationComponentBuilder = {
         defaultWidth: 500,
         defaultHeight: 300,
     },
-    needModule: false,
 }
 
 export default Console;

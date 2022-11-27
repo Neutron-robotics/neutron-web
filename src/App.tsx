@@ -1,9 +1,9 @@
 import { makeStyles } from '@mui/styles';
 import { LoggerProvider } from './contexts/LoggerProvider';
-import { ConnectionProvider } from './contexts/ConnectionProvider';
 import ViewManager from './views/ViewManager';
 import { ViewProvider } from './contexts/ViewProvider';
 import { MultiConnectionProvider } from './contexts/MultiConnectionProvider';
+import { TabProvider } from './contexts/TabContext';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -20,11 +20,13 @@ function App() {
   return (
     <div className={classes.root}>
       <LoggerProvider>
-        <ViewProvider>
-          <MultiConnectionProvider>
-            <ViewManager />
-          </MultiConnectionProvider>
-        </ViewProvider>
+        <TabProvider>
+          <ViewProvider>
+            <MultiConnectionProvider>
+              <ViewManager />
+            </MultiConnectionProvider>
+          </ViewProvider>
+        </TabProvider>
       </LoggerProvider>
     </div>
   );

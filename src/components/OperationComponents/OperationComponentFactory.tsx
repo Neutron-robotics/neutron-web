@@ -1,43 +1,36 @@
 import { Paper } from "@mui/material";
-import { IRobotModule } from "neutron-core";
 import React from "react";
-import { ILayoutCoordinates, IOperationComponentBuilder, IOperationComponentLayoutItem } from "./IOperationComponents";
+import { IOperationComponent, IOperationComponentBuilder, IOperationComponentSpecifics } from "./IOperationComponents";
 import OperationComponent from "./OperationComponent";
 
-export interface IOperationBuilderComponentProps {
-    onClose: (id: string) => void
-    onPositionUpdate: (pos: ILayoutCoordinates, id: string) => void
-    module?: IRobotModule
-}
-
-export const makeOperationComponentLayoutItem = (componentBuilder: IOperationComponentBuilder, props: IOperationBuilderComponentProps): IOperationComponentLayoutItem => {
-    const id = `${componentBuilder.name}-${componentBuilder.type}`
+export const makeOperationComponentLayoutItem = (componentBuilder: IOperationComponentBuilder, props: IOperationComponentSpecifics): IOperationComponent => {
+    const id = `${componentBuilder.name}-${props.moduleId || 'default'}`
     return {
         ...componentBuilder,
         id: id,
-        component: makeOperationComponent(componentBuilder, props)
+        operationComponent: makeOperationComponent(componentBuilder, props)
     }
 }
 
-export const makeOperationComponent = (params: IOperationComponentBuilder, props: IOperationBuilderComponentProps) => {
-    const { name, component, settings, defaultPosition } = params;
-    const { onClose, onPositionUpdate } = props;
-
-    const Component = component
+export const makeOperationComponent = (builder: IOperationComponentBuilder, props: IOperationComponentSpecifics) => {
+    const { name, settings, onClose, component, id, tabId } = builder;
 
     console.log("make component with props", props)
 
+    const OperationComponentContent = component
+
     return () => (
         <OperationComponent
+            id={id}
+            tabId={tabId}
             name={name}
             onClose={onClose}
             width={settings.defaultWidth}
             height={settings.defaultHeight}
-            onPositionUpdate={onPositionUpdate}
-            defaultPosition={defaultPosition}
+            defaultPosition={settings.defaultPosition}
         >
             <Paper elevation={3} style={{ height: '100%', width: '100%' }}>
-                <Component {...{ ...params, ...props }} />
+                <OperationComponentContent {...props} />
             </Paper>
         </OperationComponent>
     )

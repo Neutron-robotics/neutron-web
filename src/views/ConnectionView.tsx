@@ -17,7 +17,6 @@ const useStyles = makeStyles(() => ({
 }))
 
 interface IConnectionViewProps extends IViewProps {
-    // setActiveMenu: (title: string) => void
 }
 
 const ConnectionView = (props: IConnectionViewProps) => {

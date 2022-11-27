@@ -1,9 +1,10 @@
 import { IconButton, Paper } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import Draggable from "react-draggable";
 import CloseIcon from '@mui/icons-material/Close';
 import { ILayoutCoordinates } from "./IOperationComponents";
+import { useTabsDispatch } from "../../contexts/TabContext";
 
 const useStyle = makeStyles(() => ({
     root: {
@@ -36,33 +37,43 @@ const useStyle = makeStyles(() => ({
     }
 }))
 
-interface ComponentProps {
+interface OperationComponentProps {
+    name: string;
+    id: string;
+    tabId: string;
+    children: JSX.Element;
     width: number;
     height: number;
-}
-
-interface OperationComponentProps extends ComponentProps {
-    onClose: (id: string) => void;
-    children: JSX.Element;
-    name: string;
     defaultPosition?: ILayoutCoordinates;
-    onPositionUpdate: (pos: ILayoutCoordinates, id: string) => void;
+
+    onClose: (id: string) => void;
 }
 
 const OperationComponent = (props: OperationComponentProps) => {
-    const { width, height, children, name, onClose, defaultPosition, onPositionUpdate } = props
+    const { id, tabId, width, height, children, name, onClose, defaultPosition } = props
     const classes = useStyle()
     const nodeRef = React.useRef(null);
     const [position, setPosition] = React.useState<ILayoutCoordinates>(defaultPosition || { x: 0, y: 0 })
+    const posRef = useRef(position)
+    const tabDispatcher = useTabsDispatch()
 
-    console.log(props)
+    console.log("OperationComponent", props)
+
+    useEffect(() => {
+        posRef.current = position;
+    }, [position]);
 
     useEffect(() => {
         return () => {
-            console.log(`Unmounting ${name}`, onPositionUpdate)
-            onPositionUpdate(position, name)
+            if ((posRef.current.x !== 0 && posRef.current.y !== 0) &&
+                (posRef.current.x !== defaultPosition?.x && posRef.current.y !== defaultPosition?.y)) {
+                console.log(`Unmounting ${name}`, posRef.current)
+                tabDispatcher({ type: 'commit', payload: { defaultWidth: width, defaultHeight: height, defaultPosition: posRef.current }, tabId, componentId: id })
+            }
+            else
+                console.log("Unmounting but coord are 0 or same as bfore", name)
         }
-    }, [position, name, onPositionUpdate])
+    }, [name])
 
     const handleCloseButton = () => {
         onClose(name)
@@ -74,7 +85,7 @@ const OperationComponent = (props: OperationComponentProps) => {
 
     return (
         <>
-            <Draggable defaultPosition={defaultPosition} bounds="parent" handle=".handle" nodeRef={nodeRef} onDrag={(_, data) => handlePositionUpdate({x: data.x, y: data.y})}>
+            <Draggable defaultPosition={defaultPosition} bounds="parent" handle=".handle" nodeRef={nodeRef} onDrag={(_, data) => handlePositionUpdate({ x: data.x, y: data.y })}>
                 <div ref={nodeRef} className={classes.root} style={{ width: width, height: height }}>
                     <div className={`handle ${classes.handle}`}>
                         <h5>{name}</h5>

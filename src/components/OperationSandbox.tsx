@@ -1,5 +1,5 @@
 import { makeStyles } from "@mui/styles"
-import { IOperationComponentLayoutItem } from "./OperationComponents/IOperationComponents"
+import { IOperationComponent } from "./OperationComponents/IOperationComponents"
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -12,7 +12,7 @@ const useStyles = makeStyles(() => ({
 }))
 
 export interface IOperationSandboxProps {
-    components: IOperationComponentLayoutItem[]
+    components: IOperationComponent[]
     onComponentClose: (id: string) => void
 }
 
@@ -24,7 +24,7 @@ const OperationSandbox = (props: IOperationSandboxProps) => {
         <>
             <div className={classes.root}>
                 {components.map((e) => {
-                    const OperationComponent = e.component
+                    const OperationComponent = e.operationComponent
                     return (
                         <OperationComponent
                             key={e.id}                            

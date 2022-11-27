@@ -7,7 +7,7 @@ import TurnLeftIcon from '@mui/icons-material/TurnLeft';
 import { useContext, useEffect, useState } from "react";
 import CancelIcon from '@mui/icons-material/Cancel';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import { IOperationComponentBuilder } from "../IOperationComponents";
+import { IOperationComponentDescriptor } from "../IOperationComponents";
 import { ConnectionContext } from "../../../contexts/ConnectionProvider";
 import { RobotBase } from "neutron-core";
 
@@ -118,7 +118,7 @@ const RobotBaseComponent = () => {
     )
 }
 
-export const RobotBaseComponentBuilder: IOperationComponentBuilder = {
+export const RobotBaseComponentBuilder: IOperationComponentDescriptor = {
     name: "Robot Base Controller",
     type: "active",
     partType: "robotbase",

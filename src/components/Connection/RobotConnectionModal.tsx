@@ -4,8 +4,8 @@ import Battery80Icon from '@mui/icons-material/Battery80';
 import RobotModuleIcon from "../RobotModuleIcon";
 import { makeStyles } from "@mui/styles";
 import { useContext, useState } from "react";
-import { ViewContext, ViewType } from "../../contexts/ViewProvider";
-import { IRobotModule, Core, makeConnectionContext } from "neutron-core";
+import { ViewContext } from "../../contexts/ViewProvider";
+import { IRobotModule, Core } from "neutron-core";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -92,7 +92,6 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
     const classes = useStyles()
     const [modules, setModules] = useState<IOptionalModule[]>(coreConnection.modules.map(m => ({ ...m, enabled: true })))
     const [isConnecting, setIsConnecting] = useState(false)
-    const { setViewType } = useContext(ViewContext)
 
     const handleToggleModuleSwitch = (event: React.ChangeEvent<HTMLInputElement>, moduleId: string) => {
         setModules(
@@ -104,18 +103,6 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
             })
         )
     }
-
-    // useEffect(() => {
-    //     if (connectionContext.context) {
-    //         const enabledModules = modules.filter(m => m.enabled)
-    //         connectionContext.connect(coreConnection, enabledModules).then((resp) => {
-    //             console.log("Connected", resp)
-    //             if (resp) {
-    //                 setViewType(ViewType.OperationView)
-    //             }
-    //         })
-    //     }
-    // }, [connectionContext, setViewType])
 
     const handleConnectClick = async () => {
         const enabledModules = modules.filter(m => m.enabled)

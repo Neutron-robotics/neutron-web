@@ -2,7 +2,7 @@ import { Button } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import React, { useEffect, useState } from "react"
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
-import { IOperationComponentBuilder } from "../IOperationComponents"
+import { IOperationComponentDescriptor } from "../IOperationComponents"
 import { Camera } from "neutron-core"
 
 const useStyles = makeStyles(() => ({
@@ -66,7 +66,7 @@ const CameraComponent = (props: any) => {
     )
 }
 
-export const CameraComponentBuilder: IOperationComponentBuilder = {
+export const CameraComponentBuilder: IOperationComponentDescriptor = {
     name: "Camera Viewer",
     type: "passive",
     partType: "camera",
@@ -77,7 +77,6 @@ export const CameraComponentBuilder: IOperationComponentBuilder = {
         defaultHeight: 480,
     },
     framePackage: "neutron-camera",
-    needModule: true,
 }
 
 export default CameraComponent

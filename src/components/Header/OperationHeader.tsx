@@ -3,7 +3,7 @@ import { makeStyles } from "@mui/styles"
 import BatteryFullTwoToneIcon from '@mui/icons-material/BatteryFullTwoTone';
 import NetworkWifi1BarTwoToneIcon from '@mui/icons-material/NetworkWifi1BarTwoTone';
 import { useState } from "react";
-import { IOperationCategory, IOperationComponentBuilder } from "../OperationComponents/IOperationComponents";
+import { IOperationCategory, IOperationComponentDescriptor } from "../OperationComponents/IOperationComponents";
 
 const useStyle = makeStyles(() => ({
     root: {
@@ -53,39 +53,18 @@ const useStyle = makeStyles(() => ({
 interface OperationHeaderProps {
     onDisconnectClick: () => void;
     onConnectClick: () => void;
-    mountComponent: (component: IOperationComponentBuilder) => void;
+    mountComponent: (descriptor: IOperationComponentDescriptor) => void;
     isConnected: boolean;
     batteryLevel: number;
     wifiLevel: number;
-    parts: IOperationCategory[]
+    operationCategories: IOperationCategory[]
 }
 
 const OperationHeader = (props: OperationHeaderProps) => {
-    // const headerMenues = [
-    //     <HeaderMenu />,
-    // ]
-
-    const { parts, isConnected, mountComponent } = props
-
-    return (
-        <>
-            <HeaderBody parts={parts} mountComponent={mountComponent} isConnected={isConnected} />
-        </>
-    )
-}
-
-interface HeaderBodyProps {
-    parts: IOperationCategory[]
-    mountComponent: (component: IOperationComponentBuilder) => void;
-    isConnected: boolean
-}
-
-const HeaderBody = (props: HeaderBodyProps) => {
+    const { operationCategories, isConnected, mountComponent } = props
     const classes = useStyle()
-    const { parts, mountComponent, isConnected } = props
 
-    const handleWifiClick = () => {
-    }
+    const handleWifiClick = () => {}
 
     return (
         <div className={classes.root}>
@@ -118,14 +97,14 @@ const HeaderBody = (props: HeaderBodyProps) => {
 
             <Divider orientation="vertical" flexItem />
             <div className={classes.partIconGroup}>
-                {parts.map(e => <PartCard key={`pc-${e.name}-${e.type}`} mountComponent={mountComponent} operationCategory={e} isActivated />)}
+                {operationCategories.map(e => <PartCard key={`pc-${e.name}-${e.type}`} mountComponent={mountComponent} operationCategory={e} isActivated />)}
             </div>
         </div>
     )
 }
 
 interface PartCardProps {
-    mountComponent: (component: IOperationComponentBuilder) => void;
+    mountComponent:  (descriptor: IOperationComponentDescriptor) => void;
     operationCategory: IOperationCategory
     isActivated: boolean;
 }
@@ -142,7 +121,7 @@ const PartCard = (props: PartCardProps) => {
     const handleClose = () => {
         setAnchorEl(null);
     };
-    const handleSelect = (component: IOperationComponentBuilder) => {
+    const handleSelect = (component: IOperationComponentDescriptor) => {
         handleClose()
         mountComponent(component)
     }
@@ -164,7 +143,7 @@ const PartCard = (props: PartCardProps) => {
                 open={open}
                 onClose={handleClose}
             >
-                {components.map(e => <MenuItem key={`mi-${e.name}-${e.partType}`} onClick={() => {handleSelect(e)}}>{e.name}</MenuItem>)}
+                {components.map(e => <MenuItem key={`mi-${e.name}-${e}`} onClick={() => { handleSelect(e) }}>{e.name}</MenuItem>)}
             </Menu>
         </div>
     )

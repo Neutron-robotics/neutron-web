@@ -1,128 +1,98 @@
-import OperationSandbox from "../components/OperationSandbox";
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { ILayoutCoordinates, IOperationCategory, IOperationComponentBuilder, IOperationComponentLayoutItem } from '../components/OperationComponents/IOperationComponents';
+import { useCallback, useEffect, useState } from 'react';
+import { IOperationComponent, IOperationComponentBuilder, IOperationComponentDescriptor } from '../components/OperationComponents/IOperationComponents';
 import { operationComponentsConfiguration } from '../components/OperationComponents/components';
 import { makeOperationComponentLayoutItem } from "../components/OperationComponents/OperationComponentFactory";
-import { IRobotModule, makeModule } from "neutron-core";
 import IViewProps from "./IView";
 import OperationHeader from "../components/Header/OperationHeader";
-import { IHeaderMenuState } from "./ViewManager";
-import { MultiConnectionContext } from "../contexts/MultiConnectionProvider";
-import { v4 as uuid } from "uuid";
+import { makeStyles } from "@mui/styles";
+import { useTab, useTabsDispatch } from "../contexts/TabContext";
+import { v4 as uuid } from 'uuid';
 
-export interface IOperationMenuState extends IHeaderMenuState {
-    layout: IOperationComponentLayoutItem[]
-    modules: IRobotModule[]
-}
+const useStyles = makeStyles(() => ({
+    root: {
+        backgroundImage: "radial-gradient(black 2px, transparent 0)",
+        backgroundPosition: "0px -36px",
+        backgroundSize: "40px 40px",
+        height: "100vh",
+        position: "relative",
+    }
+}))
 
 export interface IOperationViewProps extends IViewProps {
-    commitOperationLayout: (menu: string, viewState: IOperationMenuState) => void;
-    viewState?: IOperationMenuState;
     id: string
 }
 
 const OperationView = (props: IOperationViewProps) => {
-    const { setHeaderBody, id, commitOperationLayout, viewState } = props;
-    const [headerCategories, setHeaderCategories] = useState<IOperationCategory[]>([])
-    const [operationComponentLayoutItems, setOperationComponentLayoutItems] = useState<IOperationComponentLayoutItem[]>([])
-    const [modules, setModules] = useState<IRobotModule[]>([])
-    const { connections } = useContext(MultiConnectionContext)
-    const context = connections[id]?.context
-    const [currentId, setCurrentId] = useState<string>(uuid())
+    const { setHeaderBody, id } = props
+    const classes = useStyles()
+    const actualTab = useTab(id)
+    const dispatcher = useTabsDispatch()
+    const [operationComponents, setOperationComponents] = useState<IOperationComponent[]>([])
+
+    console.log("Actual tab props", actualTab?.components)
+
+    const handleOnCloseOperationComponent = useCallback((id: string) => {
+        setOperationComponents(operationComponents.filter(item => item.id !== id))
+    }, [operationComponents])
+
+    const handleOnAddOperationComponent = useCallback((descriptor: IOperationComponentDescriptor) => {
+        const componentBuilder: IOperationComponentBuilder = {
+            id: uuid(),
+            tabId: id,
+            name: descriptor.name,
+            type: descriptor.type,
+            settings: descriptor.settings,
+            component: descriptor.component,
+            onClose: handleOnCloseOperationComponent,
+        }
+        const layoutComponent = makeOperationComponentLayoutItem(componentBuilder, {
+            // todo: add module Id
+        })
+        dispatcher({ type: "add-component", tabId: id, payload: { builder: componentBuilder, specifics: {} } })
+        setOperationComponents([...operationComponents, layoutComponent])
+    }, [dispatcher, handleOnCloseOperationComponent, id, operationComponents])
 
     useEffect(() => {
-        setHeaderCategories(operationComponentsConfiguration)
-    }, [])
-
-    const onLayoutComponentPositionUpdate = (pos: ILayoutCoordinates, id: string) => {
-        console.log("update layout component position", pos, id)
-        setOperationComponentLayoutItems((prev) => {
-            console.log("prev", prev)
-            const updated = prev.map((e) => {
-                if (e.name === id) {
-                    console.log("saving position", pos, "for", id)
-                    return {
-                        ...e,
-                        defaultPosition: pos
-                    }
-                }
-                return e
-            })
-            return updated
-        })
-    }
-
-    useEffect(() => {
-        if (id !== currentId) {
-            console.log("Id changed", id, currentId)
-            console.log("set save", viewState)
-            setCurrentId(id)
-            setOperationComponentLayoutItems(viewState?.layout || [])
-            setModules(viewState?.modules || [])
-            return () => {
-                console.log("commit", currentId, operationComponentLayoutItems, modules)
-                commitOperationLayout(currentId, {
-                    layout: operationComponentLayoutItems,
-                    modules,
-                })
-            }
+        if (actualTab) {
+            const recoveredOperationComponents = Object.entries(actualTab.components).map(([id, component]) =>
+                makeOperationComponentLayoutItem(component.builder, component.specifics)
+            )
+            console.log("Recovered operation components", recoveredOperationComponents)
+            setOperationComponents(recoveredOperationComponents)
         }
-    }, [commitOperationLayout, currentId, id, modules, operationComponentLayoutItems, viewState])
-
-    const unmountComponentLayoutItem = useCallback((name: string) => {
-        setOperationComponentLayoutItems(operationComponentLayoutItems.filter(item => item.id !== name))
-    }, [operationComponentLayoutItems])
-
-    const mountComponent = useCallback((component: IOperationComponentBuilder) => {
-        console.log(component)
-        if (component.needModule && !context) {
-            console.log("No context")
-            return
+        else {
+            console.log("Actual tab is undefined")
+            dispatcher({ type: "update", tabId: id, payload: { components: {} } })
+            setOperationComponents([])
         }
-        let module = modules.find(m => m.type === component.type)
-        if (!module && component.needModule && context) {
-            module = makeModule(component.partType, context, {
-                id: "",
-                name: component.name,
-                type: component.partType,
-                module: component.settings,
-                framePackage: component.framePackage,
-            })
-            if (!module) {
-                console.log("No module")
-                return
-            }
-            setModules([...modules, module])
-        }
-        const layoutComponent = makeOperationComponentLayoutItem(component, {
-            onClose: unmountComponentLayoutItem,
-            onPositionUpdate: onLayoutComponentPositionUpdate,
-            module: module
-        })
-        console.log("make layout")
-        setOperationComponentLayoutItems([...operationComponentLayoutItems, layoutComponent])
-    }, [context, modules, operationComponentLayoutItems, unmountComponentLayoutItem])
+    }, [actualTab, dispatcher, id])
 
     useEffect(() => {
         setHeaderBody(
             <OperationHeader
                 onConnectClick={() => { }}
                 onDisconnectClick={() => { }}
-                mountComponent={mountComponent}
+                mountComponent={handleOnAddOperationComponent}
                 isConnected={false}
                 batteryLevel={100}
                 wifiLevel={100}
-                parts={headerCategories}
+                operationCategories={operationComponentsConfiguration}
             />
         )
-    }, [headerCategories, mountComponent, setHeaderBody])
+    }, [handleOnAddOperationComponent, setHeaderBody])
 
     return (
         <>
-            <OperationSandbox
-                onComponentClose={unmountComponentLayoutItem}
-                components={operationComponentLayoutItems}
-            />
+            <div className={classes.root}>
+                {operationComponents.map((e: IOperationComponent) => {
+                    const OperationComponent = e.operationComponent
+                    return (
+                        <OperationComponent
+                            key={e.id}
+                        />
+                    )
+                })}
+            </div>
         </>
     )
 }

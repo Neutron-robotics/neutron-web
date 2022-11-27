@@ -1,56 +1,71 @@
-import { Core, IConnectionContext, IRobotModule } from "neutron-core";
+import { Core, IConnectionContext, IRobotModule, makeModule } from "neutron-core";
 import { createContext, ReactNode, useState } from "react";
+import { v4 as uuid } from 'uuid';
 
 interface IConnection {
     context: IConnectionContext;
     core: Core;
+    modules: IRobotModule[];
 }
 
 type ContextProps = {
-    addConnection: (connectionCore: Core, context: IConnectionContext, modules?: IRobotModule[]) => Promise<boolean>;
+    addConnection: (connectionCore: Core, context: IConnectionContext, modules: IRobotModule[]) => Promise<boolean>;
     removeConnection: (id: string) => void;
-    connections: { [key: string]: IConnection };
+    connections: Record<string, IConnection>;
 }
 
 export const MultiConnectionContext = createContext<ContextProps>({
-    addConnection: (connectionCore: Core, context: IConnectionContext, modules?: IRobotModule[]) => Promise.resolve(false),
+    addConnection: (connectionCore: Core, context: IConnectionContext, modules: IRobotModule[]) => Promise.resolve(false),
     removeConnection: (id: string) => Promise.resolve(false),
     connections: {}
 });
 
 export const MultiConnectionProvider = ({ children }: { children: ReactNode }) => {
-    const [connections, setConnections] = useState<{ [key: string]: IConnection }>({});
+    const [connections, setConnections] = useState<Record<string, IConnection>>({});
 
-    const addConnection = async (connectionCore: Core, connectionContext: IConnectionContext, modules?: IRobotModule[]): Promise<boolean> => {
+    const addConnection = async (connectionCore: Core, connectionContext: IConnectionContext, modules: IRobotModule[]): Promise<boolean> => {
         if (!connectionCore || !connectionContext) {
             console.log("No core or context")
             return false;
         }
-        if (!modules) {
-            const success = await connectionCore.startProcesses(30000)
+        // if (!modules) { // pk si ya pas moduyles on start tout ? Si ya R on met un tableau vide ?
+        //     const success = await connectionCore.startProcesses(30000)
+        //     if (!success) {
+        //         console.log("Failed to start processes")
+        //         return false;
+        //     }
+
+        // }
+        // else {
+        await connectionCore.getProcessesStatus();
+        for (const module of modules) {
+            const success = await connectionCore.startRobotProcess(module.id, 30000)
             if (!success) {
-                console.log("Failed to start processes")
+                console.log("Failed to start process", module.name)
                 return false;
             }
         }
-        else {
-            await connectionCore.getProcessesStatus();
-            for (const module of modules) {
-                const success = await connectionCore.startRobotProcess(module.id, 30000)
-                if (!success) {
-                    console.log("Failed to start process", module.name)
-                    return false;
-                }
-            }
-        }
+        // }
         const success = await connectionContext.connect()
-        if (success) {
-            const newConnection = {
-                context: connectionContext,
-                core: connectionCore,
-            }
-            setConnections({ ...connections, [connectionCore.id]: newConnection })
+        if (!success) {
+            console.log("Failed to connect to context")
+            return false;
         }
+        const robotModules = modules.map((module) =>
+            makeModule(module.type, connectionContext, {
+                id: module.id,
+                name: module.name,
+                type: module.type,
+                module: "I NEED TO DO IT",
+                framePackage: "I NEED TO"
+            })
+        )
+        const newConnection = {
+            context: connectionContext,
+            core: connectionCore,
+            modules: robotModules
+        }
+        setConnections({ ...connections, [connectionCore.id]: newConnection })
         return success;
     }
 
