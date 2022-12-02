@@ -19,7 +19,7 @@ const useStyle = makeStyles(() => ({
 
 export interface IHeaderMenu {
     title: string,
-    id: string,
+    connectionId: string,
     state?: IHeaderMenuState
     onClose: () => void,
     onSetActive: () => void,

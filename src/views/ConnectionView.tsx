@@ -2,6 +2,7 @@ import { makeStyles } from "@mui/styles"
 import { Core, IRobotConnectionInfo, IRobotModule, makeConnectionContext, RobotConnectionType } from "neutron-core"
 import { useContext, useEffect, useState } from "react"
 import RobotConnection from "../components/Connection/RobotConnection"
+import { IHeaderMenu } from "../components/Header/Header"
 import { MultiConnectionContext } from "../contexts/MultiConnectionProvider"
 import { ViewType } from "../contexts/ViewProvider"
 import IViewProps from "./IView"
@@ -40,11 +41,11 @@ const ConnectionView = (props: IConnectionViewProps) => {
             if (!res) {
                 console.log("Failed to connect")
             }
-            const item = {
-                id: core.id,
+            const item: IHeaderMenu = {
+                connectionId: core.id,
                 title: core.name,
                 onClose: () => { },
-                onSetActive: () => { }
+                onSetActive: () => { },
             }
             setHeaderMenues(item, ViewType.OperationView, true)
         }
@@ -58,7 +59,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
     useEffect(() => {
         setRobotConnectionsInfos([
             {
-                hostname: '192.168.1.200',
+                hostname: '192.168.1.188',
                 port: 8000,
                 type: RobotConnectionType.ROSBRIDGE,
             },

@@ -76,7 +76,7 @@ export const CameraComponentBuilder: IOperationComponentDescriptor = {
         defaultWidth: 854,
         defaultHeight: 480,
     },
-    framePackage: "neutron-camera",
+    // framePackage: "neutron-camera",
 }
 
 export default CameraComponent

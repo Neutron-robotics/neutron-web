@@ -56,27 +56,38 @@ const OperationComponent = (props: OperationComponentProps) => {
     const [position, setPosition] = React.useState<ILayoutCoordinates>(defaultPosition || { x: 0, y: 0 })
     const posRef = useRef(position)
     const tabDispatcher = useTabsDispatch()
+    const [isClosing, setIsClosing] = React.useState(false)
 
-    console.log("OperationComponent", props)
+    console.log("OperationComponent", props, "is closing", isClosing)
 
     useEffect(() => {
         posRef.current = position;
     }, [position]);
 
     useEffect(() => {
+        if (isClosing) {
+            onClose(id)
+            console.log("closing")
+        }
         return () => {
-            if ((posRef.current.x !== 0 && posRef.current.y !== 0) &&
+            console.log("OPERATION COMPONENT USE EFFECT UNMOUNT", id, "IS CLOSING ?", isClosing)
+            if (isClosing) {
+                console.log("babaye")
+                return
+            }
+            else if ((posRef.current.x !== 0 && posRef.current.y !== 0) &&
                 (posRef.current.x !== defaultPosition?.x && posRef.current.y !== defaultPosition?.y)) {
-                console.log(`Unmounting ${name}`, posRef.current)
+                console.log(`Unmounting ${id}`, posRef.current)
                 tabDispatcher({ type: 'commit', payload: { defaultWidth: width, defaultHeight: height, defaultPosition: posRef.current }, tabId, componentId: id })
             }
             else
                 console.log("Unmounting but coord are 0 or same as bfore", name)
         }
-    }, [name])
+    }, [id, isClosing])
 
     const handleCloseButton = () => {
-        onClose(name)
+        console.log("closing")
+        setIsClosing(true)
     }
 
     const handlePositionUpdate = (position: ILayoutCoordinates) => {

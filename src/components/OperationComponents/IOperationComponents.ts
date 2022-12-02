@@ -6,19 +6,6 @@ export interface IOperationComponentSettings {
   defaultPosition?: ILayoutCoordinates;
 }
 
-// export interface IOperationComponentBuilder {
-//   name: string;
-//   type: OperationComponentType;
-//   partType: string;
-//   component: (props: any) => JSX.Element;
-//   icon: JSX.Element;
-//   settings: IOperationComponentSettings;
-
-//   framePackage?: string;
-//   needModule?: boolean;
-//   defaultPosition?: ILayoutCoordinates;
-// }
-
 export interface IOperationComponentDescriptor {
   name: string;
   type: OperationComponentType;
@@ -26,7 +13,7 @@ export interface IOperationComponentDescriptor {
   component: (props: any) => JSX.Element;
   icon: JSX.Element;
   settings: IOperationComponentSettings;
-  framePackage?: string; // This has to be defined in the settings of the web application
+  // moduleId?: string;
 }
 
 export interface IOperationComponentBuilder {

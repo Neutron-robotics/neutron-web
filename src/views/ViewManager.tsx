@@ -55,56 +55,57 @@ const ViewManager = () => {
     }
 
     const handleAddHeaderMenu = (item: IHeaderMenu, viewType: ViewType, active: boolean) => {
-        if (headerMenues[item.id]) {
-            console.log(`Header menu with id ${item.id} already exists`);
+        if (headerMenues[item.connectionId]) {
+            console.log(`Header menu with connectionId ${item.connectionId} already exists`);
             return;
         }
 
         const menu: IHeaderMenu = {
             ...item,
             onClose: () => {
-                setRemoveMenuId(item.id);
+                setRemoveMenuId(item.connectionId);
                 setViewType(ViewType.Home);
                 item.onClose();
             },
             onSetActive: () => {
-                console.log(`Set active menu ${item.id}`);
-                handleSetActiveMenu(item.id);
+                console.log(`Set active menu ${item.connectionId}`);
+                handleSetActiveMenu(item.connectionId);
                 setViewType(viewType);
                 item.onSetActive();
             },
-            id: item.id,
+            connectionId: item.connectionId,
         }
         setHeaderMenues({
             ...headerMenues,
-            [item.id]: menu
+            [item.connectionId]: menu
         });
         if (active) {
-            setActiveMenuId(menu.id);
+            setActiveMenuId(menu.connectionId);
             setViewType(viewType);
         }
     }
 
-    const test = () => {
-        const id = Math.random()
-        const title = `Test ${id}`;
-        handleAddHeaderMenu({
-            title: title,
-            onClose: () => { },
-            onSetActive: () => { },
-            id: id.toString(),
-        }, ViewType.OperationView, true);
-    }
+    // const test = () => {
+    //     const id = Math.random()
+    //     const title = `Test ${id}`;
+
+    //     handleAddHeaderMenu({
+    //         title: title,
+    //         onClose: () => { },
+    //         onSetActive: () => { },
+    //         connectionId: id.toString(),
+    //     }, ViewType.OperationView, true);
+    // }
 
     const headerMenuesProps: IHeaderMenu[] = Object.values(headerMenues).filter(e => e !== undefined) as IHeaderMenu[];
 
     return (
         <>
             <Header headerBody={headerBody} headerMenues={headerMenuesProps} activeMenu={headerMenues[activeMenuId ?? ""]} />
-            <Button onClick={test}>toto</Button>
+            {/* <Button onClick={test}>toto</Button> */}
             {(viewType === ViewType.Home) && <ConnectionView setHeaderBody={setHeaderBody} setHeaderMenues={handleAddHeaderMenu} />}
             {(viewType === ViewType.ConnectionView) && <ConnectionView setHeaderBody={setHeaderBody} setHeaderMenues={handleAddHeaderMenu} />}
-            {(viewType === ViewType.OperationView) && <OperationView id={activeMenuId ?? ""} setHeaderBody={setHeaderBody} setHeaderMenues={handleAddHeaderMenu} />}
+            {(viewType === ViewType.OperationView) && <OperationView tabId={activeMenuId ?? ""} setHeaderBody={setHeaderBody} setHeaderMenues={handleAddHeaderMenu} />}
         </>
     );
 }

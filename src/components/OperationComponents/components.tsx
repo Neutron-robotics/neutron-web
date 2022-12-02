@@ -17,7 +17,7 @@ export const operationComponentsConfiguration: IOperationCategory[] = [
     },
     {
         name: 'Camera',
-        type: 'robotbase',
+        type: 'camera',
         icon: <CameraAltIcon />,
         components: [
             CameraComponentBuilder
@@ -25,7 +25,7 @@ export const operationComponentsConfiguration: IOperationCategory[] = [
     },
     {
         name: 'Utils',
-        type: 'robotbase',
+        type: 'global',
         icon: <AdbIcon />,
         components: [
             ConsoleComponentBuilder

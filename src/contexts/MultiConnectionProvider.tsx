@@ -1,5 +1,5 @@
 import { Core, IConnectionContext, IRobotModule, makeModule } from "neutron-core";
-import { createContext, ReactNode, useState } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 import { v4 as uuid } from 'uuid';
 
 interface IConnection {
@@ -28,15 +28,6 @@ export const MultiConnectionProvider = ({ children }: { children: ReactNode }) =
             console.log("No core or context")
             return false;
         }
-        // if (!modules) { // pk si ya pas moduyles on start tout ? Si ya R on met un tableau vide ?
-        //     const success = await connectionCore.startProcesses(30000)
-        //     if (!success) {
-        //         console.log("Failed to start processes")
-        //         return false;
-        //     }
-
-        // }
-        // else {
         await connectionCore.getProcessesStatus();
         for (const module of modules) {
             const success = await connectionCore.startRobotProcess(module.id, 30000)
@@ -45,7 +36,6 @@ export const MultiConnectionProvider = ({ children }: { children: ReactNode }) =
                 return false;
             }
         }
-        // }
         const success = await connectionContext.connect()
         if (!success) {
             console.log("Failed to connect to context")
@@ -56,8 +46,8 @@ export const MultiConnectionProvider = ({ children }: { children: ReactNode }) =
                 id: module.id,
                 name: module.name,
                 type: module.type,
-                module: "I NEED TO DO IT",
-                framePackage: "I NEED TO"
+                moduleSpecifics: {},
+                // framePackage: "I NEED TO"
             })
         )
         const newConnection = {
@@ -87,4 +77,9 @@ export const MultiConnectionProvider = ({ children }: { children: ReactNode }) =
             {children}
         </MultiConnectionContext.Provider>
     );
+}
+
+export function useConnection(connectionId: string) {
+    const { connections } = useContext(MultiConnectionContext);
+    return connections[connectionId];
 }
