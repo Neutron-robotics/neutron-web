@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { IOperationCategory, IOperationComponent, IOperationComponentBuilder, IOperationComponentDescriptor } from '../components/OperationComponents/IOperationComponents';
+import { IOperationCategory, IOperationComponent, IOperationComponentBuilder, IOperationComponentDescriptor, IOperationComponentSpecifics } from '../components/OperationComponents/IOperationComponents';
 import { operationComponentsConfiguration } from '../components/OperationComponents/components';
 import { makeOperationComponentLayoutItem } from "../components/OperationComponents/OperationComponentFactory";
 import IViewProps from "./IView";
@@ -28,23 +28,28 @@ const OperationView = (props: IOperationViewProps) => {
     const { setHeaderBody, tabId } = props
     const classes = useStyles()
     const actualTab = useTab(tabId)
+    const [initialized, setInitialized] = useState(false)
     const connection = useConnection(tabId)
     const dispatcher = useTabsDispatch()
     const [operationComponents, setOperationComponents] = useState<IOperationComponent[]>([])
-    const operationComponentsRef = useRef(operationComponents)
+    // const operationComponentsRef = useRef(operationComponents)
 
     console.log("Actual tab props", actualTab?.components)
     console.log("connection", connection)
 
-    useEffect(() => {
-        operationComponentsRef.current = operationComponents
-    }, [operationComponents])
+    console.log("Operation view state", operationComponents)
+
+    // useEffect(() => {
+    //     operationComponentsRef.current = operationComponents
+    // }, [operationComponents])
 
     const handleOnCloseOperationComponent = useCallback((id: string) => {
-        console.log("Operation components", operationComponents)
-        console.log("Operation components ref", operationComponentsRef)
+        console.log(id, "closing from components", operationComponents, " ref")
+        setOperationComponents(op => {
+            console.log("op is", op, op.filter(item => item.id !== id))
+            return op.filter(item => item.id !== id)
+        })
         dispatcher({ type: "remove-component", tabId, componentId: id })
-        setOperationComponents(operationComponents.filter(item => item.id !== id))
     }, [dispatcher, operationComponents, tabId])
 
     const handleOnAddOperationComponent = useCallback((descriptor: IOperationComponentDescriptor) => {
@@ -57,17 +62,31 @@ const OperationView = (props: IOperationViewProps) => {
             component: descriptor.component,
             onClose: handleOnCloseOperationComponent,
         }
-        const layoutComponent = makeOperationComponentLayoutItem(componentBuilder, {
-            // todo: add module Id
+        const componentSpecific: IOperationComponentSpecifics = {
+            moduleId: descriptor.moduleId,
+            connectionId: tabId,
+        }
+        const layoutComponent = makeOperationComponentLayoutItem(componentBuilder, componentSpecific)
+        dispatcher({
+            type: "add-component", tabId: tabId, payload:
+                { builder: componentBuilder, specifics: componentSpecific }
         })
-        dispatcher({ type: "add-component", tabId: tabId, payload: { builder: componentBuilder, specifics: {} } })
         setOperationComponents([...operationComponents, layoutComponent])
     }, [dispatcher, handleOnCloseOperationComponent, tabId, operationComponents])
 
     useEffect(() => {
+        if (initialized) {
+            console.log("Already initialized")
+            return
+        }
         if (actualTab) {
             const recoveredOperationComponents = Object.entries(actualTab.components).map(([id, component]) =>
-                makeOperationComponentLayoutItem(component.builder, component.specifics)
+                makeOperationComponentLayoutItem(
+                    {
+                        ...component.builder,
+                        onClose: handleOnCloseOperationComponent,
+                    }
+                    , component.specifics)
             )
             console.log("Recovered operation components", recoveredOperationComponents)
             setOperationComponents(recoveredOperationComponents)
@@ -77,14 +96,10 @@ const OperationView = (props: IOperationViewProps) => {
             dispatcher({ type: "update", tabId: tabId, payload: { components: {} } })
             setOperationComponents([])
         }
-    }, [actualTab, dispatcher, tabId])
+        setInitialized(true)
+    }, [actualTab, dispatcher, initialized, tabId])
 
     useEffect(() => {
-        // if (!connection) {
-        //     console.log("No connection")
-        //     return
-        // }
-        // console.log("connection")
         const operationCategoryFiltered: IOperationCategory[] = makeOperationBar(operationComponentsConfiguration, connection?.modules ?? [])
         setHeaderBody(
             <OperationHeader
@@ -95,6 +110,7 @@ const OperationView = (props: IOperationViewProps) => {
                 batteryLevel={100}
                 wifiLevel={100}
                 operationCategories={operationCategoryFiltered}
+                modules={connection?.modules ?? []}
             />
         )
     }, [handleOnAddOperationComponent, connection, setHeaderBody])

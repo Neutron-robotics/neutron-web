@@ -4,6 +4,7 @@ import BatteryFullTwoToneIcon from '@mui/icons-material/BatteryFullTwoTone';
 import NetworkWifi1BarTwoToneIcon from '@mui/icons-material/NetworkWifi1BarTwoTone';
 import { useState } from "react";
 import { IOperationCategory, IOperationComponentDescriptor } from "../OperationComponents/IOperationComponents";
+import { IRobotModule } from "neutron-core";
 
 const useStyle = makeStyles(() => ({
     root: {
@@ -57,14 +58,30 @@ interface OperationHeaderProps {
     isConnected: boolean;
     batteryLevel: number;
     wifiLevel: number;
+    modules: IRobotModule[];
     operationCategories: IOperationCategory[]
 }
 
 const OperationHeader = (props: OperationHeaderProps) => {
-    const { operationCategories, isConnected, mountComponent } = props
+    const { operationCategories, isConnected, mountComponent, modules } = props
     const classes = useStyle()
 
-    const handleWifiClick = () => {}
+    const handleWifiClick = () => { }
+
+    const handleonMountComponent = (descriptor: IOperationComponentDescriptor) => {
+        const module = modules.filter(m => m.type === descriptor.partType)
+        if (module.length > 1) {
+            console.log("more than one module of this type, need to select, not implemented yet")
+        }
+        if (module.length === 1) {
+            mountComponent({
+                ...descriptor,
+                moduleId: module[0].id
+            })
+        }
+        else
+            mountComponent(descriptor)
+    }
 
     return (
         <div className={classes.root}>
@@ -97,14 +114,14 @@ const OperationHeader = (props: OperationHeaderProps) => {
 
             <Divider orientation="vertical" flexItem />
             <div className={classes.partIconGroup}>
-                {operationCategories.map(e => <PartCard key={`pc-${e.name}-${e.type}`} mountComponent={mountComponent} operationCategory={e} isActivated />)}
+                {operationCategories.map(e => <PartCard key={`pc-${e.name}-${e.type}`} mountComponent={handleonMountComponent} operationCategory={e} isActivated />)}
             </div>
         </div>
     )
 }
 
 interface PartCardProps {
-    mountComponent:  (descriptor: IOperationComponentDescriptor) => void;
+    mountComponent: (descriptor: IOperationComponentDescriptor) => void;
     operationCategory: IOperationCategory
     isActivated: boolean;
 }
@@ -123,6 +140,9 @@ const PartCard = (props: PartCardProps) => {
     };
     const handleSelect = (component: IOperationComponentDescriptor) => {
         handleClose()
+        if (component.moduleId) {
+            console.log("modulesId ?! Wtf ?! ", component.moduleId)
+        }
         mountComponent(component)
     }
 

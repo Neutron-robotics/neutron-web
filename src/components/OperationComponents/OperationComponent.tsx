@@ -58,7 +58,7 @@ const OperationComponent = (props: OperationComponentProps) => {
     const tabDispatcher = useTabsDispatch()
     const [isClosing, setIsClosing] = React.useState(false)
 
-    console.log("OperationComponent", props, "is closing", isClosing)
+    // console.log("OperationComponent", props, "is closing", isClosing)
 
     useEffect(() => {
         posRef.current = position;
@@ -70,7 +70,7 @@ const OperationComponent = (props: OperationComponentProps) => {
             console.log("closing")
         }
         return () => {
-            console.log("OPERATION COMPONENT USE EFFECT UNMOUNT", id, "IS CLOSING ?", isClosing)
+            // console.log("OPERATION COMPONENT USE EFFECT UNMOUNT", id, "IS CLOSING ?", isClosing)
             if (isClosing) {
                 console.log("babaye")
                 return
@@ -80,10 +80,10 @@ const OperationComponent = (props: OperationComponentProps) => {
                 console.log(`Unmounting ${id}`, posRef.current)
                 tabDispatcher({ type: 'commit', payload: { defaultWidth: width, defaultHeight: height, defaultPosition: posRef.current }, tabId, componentId: id })
             }
-            else
-                console.log("Unmounting but coord are 0 or same as bfore", name)
+            // else
+            //     console.log("Unmounting but coord are 0 or same as bfore", name)
         }
-    }, [id, isClosing])
+    }, [defaultPosition?.x, defaultPosition?.y, height, id, isClosing, onClose, tabDispatcher, tabId, width]) // [id, isClosing])
 
     const handleCloseButton = () => {
         console.log("closing")

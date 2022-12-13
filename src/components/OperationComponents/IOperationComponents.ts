@@ -13,7 +13,7 @@ export interface IOperationComponentDescriptor {
   component: (props: any) => JSX.Element;
   icon: JSX.Element;
   settings: IOperationComponentSettings;
-  // moduleId?: string;
+  moduleId?: string;
 }
 
 export interface IOperationComponentBuilder {
@@ -28,6 +28,7 @@ export interface IOperationComponentBuilder {
 }
 
 export interface IOperationComponentSpecifics {
+  connectionId: string;
   moduleId?: string;
 }
 

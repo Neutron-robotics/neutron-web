@@ -41,13 +41,13 @@ export const MultiConnectionProvider = ({ children }: { children: ReactNode }) =
             console.log("Failed to connect to context")
             return false;
         }
-        const robotModules = modules.map((module) =>
+        const robotModules = modules.filter(module => module.framePackage).map((module) =>
             makeModule(module.type, connectionContext, {
                 id: module.id,
                 name: module.name,
                 type: module.type,
                 moduleSpecifics: {},
-                // framePackage: "I NEED TO"
+                framePackage: module.framePackage
             })
         )
         const newConnection = {

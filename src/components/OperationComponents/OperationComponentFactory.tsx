@@ -4,10 +4,8 @@ import { IOperationComponent, IOperationComponentBuilder, IOperationComponentSpe
 import OperationComponent from "./OperationComponent";
 
 export const makeOperationComponentLayoutItem = (componentBuilder: IOperationComponentBuilder, props: IOperationComponentSpecifics): IOperationComponent => {
-    const id = `${componentBuilder.name}-${props.moduleId || 'default'}`
     return {
         ...componentBuilder,
-        id: id,
         operationComponent: makeOperationComponent(componentBuilder, props)
     }
 }

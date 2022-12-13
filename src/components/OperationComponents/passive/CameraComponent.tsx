@@ -2,8 +2,9 @@ import { Button } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import React, { useEffect, useState } from "react"
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
-import { IOperationComponentDescriptor } from "../IOperationComponents"
+import { IOperationComponentDescriptor, IOperationComponentSpecifics } from "../IOperationComponents"
 import { Camera } from "neutron-core"
+import { useConnection } from "../../../contexts/MultiConnectionProvider";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -16,22 +17,30 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
+interface ICameraComponentProps extends IOperationComponentSpecifics {
 
-const CameraComponent = (props: any) => {
+}
+
+const CameraComponent = (props: ICameraComponentProps) => {
     const classes = useStyles()
     const [isConnected, setIsConnected] = useState(false)
     // const logger = useLogger("CameraComponent")
-    const camera = props.module as Camera
+    // const camera = props.module as Camera
+    console.log("camera component props", props)
+    const { moduleId, connectionId } = props
+    const connection = useConnection(connectionId ?? "")
+    const camera = connection.modules.find(m => m.id === moduleId) as Camera
 
     console.log("camera props is", props)
+    console.log("camera--", camera)
 
-    useEffect(() => {
-        return () => {
-            if (camera.isConnected) {
-                camera.disconnect()
-            }
-        }
-    }, [camera])
+    // useEffect(() => {
+    //     return () => {
+    //         if (camera.isConnected) {
+    //             camera.disconnect()
+    //         }
+    //     }
+    // }, [camera])
 
     const handleOnConnect = async () => {
         const success = await camera.connect()

@@ -49,8 +49,8 @@ const ViewManager = () => {
     }, [activeMenuId, headerMenues, setViewType])
 
     const handleSetActiveMenu = (menuId: string) => {
-        console.log("heu", headerMenues)
-        console.log(`Set active menu ${headerMenues[menuId]}`, headerMenues[menuId]);
+        // console.log("heu", headerMenues)
+        console.log(`Set active menu ${headerMenues[menuId]}`, headerMenues[menuId], headerMenues);
         setActiveMenuId(menuId);
     }
 
