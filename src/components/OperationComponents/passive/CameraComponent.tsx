@@ -1,6 +1,6 @@
 import { Button } from "@mui/material"
 import { makeStyles } from "@mui/styles"
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { IOperationComponentDescriptor, IOperationComponentSpecifics } from "../IOperationComponents"
 import { Camera } from "neutron-core"
@@ -17,32 +17,39 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-interface ICameraComponentProps extends IOperationComponentSpecifics {
-
+interface ICameraComponentSpecifics {
+    isConnected?: boolean
 }
 
-const CameraComponent = (props: ICameraComponentProps) => {
+const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpecifics>) => {
+    const { moduleId, connectionId, onCommitComponentSpecific, specifics } = props
     const classes = useStyles()
-    const [isConnected, setIsConnected] = useState(false)
+    const [isConnected, setIsConnected] = useState(specifics.isConnected ?? false)
     // const logger = useLogger("CameraComponent")
     // const camera = props.module as Camera
     console.log("camera component props", props)
-    const { moduleId, connectionId } = props
     const connection = useConnection(connectionId ?? "")
     const camera = connection.modules.find(m => m.id === moduleId) as Camera
+
+    // useEffect(() => {
+    //     setIsConnected(specifics.isConnected ?? false);
+    // }, []);
+
+    useEffect(() => {
+        onCommitComponentSpecific({
+            isConnected,
+        });
+        console.log("camera commit", isConnected)
+        return () => {
+            
+        };
+    }, [isConnected]);
 
     console.log("camera props is", props)
     console.log("camera--", camera)
 
-    // useEffect(() => {
-    //     return () => {
-    //         if (camera.isConnected) {
-    //             camera.disconnect()
-    //         }
-    //     }
-    // }, [camera])
-
     const handleOnConnect = async () => {
+        console.log("boot camera")
         const success = await camera.connect()
         setIsConnected(success)
         console.log("connect res is", success)
@@ -89,3 +96,33 @@ export const CameraComponentBuilder: IOperationComponentDescriptor = {
 }
 
 export default CameraComponent
+
+
+// useEffect(() => {
+//     if (!initialized)
+//         return
+//     return () => {
+//         console.log("camera commitiing", isConnected)
+//         onCommitComponentSpecific<ICameraComponentSpecifics>({
+//             isConnected
+//         })
+//     }
+// }, [initialized, isConnected, onCommitComponentSpecific])
+
+// useEffect(() => {
+//     if (initialized)
+//         return;
+//     if (specifics.isConnected) {
+//         setIsConnected(true)
+//     }
+//     setInitialized(true)
+//     // return () => {
+//     //     console.log("camera commitiing", isConnected)
+//     //     onCommitComponentSpecific<ICameraComponentSpecifics>({
+//     //         isConnected
+//     //     })
+//     //     // if (camera.isConnected) {
+//     //     //     camera.disconnect()
+//     //     // }
+//     // }
+// }, [initialized])

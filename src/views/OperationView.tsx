@@ -62,9 +62,11 @@ const OperationView = (props: IOperationViewProps) => {
             component: descriptor.component,
             onClose: handleOnCloseOperationComponent,
         }
-        const componentSpecific: IOperationComponentSpecifics = {
+        const componentSpecific: IOperationComponentSpecifics<unknown> = {
             moduleId: descriptor.moduleId,
             connectionId: tabId,
+            onCommitComponentSpecific: <TComponentSpecific,>(specifics: TComponentSpecific) => { },
+            specifics: {},
         }
         const layoutComponent = makeOperationComponentLayoutItem(componentBuilder, componentSpecific)
         dispatcher({

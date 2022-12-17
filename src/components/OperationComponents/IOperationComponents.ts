@@ -27,9 +27,13 @@ export interface IOperationComponentBuilder {
   onClose: (id: string) => void;
 }
 
-export interface IOperationComponentSpecifics {
+export interface IOperationComponentSpecifics<TComponentSpecific> {
   connectionId: string;
   moduleId?: string;
+  specifics: TComponentSpecific;
+  onCommitComponentSpecific: <TComponentSpecific>(
+    specifics: TComponentSpecific
+  ) => void;
 }
 
 export interface ILayoutCoordinates {

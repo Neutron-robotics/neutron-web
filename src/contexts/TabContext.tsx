@@ -2,7 +2,7 @@ import { createContext, Dispatch, useContext, useReducer } from 'react';
 import { IOperationComponentBuilder, IOperationComponentSettings, IOperationComponentSpecifics } from '../components/OperationComponents/IOperationComponents';
 
 export interface IOperationTabData {
-    components: Record<string, { builder: IOperationComponentBuilder, specifics: IOperationComponentSpecifics }>
+    components: Record<string, { builder: IOperationComponentBuilder, specifics: IOperationComponentSpecifics<unknown> }>
 }
 
 interface ITabDispatchAction {
@@ -11,9 +11,10 @@ interface ITabDispatchAction {
     tabId: string
 }
 
-interface CommitDispatchAction {
+interface CommitDispatchAction<TComponentSpecific> {
     type: 'commit';
     payload: IOperationComponentSettings
+    specifics: TComponentSpecific
     tabId: string
     componentId: string
 }
@@ -24,16 +25,16 @@ interface RemoveComponentDispatchAction {
     componentId: string
 }
 
-interface AddComponentDispatchAction {
+interface AddComponentDispatchAction<TComponentSpecific> {
     type: 'add-component';
     tabId: string
     payload: {
         builder: IOperationComponentBuilder
-        specifics: IOperationComponentSpecifics
+        specifics: IOperationComponentSpecifics<TComponentSpecific>
     }
 }
 
-type TabDispatchesActions = ITabDispatchAction | CommitDispatchAction | RemoveComponentDispatchAction | AddComponentDispatchAction
+type TabDispatchesActions = ITabDispatchAction | CommitDispatchAction<unknown> | RemoveComponentDispatchAction | AddComponentDispatchAction<unknown>
 
 export type ITabsContext = Record<string, IOperationTabData>;
 
@@ -90,7 +91,7 @@ function tabsReducer(tabs: ITabsContext, action: TabDispatchesActions) {
             }
         }
         case 'commit': {
-            const { tabId, componentId, payload } = action
+            const { tabId, componentId, payload, specifics } = action
             const tab = tabs[tabId]
             if (!tab) {
                 console.log("no such tab exist")
@@ -100,7 +101,7 @@ function tabsReducer(tabs: ITabsContext, action: TabDispatchesActions) {
                 console.log('Invalid componentId or tabId', componentId, tabId)
                 return tabs
             }
-            console.log('Committing', componentId, payload)
+            console.log('Committing', componentId, payload, specifics)
             return {
                 ...tabs,
                 [tabId]: {
@@ -111,7 +112,11 @@ function tabsReducer(tabs: ITabsContext, action: TabDispatchesActions) {
                             ...tab.components[componentId],
                             builder: {
                                 ...tab.components[componentId].builder,
-                                settings: payload
+                                settings: payload,
+                            },
+                            specifics: {
+                                ...tab.components[componentId].specifics,
+                                specifics: specifics
                             }
                         }
                     }
