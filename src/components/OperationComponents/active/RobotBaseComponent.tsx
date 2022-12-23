@@ -4,12 +4,12 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import TurnRightIcon from '@mui/icons-material/TurnRight';
 import TurnLeftIcon from '@mui/icons-material/TurnLeft';
-import { useContext, useEffect, useState } from "react";
 import CancelIcon from '@mui/icons-material/Cancel';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import { IOperationComponentDescriptor } from "../IOperationComponents";
-import { ConnectionContext } from "../../../contexts/ConnectionProvider";
+import { IOperationComponentDescriptor, IOperationComponentSpecifics } from "../IOperationComponents";
 import { RobotBase } from "neutron-core";
+import { useConnection } from "../../../contexts/MultiConnectionProvider";
+import { useState } from "react";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -22,52 +22,46 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-const RobotBaseComponent = () => {
+interface IRobotBaseComponentSpecifics {
+}
+
+const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseComponentSpecifics>) => {
+    const { moduleId, connectionId } = props
     const classes = useStyles()
-    const [baseController, setBaseController] = useState<RobotBase>()
-    const { context } = useContext(ConnectionContext)
+    const connection = useConnection(connectionId ?? "")
+    const [rotateFactor, setRotateFactor] = useState(0)
+    const robotBase = connection.modules.find(m => m.id === moduleId) as RobotBase
+    console.log("Robotbase", robotBase)
 
-    useEffect(() => {
-        // if (context) {
-        //     const base = new RobotBase(
-        //         {
-        //             id: "",
-        //             name: "",
-        //             directionnalSpeed: 0.5,
-        //             rotationSpeed: 0.5,
-        //         }, context, []
-        //     )
-        //     setBaseController(base)
-        //     return () => {
-        //         base.stop()
-        //     }
-        // }
-    }, [context])
-
-    const handleForward = () => {
-        // baseController?.move("forward")
-        console.log("forward")
+    const handleForward = async () => {
+        const res = await robotBase.move([1, 0, 0, 0, 0, 0])
+        setRotateFactor(0)
+        console.log("forward", res)
     }
     const handleBackward = () => {
-        // baseController?.move("backward")
+        robotBase.move([-1, 0, 0, 0, 0, 0])
+        setRotateFactor(0)
         console.log("backward")
     }
     const handleLeft = () => {
-        // baseController?.rotate("left")
+        robotBase.move([0, 0, 0, 0, 0, -rotateFactor - 10])
+        setRotateFactor((e) => e-10)
         console.log("left")
     }
     const handleRight = () => {
-        // baseController?.rotate("right")
+        robotBase.move([0, 0, 0, 0, 0, rotateFactor + 10])
+        setRotateFactor((e) => e+10)
         console.log("right")
     }
 
     const handleStop = () => {
-        baseController?.stop()
+        robotBase.stop()
+        setRotateFactor(0)
     }
 
     const handleSpeedChange = (e: any, value: number | number[]) => {
         if (typeof value === "number") {
-            baseController?.setSpeed(value)
+            robotBase.speed = value
         }
         console.log("speed", value)
     }
@@ -109,7 +103,7 @@ const RobotBaseComponent = () => {
             </div>
             <p>Speed</p>
             <Slider
-                defaultValue={30}
+                defaultValue={robotBase.speed}
                 aria-label="Default"
                 valueLabelDisplay="on"
                 onChange={handleSpeedChange}

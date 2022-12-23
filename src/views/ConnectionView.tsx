@@ -1,5 +1,5 @@
 import { makeStyles } from "@mui/styles"
-import { Core, IRobotConnectionInfo, IRobotModule, makeConnectionContext, RobotConnectionType } from "neutron-core"
+import { Core, IRobotConnectionInfo, IRobotModuleDefinition, makeConnectionContext, RobotConnectionType } from "neutron-core"
 import { useContext, useEffect, useState } from "react"
 import RobotConnection from "../components/Connection/RobotConnection"
 import { IHeaderMenu } from "../components/Header/Header"
@@ -28,7 +28,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
     const { addConnection, connections } = useContext(MultiConnectionContext)
 
 
-    const handleOnRobotConnect = async (core: Core, modules: IRobotModule[]) => {
+    const handleOnRobotConnect = async (core: Core, modules: IRobotModuleDefinition[]) => {
         if (core.id in connections) {
             console.log("Already connected to this robot")
             return
@@ -59,7 +59,12 @@ const ConnectionView = (props: IConnectionViewProps) => {
     useEffect(() => {
         setRobotConnectionsInfos([
             {
-                hostname: '192.168.1.117',
+                hostname: '192.168.1.105',
+                port: 8000,
+                type: RobotConnectionType.ROSBRIDGE,
+            },
+            {
+                hostname: '192.168.1.176',
                 port: 8000,
                 type: RobotConnectionType.ROSBRIDGE,
             },
@@ -70,7 +75,13 @@ const ConnectionView = (props: IConnectionViewProps) => {
         const getRobotInfos = async () => {
             const robotConnections: Core[] = (await Promise.all(robotConnectionsInfos.map(async (robotConnectionInfo) => {
                 const core = new Core(robotConnectionInfo)
-                await core.getConnectionInfo()
+                try {
+                    await core.getConnectionInfo()
+                }
+                catch (e: any) {
+                    console.log("An error happens while trying to initiate connection to core", robotConnectionInfo.hostname)
+                    return null
+                }
                 return core
             }))).filter((robotConnection => robotConnection !== null)) as Core[]
 

@@ -5,7 +5,7 @@ import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import Battery80Icon from '@mui/icons-material/Battery80';
 import { useState } from "react";
 import RobotConnectionModal from "./RobotConnectionModal";
-import { Core, IRobotModule } from "neutron-core";
+import { Core, IRobotModuleDefinition } from "neutron-core";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -36,7 +36,7 @@ const useStyles = makeStyles(() => ({
 
 export interface IRobotConnectionProps {
     coreConnection: Core
-    handleOnRobotConnect: (core: Core, modules: IRobotModule[]) => void
+    handleOnRobotConnect: (core: Core, modules: IRobotModuleDefinition[]) => void
 }
 
 const RobotConnection = (props: IRobotConnectionProps) => {

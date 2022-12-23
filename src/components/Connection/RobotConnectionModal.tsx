@@ -3,9 +3,8 @@ import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import Battery80Icon from '@mui/icons-material/Battery80';
 import RobotModuleIcon from "../RobotModuleIcon";
 import { makeStyles } from "@mui/styles";
-import { useContext, useState } from "react";
-import { ViewContext } from "../../contexts/ViewProvider";
-import { IRobotModule, Core } from "neutron-core";
+import { Core, IRobotModuleDefinition } from "neutron-core";
+import { useState } from "react";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -79,11 +78,11 @@ const useStyles = makeStyles(() => ({
 export interface RobotConnectionModalProps {
     open: boolean
     onClose: () => void
-    onConnect: (core: Core, modules: IRobotModule[]) => void
+    onConnect: (core: Core, modules: IRobotModuleDefinition[]) => void
     coreConnection: Core
 }
 
-interface IOptionalModule extends IRobotModule {
+interface IOptionalModule extends IRobotModuleDefinition {
     enabled: boolean
 }
 

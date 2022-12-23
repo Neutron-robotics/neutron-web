@@ -89,13 +89,11 @@ const OperationComponent = (props: OperationComponentProps) => {
                 console.log("babaye")
                 return
             }
-            else if ((posRef.current.x !== 0 && posRef.current.y !== 0) &&
-                (posRef.current.x !== defaultPosition?.x && posRef.current.y !== defaultPosition?.y)) {
+            // else if ((posRef.current.x !== 0 && posRef.current.y !== 0) &&
+                // (posRef.current.x !== defaultPosition?.x && posRef.current.y !== defaultPosition?.y)) {
                 console.log(`Unmounting ${id}`, posRef.current)
                 tabDispatcher({ type: 'commit', payload: { defaultWidth: width, defaultHeight: height, defaultPosition: posRef.current }, specifics: componentSpecific, tabId, componentId: id })
-            }
-            // else
-            //     console.log("Unmounting but coord are 0 or same as bfore", name)
+            // }
         }
     }, [componentSpecific, defaultPosition?.x, defaultPosition?.y, height, id, isClosing, onClose, tabDispatcher, tabId, width]) // [id, isClosing])
 
@@ -112,11 +110,6 @@ const OperationComponent = (props: OperationComponentProps) => {
         Component,
         ...componentProps
     } = content
-
-    const g = {
-        ...componentProps,
-        onCommitComponentSpecific
-    }
 
     return (
         <>

@@ -1,6 +1,6 @@
-import { Core, IConnectionContext, IRobotModule, makeModule } from "neutron-core";
+import { Core, IConnectionContext, makeModule } from "neutron-core";
+import { IRobotModule, IRobotModuleDefinition } from "neutron-core/dist/interfaces/RobotConnection";
 import { createContext, ReactNode, useContext, useState } from "react";
-import { v4 as uuid } from 'uuid';
 
 interface IConnection {
     context: IConnectionContext;
@@ -9,13 +9,13 @@ interface IConnection {
 }
 
 type ContextProps = {
-    addConnection: (connectionCore: Core, context: IConnectionContext, modules: IRobotModule[]) => Promise<boolean>;
+    addConnection: (connectionCore: Core, context: IConnectionContext, modules: IRobotModuleDefinition[]) => Promise<boolean>;
     removeConnection: (id: string) => void;
     connections: Record<string, IConnection>;
 }
 
 export const MultiConnectionContext = createContext<ContextProps>({
-    addConnection: (connectionCore: Core, context: IConnectionContext, modules: IRobotModule[]) => Promise.resolve(false),
+    addConnection: (connectionCore: Core, context: IConnectionContext, modules: IRobotModuleDefinition[]) => Promise.resolve(false),
     removeConnection: (id: string) => Promise.resolve(false),
     connections: {}
 });
@@ -23,7 +23,7 @@ export const MultiConnectionContext = createContext<ContextProps>({
 export const MultiConnectionProvider = ({ children }: { children: ReactNode }) => {
     const [connections, setConnections] = useState<Record<string, IConnection>>({});
 
-    const addConnection = async (connectionCore: Core, connectionContext: IConnectionContext, modules: IRobotModule[]): Promise<boolean> => {
+    const addConnection = async (connectionCore: Core, connectionContext: IConnectionContext, modules: IRobotModuleDefinition[]): Promise<boolean> => {
         if (!connectionCore || !connectionContext) {
             console.log("No core or context")
             return false;
@@ -46,7 +46,7 @@ export const MultiConnectionProvider = ({ children }: { children: ReactNode }) =
                 id: module.id,
                 name: module.name,
                 type: module.type,
-                moduleSpecifics: {},
+                moduleSpecifics: module.configuration ?? {},
                 framePackage: module.framePackage
             })
         )
