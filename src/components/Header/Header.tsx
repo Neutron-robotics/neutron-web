@@ -3,7 +3,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { makeStyles } from "@mui/styles";
 import { ViewContext, ViewType } from "../../contexts/ViewProvider";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import HeaderMenu from "./HeaderMenu";
 import { IHeaderMenuState } from "../../views/ViewManager";
 
@@ -48,7 +48,7 @@ const Header = (props: HeaderProps) => {
                     <IconButton
                         size="large"
                         edge="start"
-                        aria-label="menu"
+                        aria-label="home-menu"
                         color="inherit"
                         sx={{ display: 'flex' }}
                         onClick={handleHomeButtonClick}

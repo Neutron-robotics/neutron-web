@@ -49,8 +49,6 @@ const ViewManager = () => {
     }, [activeMenuId, headerMenues, setViewType])
 
     const handleSetActiveMenu = (menuId: string) => {
-        // console.log("heu", headerMenues)
-        console.log(`Set active menu ${headerMenues[menuId]}`, headerMenues[menuId], headerMenues);
         setActiveMenuId(menuId);
     }
 
@@ -84,25 +82,11 @@ const ViewManager = () => {
             setViewType(viewType);
         }
     }
-
-    // const test = () => {
-    //     const id = Math.random()
-    //     const title = `Test ${id}`;
-
-    //     handleAddHeaderMenu({
-    //         title: title,
-    //         onClose: () => { },
-    //         onSetActive: () => { },
-    //         connectionId: id.toString(),
-    //     }, ViewType.OperationView, true);
-    // }
-
     const headerMenuesProps: IHeaderMenu[] = Object.values(headerMenues).filter(e => e !== undefined) as IHeaderMenu[];
 
     return (
         <>
             <Header headerBody={headerBody} headerMenues={headerMenuesProps} activeMenu={headerMenues[activeMenuId ?? ""]} />
-            {/* <Button onClick={test}>toto</Button> */}
             {(viewType === ViewType.Home) && <ConnectionView setHeaderBody={setHeaderBody} setHeaderMenues={handleAddHeaderMenu} />}
             {(viewType === ViewType.ConnectionView) && <ConnectionView setHeaderBody={setHeaderBody} setHeaderMenues={handleAddHeaderMenu} />}
             {(viewType === ViewType.OperationView) && <OperationView tabId={activeMenuId ?? ""} setHeaderBody={setHeaderBody} setHeaderMenues={handleAddHeaderMenu} />}
