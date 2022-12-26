@@ -24,31 +24,22 @@ interface ICameraComponentSpecifics {
 const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpecifics>) => {
     const { moduleId, connectionId, onCommitComponentSpecific, specifics } = props
     const classes = useStyles()
-    const [isConnected, setIsConnected] = useState(specifics.isConnected ?? false)
+    const [isConnected, setIsConnected] = useState(specifics?.isConnected ?? false)
     // const logger = useLogger("CameraComponent")
-    // const camera = props.module as Camera
     console.log("camera component props", props)
     const connection = useConnection(connectionId ?? "")
-    const camera = connection.modules.find(m => m.id === moduleId) as Camera
-
-    // useEffect(() => {
-    //     setIsConnected(specifics.isConnected ?? false);
-    // }, []);
+    const camera = connection?.modules.find(m => m.id === moduleId) as Camera | undefined
 
     useEffect(() => {
+        if (!onCommitComponentSpecific) return
         onCommitComponentSpecific({
             isConnected,
         });
         console.log("camera commit", isConnected)
-        return () => {
-
-        };
-    }, [isConnected]);
-
-    console.log("camera props is", props)
-    console.log("camera--", camera)
+    }, [isConnected, onCommitComponentSpecific]);
 
     const handleOnConnect = async () => {
+        if (!camera) return
         console.log("boot camera")
         const success = await camera.connect()
         setIsConnected(success)
@@ -57,18 +48,17 @@ const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpe
 
     const handleOnDisconnect = async () => {
         console.log("disconnecting")
+        if (!camera) return
         const res = await camera.disconnect()
         console.log("disconnect res is", res)
         setIsConnected(false)
     }
 
-    console.log("camera uri would be ", `${camera.uri}/${new Date().getTime()}/camera.mjpg`)
-
     return (
         <div className={classes.root}>
-            {isConnected ? (
+            {camera && isConnected ? (
                 <>
-                    <img className={classes.streamer} src={`${camera.uri}/${new Date().getTime()}/camera.mjpg`} alt="camera" />
+                    <img className={classes.streamer} src={`${camera.uri}/${new Date().getTime()}/camera.mjpg`} alt="camera" aria-label="camera-img" />
                     <Button variant="contained" onClick={handleOnDisconnect} aria-label="disconnect-cmd">
                         Disconnect
                     </Button>
@@ -92,7 +82,6 @@ export const CameraComponentBuilder: IOperationComponentDescriptor = {
         defaultWidth: 854,
         defaultHeight: 480,
     },
-    // framePackage: "neutron-camera",
 }
 
 export default CameraComponent

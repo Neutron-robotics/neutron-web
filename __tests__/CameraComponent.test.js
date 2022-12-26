@@ -1,12 +1,13 @@
 import CameraComponent from "../src/components/OperationComponents/passive/CameraComponent";
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { MultiConnectionContext } from "../src/contexts/MultiConnectionProvider";
 import "@testing-library/jest-dom";
+import { wait } from "@testing-library/user-event/dist/utils";
 
 describe("CameraComponent", () => {
-  var props = {};
-  var connectionContextProps = {};
+  let props = {};
+  let connectionContextProps = {};
 
   beforeEach(() => {
     props = {
@@ -65,6 +66,7 @@ describe("CameraComponent", () => {
     expect(cameraBaseMock.disconnect).not.toHaveBeenCalled();
     expect(cameraBaseMock.stop).not.toHaveBeenCalled();
     expect(cameraBaseMock.destroy).not.toHaveBeenCalled();
+    cleanup();
   });
 
   test("the camera api is called when connecting", () => {
@@ -97,13 +99,61 @@ describe("CameraComponent", () => {
 
     const disconnectBtn = await screen.findByText("Disconnect");
     expect(disconnectBtn).toBeInTheDocument();
+    expect(screen.getByLabelText("camera-img")).toBeInTheDocument();
     fireEvent.click(disconnectBtn);
     expect(cameraBaseMock.disconnect).toBeCalled();
 
     const connectBtnAgain = await screen.findByLabelText("connect-cmd");
     expect(connectBtnAgain).toBeInTheDocument();
     expect(disconnectBtn).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("camera-img")).not.toBeInTheDocument();
   });
 
-  test.todo("reconnect from props");
+  test("Component commit its state during unmount", async () => {
+    const cameraBaseMock =
+      connectionContextProps.connections["mocktest"].modules[0];
+
+    render(
+      <MultiConnectionContext.Provider value={connectionContextProps}>
+        <CameraComponent {...props} />
+      </MultiConnectionContext.Provider>
+    );
+    const connectBtn = screen.getByLabelText("connect-cmd");
+    expect(props.onCommitComponentSpecific).toHaveBeenCalledTimes(1);
+    fireEvent.click(connectBtn);
+    expect(cameraBaseMock.connect).toBeCalled();
+    await wait(100);
+    expect(props.onCommitComponentSpecific).toHaveBeenCalledWith({
+      isConnected: true,
+    });
+  });
+
+  test("reconnect from props then disconnect", async () => {
+    const cameraBaseMock =
+      connectionContextProps.connections["mocktest"].modules[0];
+    props = {
+      moduleId: "mocktest",
+      connectionId: "mocktest",
+      onCommitComponentSpecific: jest.fn(),
+      specifics: {
+        isConnected: true,
+      },
+    };
+    render(
+      <MultiConnectionContext.Provider value={connectionContextProps}>
+        <CameraComponent {...props} />
+      </MultiConnectionContext.Provider>
+    );
+    expect(screen.getByLabelText("camera-img")).toBeInTheDocument();
+    const disconnectBtn = await screen.findByText("Disconnect");
+    expect(disconnectBtn).toBeInTheDocument();
+    expect(screen.getByLabelText("camera-img")).toBeInTheDocument();
+    fireEvent.click(disconnectBtn);
+    expect(cameraBaseMock.disconnect).toBeCalled();
+
+    const connectBtnAgain = await screen.findByLabelText("connect-cmd");
+    expect(connectBtnAgain).toBeInTheDocument();
+    expect(disconnectBtn).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("camera-img")).not.toBeInTheDocument();
+  });
 });

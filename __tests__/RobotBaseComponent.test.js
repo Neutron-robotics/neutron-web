@@ -5,8 +5,8 @@ import { RobotBaseComponent } from "../src/components/OperationComponents/active
 import { MultiConnectionContext } from "../src/contexts/MultiConnectionProvider";
 
 describe("RobotBaseComponent", () => {
-  var props = {};
-  var connectionContextProps = {};
+  let props = {};
+  let connectionContextProps = {};
 
   beforeEach(() => {
     props = {
