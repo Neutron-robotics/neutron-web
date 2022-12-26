@@ -1,12 +1,8 @@
 import React from "react";
-import { render, fireEvent, screen , act} from "@testing-library/react";
+import { render, fireEvent, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import ViewManager from "../src/views/ViewManager";
-import { Core, RobotConnectionType } from "neutron-core";
 
-/**
- * @jest-environment jsdom
- */
 test("ViewManager render successfuly", async () => {
   render(<ViewManager />);
   const t = await screen.findByText(/Connect to a robot/);

@@ -33,6 +33,11 @@ describe("RobotBaseComponent", () => {
     };
   });
 
+  test("The component does not crash if no props", () => {
+    render(<RobotBaseComponent />);
+    expect(screen.getByText("Controls")).toBeInTheDocument();
+  });
+
   test("the component should render the expected controls", () => {
     render(<RobotBaseComponent {...props} />);
     expect(screen.getByText("Controls")).toBeInTheDocument();
@@ -65,7 +70,6 @@ describe("RobotBaseComponent", () => {
   });
 
   test("the robot api is called when button get pressed", () => {
-    console.log(connectionContextProps);
     const robotBaseMock =
       connectionContextProps.connections["mocktest"].modules[0];
     render(

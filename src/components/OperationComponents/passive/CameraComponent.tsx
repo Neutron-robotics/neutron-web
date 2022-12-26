@@ -41,7 +41,7 @@ const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpe
         });
         console.log("camera commit", isConnected)
         return () => {
-            
+
         };
     }, [isConnected]);
 
@@ -69,12 +69,12 @@ const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpe
             {isConnected ? (
                 <>
                     <img className={classes.streamer} src={`${camera.uri}/${new Date().getTime()}/camera.mjpg`} alt="camera" />
-                    <Button variant="contained" onClick={handleOnDisconnect}>
+                    <Button variant="contained" onClick={handleOnDisconnect} aria-label="disconnect-cmd">
                         Disconnect
                     </Button>
                 </>
             ) : (
-                <Button variant="contained" onClick={handleOnConnect}>
+                <Button variant="contained" onClick={handleOnConnect} aria-label="connect-cmd">
                     Connect
                 </Button>
             )}
@@ -96,33 +96,3 @@ export const CameraComponentBuilder: IOperationComponentDescriptor = {
 }
 
 export default CameraComponent
-
-
-// useEffect(() => {
-//     if (!initialized)
-//         return
-//     return () => {
-//         console.log("camera commitiing", isConnected)
-//         onCommitComponentSpecific<ICameraComponentSpecifics>({
-//             isConnected
-//         })
-//     }
-// }, [initialized, isConnected, onCommitComponentSpecific])
-
-// useEffect(() => {
-//     if (initialized)
-//         return;
-//     if (specifics.isConnected) {
-//         setIsConnected(true)
-//     }
-//     setInitialized(true)
-//     // return () => {
-//     //     console.log("camera commitiing", isConnected)
-//     //     onCommitComponentSpecific<ICameraComponentSpecifics>({
-//     //         isConnected
-//     //     })
-//     //     // if (camera.isConnected) {
-//     //     //     camera.disconnect()
-//     //     // }
-//     // }
-// }, [initialized])
