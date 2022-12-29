@@ -9,19 +9,6 @@ import { Core, RobotConnectionType } from "neutron-core";
 import { wait } from "@testing-library/user-event/dist/utils";
 
 describe("MultiConnectionProvider", () => {
-  let connectionContextProps = {};
-  beforeEach(() => {
-    connectionContextProps = {
-      addConnection: jest.fn(),
-      removeConnection: jest.fn(),
-      connections: {
-        mocktest: {
-          modules: [],
-        },
-      },
-    };
-  });
-
   const makeMockComponent = (props) => {
     const core = props.core
       ? new Core({
