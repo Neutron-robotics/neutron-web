@@ -93,13 +93,8 @@ const OperationView = (props: IOperationViewProps) => {
             console.log("Recovered operation components", recoveredOperationComponents)
             setOperationComponents(recoveredOperationComponents)
         }
-        else {
-            console.log("Actual tab is undefined")
-            dispatcher({ type: "update", tabId: tabId, payload: { components: {} } })
-            setOperationComponents([])
-        }
         setInitialized(true)
-    }, [actualTab, dispatcher, initialized, tabId])
+    }, [actualTab, dispatcher, handleOnCloseOperationComponent, initialized, tabId])
 
     useEffect(() => {
         const operationCategoryFiltered: IOperationCategory[] = makeOperationBar(operationComponentsConfiguration, connection?.modules ?? [])

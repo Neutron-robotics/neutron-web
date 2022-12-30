@@ -4,8 +4,8 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { makeStyles } from "@mui/styles";
 import { ViewContext, ViewType } from "../../contexts/ViewProvider";
 import { useContext } from "react";
-import HeaderMenu from "./HeaderMenu";
-import { IHeaderMenuState } from "../../views/ViewManager";
+import TabHeader from "./TabHeader";
+import { IOperationTab, useTabsDispatch } from "../../contexts/TabContext";
 
 const useStyle = makeStyles(() => ({
     header: {
@@ -17,27 +17,27 @@ const useStyle = makeStyles(() => ({
     }
 }));
 
-export interface IHeaderMenu {
-    title: string,
-    connectionId: string,
-    state?: IHeaderMenuState
-    onClose: () => void,
-    onSetActive: () => void,
-}
-
 interface HeaderProps {
-    headerMenues: IHeaderMenu[];
-    activeMenu?: IHeaderMenu;
+    headerTabs: IOperationTab[];
+    activeTabId?: string;
     headerBody?: JSX.Element;
 }
 
 const Header = (props: HeaderProps) => {
     const title = `${process.env.REACT_APP_NAME} - ${process.env.REACT_APP_VERSION}`;
     const classes = useStyle();
-    const { headerMenues, headerBody, activeMenu } = props;
+    const { headerTabs, headerBody, activeTabId } = props;
     const { setViewType } = useContext(ViewContext);
+    const tabDispatch = useTabsDispatch()
+
+    console.log("header is using ", headerTabs, activeTabId)
 
     const handleHomeButtonClick = () => {
+        tabDispatch({
+            type: 'set-active',
+            tabId: 'all',
+            active: false
+        })
         setViewType(ViewType.Home);
     }
 
@@ -59,9 +59,9 @@ const Header = (props: HeaderProps) => {
                     <Typography variant="caption" component="div" sx={{ display: 'flex' }}>
                         {title}
                     </Typography>
-                    {headerMenues.map(e => (
+                    {headerTabs.map(e => (
                         <Box key={e.title} sx={{ display: 'flex' }} >
-                            <HeaderMenu active={activeMenu?.title === e.title} {...e} />
+                            <TabHeader {...e} />
                         </Box>
                     ))}
                     <IconButton

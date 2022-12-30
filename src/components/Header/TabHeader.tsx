@@ -2,10 +2,10 @@ import SmartToyIcon from "@mui/icons-material/SmartToy";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { IHeaderMenu } from "./Header";
+import { IOperationTab } from "../../contexts/TabContext";
 
 const useStyle = makeStyles({
-  headerMenu: {
+  tabheader: {
     color: '#FFFFFF',
     display: 'flex',
     flexDirection: 'row',
@@ -16,21 +16,18 @@ const useStyle = makeStyles({
   },
 })
 
-interface IHeaderMenuProps extends IHeaderMenu {
-  active: boolean
-}
-
-const HeaderMenu = (props: IHeaderMenuProps) => {
-  const { title, onClose, onSetActive, active } = props;
+const TabHeader = (props: IOperationTab) => {
+  const { title, onClose, onSetActive, isActive } = props;
   const classes = useStyle();
 
+  console.log("Tab is ", props)
   const style = {
-    backgroundColor: active ? '#525CD2' : '',
-    width: active ? undefined : '200px',
+    backgroundColor: isActive ? '#525CD2' : '',
+    width: isActive ? undefined : '200px',
   } as React.CSSProperties;
 
   return (
-    <div className={classes.headerMenu} onClick={onSetActive} style={style}>
+    <div className={classes.tabheader} onClick={onSetActive} style={style}>
       <SmartToyIcon />
       <Typography
         style={{ color: "#FFFFFF", textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
@@ -48,4 +45,4 @@ const HeaderMenu = (props: IHeaderMenuProps) => {
   );
 };
 
-export default HeaderMenu;
+export default TabHeader;

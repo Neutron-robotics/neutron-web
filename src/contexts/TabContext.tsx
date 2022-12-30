@@ -1,14 +1,49 @@
 import { createContext, Dispatch, useContext, useReducer } from 'react';
 import { IOperationComponentBuilder, IOperationComponentSettings, IOperationComponentSpecifics } from '../components/OperationComponents/IOperationComponents';
+import { ViewType } from './ViewProvider';
 
-export interface IOperationTabData {
+export interface IOperationTab {
+    id: string;
     components: Record<string, { builder: IOperationComponentBuilder, specifics: IOperationComponentSpecifics<unknown> }>
+
+    title: string;
+    onClose: () => void;
+    onSetActive: () => void;
+
+    isActive: boolean;
+    viewType: ViewType;
+}
+
+export interface ITabBuilder {
+    id: string;
+    title: string;
+    onClose: () => void;
+    onSetActive: () => void;
+    viewType: ViewType;
+
+    isActive: boolean
 }
 
 interface ITabDispatchAction {
-    type: 'update' | 'remove-tab';
-    payload: IOperationTabData;
+    type: 'update' // is update used ?
+    payload: IOperationTab;
     tabId: string
+}
+
+interface ITabRemoveAction {
+    type: 'remove',
+    tabId: string
+}
+
+interface CreateTabDispatchAction {
+    type: 'create';
+    builder: ITabBuilder
+}
+
+interface SetActiveTabDispatchAction {
+    type: 'set-active';
+    active: boolean;
+    tabId: string;
 }
 
 interface CommitDispatchAction<TComponentSpecific> {
@@ -34,9 +69,15 @@ interface AddComponentDispatchAction<TComponentSpecific> {
     }
 }
 
-type TabDispatchesActions = ITabDispatchAction | CommitDispatchAction<unknown> | RemoveComponentDispatchAction | AddComponentDispatchAction<unknown>
+type TabDispatchesActions = ITabDispatchAction |
+    CommitDispatchAction<unknown> |
+    RemoveComponentDispatchAction |
+    AddComponentDispatchAction<unknown> |
+    CreateTabDispatchAction |
+    SetActiveTabDispatchAction |
+    ITabRemoveAction
 
-export type ITabsContext = Record<string, IOperationTabData>;
+export type ITabsContext = Record<string, IOperationTab>;
 
 const TabsContext = createContext<ITabsContext>({});
 
@@ -59,6 +100,38 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
 
 function tabsReducer(tabs: ITabsContext, action: TabDispatchesActions) {
     switch (action.type) {
+        case 'create': {
+            const { builder } = action
+            if (tabs[builder.id]) {
+                console.log(`Tab with id ${builder.id} already exists. Aborting`);
+                return tabs;
+            }
+            const allTabs = builder.isActive ? Object.entries(tabs).reduce((acc, [key, tab]) => {
+                acc[key] = {
+                    ...tab,
+                    isActive: false
+                };
+                return acc;
+            }, {} as ITabsContext) : tabs
+            return {
+                ...allTabs,
+                [builder.id]: {
+                    components: {},
+                    ...builder
+                }
+            }
+        }
+        case 'set-active': {
+            const { tabId, active } = action
+
+            return Object.entries(tabs).reduce((acc, [key, tab]) => {
+                acc[key] = {
+                    ...tab,
+                    isActive: tabId === key ? active : false
+                };
+                return acc;
+            }, {} as ITabsContext)
+        }
         case 'add-component': {
             const { tabId, payload } = action
             const tab = tabs[tabId]
@@ -123,13 +196,15 @@ function tabsReducer(tabs: ITabsContext, action: TabDispatchesActions) {
                 }
             }
         }
-        case 'remove-tab': {
+        case 'remove': {
             const { tabId } = action
             const { [tabId]: _, ...rest } = tabs
             return rest
         }
         case 'remove-component': {
             const { tabId, componentId } = action
+            if (!tabs[tabId])
+                return tabs
             const { [componentId]: _, ...rest } = tabs[tabId].components
             return {
                 ...tabs,
@@ -156,6 +231,11 @@ export function useTabsDispatch() {
 export function useTab(tabId: string) {
     const tabs = useTabs();
     return tabs[tabId];
+}
+
+export function useActiveTab() {
+    const tabs = useTabs();
+    return Object.entries(tabs).map(([_, v]) => v).find((v) => v.isActive)
 }
 
 const initialTabs = {}

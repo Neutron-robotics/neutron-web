@@ -2,8 +2,8 @@ import { makeStyles } from "@mui/styles"
 import { Core, IRobotConnectionInfo, IRobotModuleDefinition, makeConnectionContext, RobotConnectionType } from "neutron-core"
 import { useContext, useEffect, useState } from "react"
 import RobotConnection from "../components/Connection/RobotConnection"
-import { IHeaderMenu } from "../components/Header/Header"
 import { MultiConnectionContext } from "../contexts/MultiConnectionProvider"
+import { ITabBuilder, useTabsDispatch } from "../contexts/TabContext"
 import { ViewType } from "../contexts/ViewProvider"
 import IViewProps from "./IView"
 
@@ -18,15 +18,16 @@ const useStyles = makeStyles(() => ({
 }))
 
 interface IConnectionViewProps extends IViewProps {
+    // setHeaderMenues: (item: IHeaderMenu, viewType: ViewType, active: boolean) => void;
 }
 
 const ConnectionView = (props: IConnectionViewProps) => {
     const classes = useStyles()
-    const { setHeaderMenues } = props
+    // const { setHeaderMenues } = props
     const [robotConnectionsInfos, setRobotConnectionsInfos] = useState<IRobotConnectionInfo[]>([])
     const [coreConnections, setCoreConnections] = useState<Core[]>([])
     const { addConnection, connections } = useContext(MultiConnectionContext)
-
+    const tabsDispatcher = useTabsDispatch()
 
     const handleOnRobotConnect = async (core: Core, modules: IRobotModuleDefinition[]) => {
         if (core.id in connections) {
@@ -40,14 +41,32 @@ const ConnectionView = (props: IConnectionViewProps) => {
             const res = await addConnection(core, context, modules)
             if (!res) {
                 console.log("Failed to connect")
+                return
             }
-            const item: IHeaderMenu = {
-                connectionId: core.id,
+            const item: ITabBuilder = {
+                id: core.id,
                 title: core.name,
-                onClose: () => { },
-                onSetActive: () => { },
+                onClose: () => {
+                    tabsDispatcher({
+                        type: "remove",
+                        tabId: core.id,
+                    })
+                },
+                onSetActive: () => {
+                    tabsDispatcher({
+                        type: 'set-active',
+                        tabId: core.id,
+                        active: true
+                    })
+                },
+                viewType: ViewType.OperationView,
+                isActive: true // later to be a setting
             }
-            setHeaderMenues(item, ViewType.OperationView, true)
+            tabsDispatcher({
+                type: 'create',
+                builder: item
+            })
+            // setHeaderMenues(item, ViewType.OperationView, true)
         }
         catch (e) {
             console.error(e);
@@ -59,7 +78,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
     useEffect(() => {
         setRobotConnectionsInfos([
             {
-                hostname: '192.168.1.105',
+                hostname: '192.168.3.73',
                 port: 8000,
                 type: RobotConnectionType.ROSBRIDGE,
             },
