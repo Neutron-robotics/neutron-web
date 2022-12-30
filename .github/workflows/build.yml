@@ -1,0 +1,21 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+name: CI for neutron-web
+
+on: [push]
+
+jobs:
+build:
+runs-on: ubuntu-latest
+steps:
+- uses: actions/checkout@v2
+with:
+ref: ${{ github.event.ref }}
+- name: Clone neutron-core
+run: git clone https://github.com/hugoperier/neutron-core/neutron-core.git
+- name: Link neutron-core to neutron-web
+run: npm link neutron-core
+- name: Install dependencies
+run: yarn
+- name: Run tests
+run: yarn test
