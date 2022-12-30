@@ -11,7 +11,7 @@ jobs:
           ref: ${{ github.head_ref }}
       - name: Clone Neutron Core
         run: |
-          git clone https://hugoperier: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@github.com/hugoperier/neutron-core/neutron-core.git
+          git clone https://hugoperier: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@github.com/hugoperier/neutron-core
           cd neutron-core
           npm install
           npm link
