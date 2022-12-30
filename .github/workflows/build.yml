@@ -16,10 +16,11 @@ jobs:
           cd ..
           git clone https://hugoperier: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@github.com/hugoperier/neutron-core
           cd neutron-core
-          npm install
+          yarn
           npm link
       - name: Link Neutron Core to Neutron Web
         run: |
+          pwd
           cd ../neutron-web
           npm link neutron-core
       - name: Run Tests
