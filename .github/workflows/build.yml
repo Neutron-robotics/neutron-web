@@ -24,6 +24,7 @@ jobs:
           echo Linking neutron core
           yarn add ../neutron-core
           yarn test
+          echo done
 
       # - name: Link Neutron Core to Neutron Web
       #   run: |
