@@ -85,12 +85,10 @@ describe("RobotBaseComponent", () => {
     const stopBtn = screen.getByLabelText("stop-cmd");
     const speedSlider = screen.getByLabelText("speed-cmd");
 
-    console.log("1");
     fireEvent.click(backwardBtn);
     expect(robotBaseMock.move).toBeCalledWith([-1, 0, 0, 0, 0, 0]);
     fireEvent.click(forwardBtn);
     expect(robotBaseMock.move).toBeCalledWith([1, 0, 0, 0, 0, 0]);
-    console.log("2");
     fireEvent.click(leftBtn);
     expect(robotBaseMock.move).toBeCalledWith([1, 0, 0, 0, 0, -0.1]);
     fireEvent.click(rightBtn);
@@ -105,7 +103,6 @@ describe("RobotBaseComponent", () => {
   });
 
   test("the robot api is handling changes of direction", () => {
-    console.log(connectionContextProps);
     const robotBaseMock =
       connectionContextProps.connections["mocktest"].modules[0];
     render(
