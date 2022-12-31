@@ -20,10 +20,10 @@ jobs:
           yarn tsc
           npm link
           cd ../neutron-web
-          echo Linking neutron core
-          npm link neutron-core
           echo Install neutron-web
           yarn
+          echo Linking neutron core
+          npm link neutron-core
           yarn test
 
       # - name: Link Neutron Core to Neutron Web
