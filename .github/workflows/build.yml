@@ -16,6 +16,13 @@ jobs:
           cd ..
           git clone https://hugoperier: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@github.com/hugoperier/neutron-core
           cd neutron-core
+          yarn test
+          echo done
+
+      - name: Build and install Neutron Core
+        run: |
+          ls
+          pwd
           yarn
           yarn tsc
           cd ../neutron-web
@@ -23,12 +30,6 @@ jobs:
           yarn
           echo Linking neutron core
           yarn add ../neutron-core
+      - name: Run Tests
+        run: |
           yarn test
-          echo done
-
-      # - name: Link Neutron Core to Neutron Web
-      #   run: |
-      #     npm link neutron-core
-      # - name: Run Tests
-      #   run: |
-      #     yarn test
