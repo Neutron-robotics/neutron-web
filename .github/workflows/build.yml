@@ -20,7 +20,7 @@ jobs:
         run: |
           ls
           pwd
-          cd neutron-core
+          cd ../neutron-core
           yarn
           yarn tsc
           cd ../neutron-web
