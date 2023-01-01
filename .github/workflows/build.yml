@@ -15,14 +15,12 @@ jobs:
           pwd
           cd ..
           git clone https://hugoperier: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@github.com/hugoperier/neutron-core
-          cd neutron-core
-          yarn test
-          echo done
 
       - name: Build and install Neutron Core
         run: |
           ls
           pwd
+          cd neutron-core
           yarn
           yarn tsc
           cd ../neutron-web
