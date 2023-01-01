@@ -9,19 +9,25 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
-      - name: Clone Neutron Core, build then test
+      - name: Clone Neutron Core
         run: |
-          echo Install neutron-core
+          ls
+          pwd
           cd ..
           git clone https://hugoperier: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@github.com/hugoperier/neutron-core
-          cd ./neutron-core
+
+      - name: Build and install Neutron Core
+        run: |
+          ls
+          pwd
+          cd ../neutron-core
           yarn
           yarn tsc
           cd ../neutron-web
-
           echo Install neutron-web
           yarn
-
           echo Linking neutron core
           yarn add ../neutron-core
+      - name: Run Tests
+        run: |
           yarn test
