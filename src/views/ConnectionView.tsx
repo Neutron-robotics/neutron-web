@@ -69,7 +69,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
             // setHeaderMenues(item, ViewType.OperationView, true)
         }
         catch (e) {
-            console.error(e);
+            // console.error(e);
         }
     }
 
@@ -98,7 +98,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
                     await core.getConnectionInfo()
                 }
                 catch (e: any) {
-                    console.log("An error happens while trying to initiate connection to core", robotConnectionInfo.hostname)
+                    // console.log("An error happens while trying to initiate connection to core", robotConnectionInfo.hostname)
                     return null
                 }
                 return core
