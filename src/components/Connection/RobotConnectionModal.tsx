@@ -5,6 +5,7 @@ import RobotModuleIcon from "../RobotModuleIcon";
 import { makeStyles } from "@mui/styles";
 import { Core, IRobotModuleDefinition } from "neutron-core";
 import { useState } from "react";
+import { existsSync } from "fs";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -75,15 +76,15 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
+interface IOptionalModule extends IRobotModuleDefinition {
+    enabled: boolean
+}
+
 export interface RobotConnectionModalProps {
     open: boolean
     onClose: () => void
     onConnect: (core: Core, modules: IRobotModuleDefinition[]) => void
     coreConnection: Core
-}
-
-interface IOptionalModule extends IRobotModuleDefinition {
-    enabled: boolean
 }
 
 const RobotConnectionModal = (props: RobotConnectionModalProps) => {
@@ -132,7 +133,7 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
                             <span>Home</span>
                         </div>
                     </div>
-                    <img className={classes.image} src={require(`../../../assets/${coreConnection.type}.png`)} width={150} alt="robot-icon" />
+                    <img className={classes.image} src={`${process.env.PUBLIC_URL}/assets/${coreConnection.type}.png`} width={150} alt="robot-icon" />
                     <div className={classes.groupNetwork}>
                         <div>
                             <div className={classes.networkField}>
