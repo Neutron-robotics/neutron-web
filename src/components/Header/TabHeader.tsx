@@ -3,6 +3,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { IconButton, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { IOperationTab } from "../../contexts/TabContext";
+import React from "react";
 
 const useStyle = makeStyles({
   tabheader: {

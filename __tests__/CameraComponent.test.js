@@ -1,8 +1,8 @@
-import CameraComponent from "../src/components/OperationComponents/passive/CameraComponent";
 import React from "react";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { MultiConnectionContext } from "../src/contexts/MultiConnectionProvider";
 import "@testing-library/jest-dom";
+import CameraComponent from "../src/components/OperationComponents/passive/CameraComponent";
+import { MultiConnectionContext } from "../src/contexts/MultiConnectionProvider";
 import { wait } from "@testing-library/user-event/dist/utils";
 
 describe("CameraComponent", () => {

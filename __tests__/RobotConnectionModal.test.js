@@ -3,7 +3,6 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { RobotConnectionType, RobotStatus } from "neutron-core";
 import RobotConnectionModal from "../src/components/Connection/RobotConnectionModal";
-import { wait } from "@testing-library/user-event/dist/utils";
 
 describe("Robot connection modal", () => {
   let core;

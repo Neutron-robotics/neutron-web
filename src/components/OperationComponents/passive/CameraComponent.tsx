@@ -36,7 +36,7 @@ const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpe
             isConnected,
         });
         console.log("camera commit", isConnected)
-    }, [isConnected, onCommitComponentSpecific]);
+    }, [isConnected]);
 
     const handleOnConnect = async () => {
         if (!camera) return
