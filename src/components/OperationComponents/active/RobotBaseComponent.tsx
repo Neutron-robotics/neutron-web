@@ -37,7 +37,7 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
     useEffect(() => {
         if (direction === 0 && rotateFactor === 0)
             return
-        console.log(`Move ${direction};${rotateFactor}`)
+        console.log(`Move ${direction};${rotateFactor / 10}`)
         robotBase?.move([direction, 0, 0, 0, 0, rotateFactor / 10])
     }, [direction, robotBase, rotateFactor])
 

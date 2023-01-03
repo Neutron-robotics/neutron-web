@@ -21,6 +21,11 @@ const TabHeader = (props: IOperationTab) => {
   const { title, onClose, onSetActive, isActive } = props;
   const classes = useStyle();
 
+  const handleOnClose = (e: any) => {
+    e.stopPropagation()
+    onClose()
+  }
+
   console.log("Tab is ", props)
   const style = {
     backgroundColor: isActive ? '#525CD2' : '',
@@ -39,7 +44,7 @@ const TabHeader = (props: IOperationTab) => {
       >
         {title}
       </Typography>
-      <IconButton onClick={onClose} size="large" edge="end" color="inherit" aria-label="menu">
+      <IconButton onClick={handleOnClose} size="large" edge="end" color="inherit" aria-label="close-tab">
         <CloseIcon />
       </IconButton>
     </div>
