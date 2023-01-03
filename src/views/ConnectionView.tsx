@@ -41,7 +41,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
             const res = await addConnection(core, context, modules)
             if (!res) {
                 console.log("Failed to connect")
-                return
+                // return
             }
             const item: ITabBuilder = {
                 id: core.id,
@@ -69,6 +69,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
             // setHeaderMenues(item, ViewType.OperationView, true)
         }
         catch (e) {
+            console.log("error happend during connectionview")
             // console.error(e);
         }
     }
@@ -78,7 +79,12 @@ const ConnectionView = (props: IConnectionViewProps) => {
     useEffect(() => {
         setRobotConnectionsInfos([
             {
-                hostname: '192.168.3.116',
+                hostname: '192.168.3.121',
+                port: 8000,
+                type: RobotConnectionType.ROSBRIDGE,
+            },
+            {
+                hostname: '192.168.3.104',
                 port: 8000,
                 type: RobotConnectionType.ROSBRIDGE,
             },

@@ -26,7 +26,7 @@ const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpe
     const classes = useStyles()
     const [isConnected, setIsConnected] = useState(specifics?.isConnected ?? false)
     // const logger = useLogger("CameraComponent")
-    console.log("camera component props", props)
+    console.log("mounting component props with moduleId", moduleId)
     const connection = useConnection(connectionId ?? "")
     const camera = connection?.modules.find(m => m.id === moduleId) as Camera | undefined
 
