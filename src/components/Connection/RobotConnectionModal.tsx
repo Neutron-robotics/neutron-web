@@ -172,6 +172,7 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
                             color="primary"
                             className={classes.button}
                             onClick={handleConnectClick}
+                            aria-label={'connection-connect-btn'}
                         >
                             Connect
                         </Button>

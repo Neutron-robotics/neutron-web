@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react"
 import RobotConnection from "../components/Connection/RobotConnection"
 import { MultiConnectionContext } from "../contexts/MultiConnectionProvider"
 import { ITabBuilder, useTabsDispatch } from "../contexts/TabContext"
-import { ViewType } from "../contexts/ViewProvider"
+import { ViewContext, ViewType } from "../contexts/ViewProvider"
 import IViewProps from "./IView"
 
 const useStyles = makeStyles(() => ({
@@ -28,6 +28,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
     const [coreConnections, setCoreConnections] = useState<Core[]>([])
     const { addConnection, connections } = useContext(MultiConnectionContext)
     const tabsDispatcher = useTabsDispatch()
+    const { setViewType } = useContext(ViewContext);
 
     const handleOnRobotConnect = async (core: Core, modules: IRobotModuleDefinition[]) => {
         if (core.id in connections) {
@@ -37,7 +38,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
 
         try {
             const context = makeConnectionContext(core.contextConfiguration.type, core.contextConfiguration);
-            console.log("Connecting", core, context, modules)
+            console.log("Connecting with context",  context)
             const res = await addConnection(core, context, modules)
             if (!res) {
                 console.log("Failed to connect")
@@ -47,6 +48,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
                 id: core.id,
                 title: core.name,
                 onClose: () => {
+                    setViewType(ViewType.Home);
                     tabsDispatcher({
                         type: "remove",
                         tabId: core.id,
@@ -79,17 +81,17 @@ const ConnectionView = (props: IConnectionViewProps) => {
     useEffect(() => {
         setRobotConnectionsInfos([
             {
-                hostname: '192.168.3.121',
+                hostname: '192.168.1.117',
                 port: 8000,
                 type: RobotConnectionType.ROSBRIDGE,
             },
+            // {
+            //     hostname: '192.168.1.116',
+            //     port: 8000,
+            //     type: RobotConnectionType.ROSBRIDGE,
+            // },
             {
-                hostname: '192.168.3.104',
-                port: 8000,
-                type: RobotConnectionType.ROSBRIDGE,
-            },
-            {
-                hostname: '192.168.1.128',
+                hostname: '192.168.3.3',
                 port: 8000,
                 type: RobotConnectionType.ROSBRIDGE,
             },

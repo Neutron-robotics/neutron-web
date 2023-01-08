@@ -15,8 +15,8 @@ const ViewManager = () => {
     const tabs = useTabs()
     const activeTab = useActiveTab()
 
-    console.log('tabs are', tabs)
-    console.log('active tab is ', activeTab)
+    // console.log('tabs are', tabs)
+    // console.log('active tab is ', activeTab)
 
     useEffect(() => {
         if (viewType === ViewType.Home) {

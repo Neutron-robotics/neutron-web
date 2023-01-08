@@ -50,6 +50,7 @@ export const MultiConnectionProvider = ({ children }: { children: ReactNode }) =
                 framePackage: module.framePackage
             })
         )
+        console.log("ROBOTMODULES", robotModules, modules)
         const newConnection = {
             context: connectionContext,
             core: connectionCore,
