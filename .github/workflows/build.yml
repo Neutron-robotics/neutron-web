@@ -14,7 +14,7 @@ jobs:
           ls
           pwd
           cd ..
-          git clone https://hugoperier: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@github.com/hugoperier/neutron-core
+          git clone https://hugoperier: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@github.com/hugoperier/neutron-core
 
       - name: Build and install Neutron Core
         run: |
