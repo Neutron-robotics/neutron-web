@@ -67,7 +67,7 @@ const RobotConnection = (props: IRobotConnectionProps) => {
                             }
                         }
                     >
-                        <img src={require(`../../../assets/${coreConnection.type}.png`)} width={150} alt="robot-icon" />
+                        <img src={`${process.env.PUBLIC_URL}/assets/${coreConnection.type}.png`} width={150} alt="robot-icon" />
                     </Badge>
                     <div className={classes.partIcons}>
                         {coreConnection.modules.map((module) => {

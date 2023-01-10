@@ -66,6 +66,8 @@ const OperationHeader = (props: OperationHeaderProps) => {
     const { operationCategories, isConnected, mountComponent, modules } = props
     const classes = useStyle()
 
+    console.log("OPERATIONHEADER", modules, operationCategories)
+
     const handleWifiClick = () => { }
 
     const handleonMountComponent = (descriptor: IOperationComponentDescriptor) => {

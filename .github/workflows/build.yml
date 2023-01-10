@@ -1,0 +1,33 @@
+name: Neutron Web CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Clone Neutron Core
+        run: |
+          ls
+          pwd
+          cd ..
+          git clone https://hugoperier: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@github.com/hugoperier/neutron-core
+
+      - name: Build and install Neutron Core
+        run: |
+          ls
+          pwd
+          cd ../neutron-core
+          yarn
+          yarn tsc
+          cd ../neutron-web
+          echo Install neutron-web
+          yarn
+          echo Linking neutron core
+          yarn add ../neutron-core
+      - name: Run Tests
+        run: |
+          yarn test

@@ -28,16 +28,16 @@ const OperationView = (props: IOperationViewProps) => {
     const { setHeaderBody, tabId } = props
     const classes = useStyles()
     const actualTab = useTab(tabId)
-    const [initialized, setInitialized] = useState(false)
+    const [initializedTab, setInitializedTab] = useState("")
     const connection = useConnection(tabId)
     const dispatcher = useTabsDispatch()
     const [operationComponents, setOperationComponents] = useState<IOperationComponent[]>([])
     // const operationComponentsRef = useRef(operationComponents)
 
-    console.log("Actual tab props", actualTab?.components)
-    console.log("connection", connection)
+    console.log("Operation with actual tab", actualTab, "and components", operationComponents)
+    // console.log("connection", connection)
 
-    console.log("Operation view state", operationComponents)
+    // console.log("Operation view state", operationComponents)
 
     // useEffect(() => {
     //     operationComponentsRef.current = operationComponents
@@ -77,7 +77,7 @@ const OperationView = (props: IOperationViewProps) => {
     }, [dispatcher, handleOnCloseOperationComponent, tabId, operationComponents])
 
     useEffect(() => {
-        if (initialized) {
+        if (initializedTab === actualTab.id) {
             console.log("Already initialized")
             return
         }
@@ -93,13 +93,8 @@ const OperationView = (props: IOperationViewProps) => {
             console.log("Recovered operation components", recoveredOperationComponents)
             setOperationComponents(recoveredOperationComponents)
         }
-        else {
-            console.log("Actual tab is undefined")
-            dispatcher({ type: "update", tabId: tabId, payload: { components: {} } })
-            setOperationComponents([])
-        }
-        setInitialized(true)
-    }, [actualTab, dispatcher, initialized, tabId])
+        setInitializedTab(actualTab.id)
+    }, [actualTab, dispatcher, handleOnCloseOperationComponent, initializedTab, tabId])
 
     useEffect(() => {
         const operationCategoryFiltered: IOperationCategory[] = makeOperationBar(operationComponentsConfiguration, connection?.modules ?? [])

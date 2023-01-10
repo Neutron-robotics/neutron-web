@@ -1,0 +1,38 @@
+{
+	"robot": {
+		"battery": -1,
+		"name": "sarcophagus mock",
+		"type": "OsoyooRobot",
+		"status": "Available",
+		"connection": {
+			"type": "Rosbridge",
+			"port": 9090
+		},
+		"modules": [
+			{
+				"id": "8d09f4df-9951-4dca-99da-e881b13ff23b",
+				"name": "Wheeler base",
+				"type": "robotbase",
+				"framePackage": "osoyooBase",
+				"configuration": {
+					"directionnalSpeed": 1,
+					"rotationSpeed": 0.8
+				}
+			},
+			{
+				"id": "98932797-ea76-4ce1-b699-842ce54cedc6",
+				"name": "Camera",
+				"type": "camera",
+				"framePackage": "neutron-camera",
+				"configuration": null
+			},
+			{
+				"id": "c0b1b0a1-1b1a-4b1a-9b1a-1b1a0b1a1b1a",
+				"name": "Rosbridge",
+				"type": "Rosbridge",
+				"framePackage": null,
+				"configuration": null
+			}
+		]
+	}
+}

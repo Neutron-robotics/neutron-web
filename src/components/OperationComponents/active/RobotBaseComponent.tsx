@@ -10,6 +10,7 @@ import { IOperationComponentDescriptor, IOperationComponentSpecifics } from "../
 import { RobotBase } from "neutron-core";
 import { useConnection } from "../../../contexts/MultiConnectionProvider";
 import { useState } from "react";
+import { useEffect } from "react";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -30,37 +31,43 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
     const classes = useStyles()
     const connection = useConnection(connectionId ?? "")
     const [rotateFactor, setRotateFactor] = useState(0)
-    const robotBase = connection.modules.find(m => m.id === moduleId) as RobotBase
-    console.log("Robotbase", robotBase)
+    const [direction, setDirection] = useState(0)
+    const robotBase = connection?.modules.find(m => m.id === moduleId) as RobotBase | undefined
+
+    useEffect(() => {
+        if (direction === 0 && rotateFactor === 0)
+            return
+        console.log(`Move ${direction};${rotateFactor / 10}`)
+        robotBase?.move([direction, 0, 0, 0, 0, rotateFactor / 10])
+    }, [direction, robotBase, rotateFactor])
 
     const handleForward = async () => {
-        const res = await robotBase.move([1, 0, 0, 0, 0, 0])
+        setDirection(1)
         setRotateFactor(0)
-        console.log("forward", res)
+        console.log("forward")
     }
     const handleBackward = () => {
-        robotBase.move([-1, 0, 0, 0, 0, 0])
+        setDirection(-1)
         setRotateFactor(0)
         console.log("backward")
     }
     const handleLeft = () => {
-        robotBase.move([0, 0, 0, 0, 0, -rotateFactor - 10])
-        setRotateFactor((e) => e-10)
+        setRotateFactor(rotateFactor - 1)
         console.log("left")
     }
     const handleRight = () => {
-        robotBase.move([0, 0, 0, 0, 0, rotateFactor + 10])
-        setRotateFactor((e) => e+10)
+        setRotateFactor(rotateFactor + 1)
         console.log("right")
     }
 
     const handleStop = () => {
-        robotBase.stop()
         setRotateFactor(0)
+        setDirection(0)
+        robotBase?.stop()
     }
 
     const handleSpeedChange = (e: any, value: number | number[]) => {
-        if (typeof value === "number") {
+        if (typeof value === "number" && robotBase) {
             robotBase.speed = value
         }
         console.log("speed", value)
@@ -71,30 +78,35 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
             <span>Controls</span>
             <div className={classes.buttonGroup}>
                 <IconButton
+                    aria-label="forward-cmd"
                     color="primary"
                     onClick={handleForward}
                 >
                     <ArrowUpwardIcon />
                 </IconButton>
                 <IconButton
+                    aria-label="backward-cmd"
                     color="primary"
                     onClick={handleBackward}
                 >
                     <ArrowDownwardIcon />
                 </IconButton>
                 <IconButton
+                    aria-label="left-cmd"
                     color="primary"
                     onClick={handleLeft}
                 >
                     <TurnLeftIcon />
                 </IconButton>
                 <IconButton
+                    aria-label="right-cmd"
                     color="primary"
                     onClick={handleRight}
                 >
                     <TurnRightIcon />
                 </IconButton>
                 <IconButton
+                    aria-label="stop-cmd"
                     color="primary"
                     onClick={handleStop}
                 >
@@ -103,8 +115,8 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
             </div>
             <p>Speed</p>
             <Slider
-                defaultValue={robotBase.speed}
-                aria-label="Default"
+                defaultValue={robotBase?.speed ?? 30}
+                aria-label="speed-cmd"
                 valueLabelDisplay="on"
                 onChange={handleSpeedChange}
             />
@@ -125,3 +137,6 @@ export const RobotBaseComponentBuilder: IOperationComponentDescriptor = {
 }
 
 export default RobotBaseComponent
+export {
+    RobotBaseComponent
+}
