@@ -4,6 +4,10 @@ import ViewManager from './views/ViewManager';
 import { ViewProvider } from './contexts/ViewProvider';
 import { MultiConnectionProvider } from './contexts/MultiConnectionProvider';
 import { TabProvider } from './contexts/TabContext';
+import React from 'react';
+import { ThemeProvider } from '@mui/material';
+import neutronMuiThemeDefault from './contexts/MuiTheme';
+import { AlertProvider } from './contexts/AlertContext';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -23,7 +27,11 @@ function App() {
         <TabProvider>
           <ViewProvider>
             <MultiConnectionProvider>
-              <ViewManager />
+              <ThemeProvider theme={neutronMuiThemeDefault}>
+                <AlertProvider>
+                  <ViewManager />
+                </AlertProvider>
+              </ThemeProvider>
             </MultiConnectionProvider>
           </ViewProvider>
         </TabProvider>

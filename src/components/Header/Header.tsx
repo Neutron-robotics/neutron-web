@@ -6,11 +6,12 @@ import { ViewContext, ViewType } from "../../contexts/ViewProvider";
 import { useContext } from "react";
 import TabHeader from "./TabHeader";
 import { IOperationTab, useTabsDispatch } from "../../contexts/TabContext";
+import React from "react";
 
-const useStyle = makeStyles(() => ({
+const useStyle = makeStyles((theme: any) => ({
     header: {
         minHeight: '48px !important',
-        background: '#0033A0',
+        background: theme.palette.primary.main
     },
     accountIcon: {
         marginLeft: 'auto !important',
