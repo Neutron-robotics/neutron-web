@@ -5,6 +5,7 @@ import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { IOperationComponentDescriptor, IOperationComponentSpecifics } from "../IOperationComponents"
 import { Camera } from "neutron-core"
 import { useConnection } from "../../../contexts/MultiConnectionProvider";
+import React from "react";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -36,6 +37,7 @@ const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpe
             isConnected,
         });
         console.log("camera commit", isConnected)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Cause infinite render loop
     }, [isConnected]);
 
     const handleOnConnect = async () => {

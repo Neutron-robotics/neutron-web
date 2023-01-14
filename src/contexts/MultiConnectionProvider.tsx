@@ -1,6 +1,6 @@
 import { Core, IConnectionContext, makeModule } from "neutron-core";
 import { IRobotModule, IRobotModuleDefinition } from "neutron-core/dist/interfaces/RobotConnection";
-import { createContext, ReactNode, useContext, useState } from "react";
+import React, { createContext, ReactNode, useContext, useState } from "react";
 
 interface IConnection {
     context: IConnectionContext;

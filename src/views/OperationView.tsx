@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { IOperationCategory, IOperationComponent, IOperationComponentBuilder, IOperationComponentDescriptor, IOperationComponentSpecifics } from '../components/OperationComponents/IOperationComponents';
 import { operationComponentsConfiguration } from '../components/OperationComponents/components';
 import { makeOperationComponentLayoutItem } from "../components/OperationComponents/OperationComponentFactory";
@@ -9,6 +9,7 @@ import { useTab, useTabsDispatch } from "../contexts/TabContext";
 import { v4 as uuid } from 'uuid';
 import { useConnection } from '../contexts/MultiConnectionProvider';
 import { makeOperationBar } from '../utils/makeOperationBar';
+import React from 'react';
 
 const useStyles = makeStyles(() => ({
     root: {

@@ -1,11 +1,14 @@
-import { Badge, Button, MenuItem, Modal, Paper, Select, Switch } from "@mui/material"
+import { Backdrop, Badge, Button, CircularProgress, MenuItem, Modal, Paper, Select, Switch } from "@mui/material"
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import Battery80Icon from '@mui/icons-material/Battery80';
 import RobotModuleIcon from "../RobotModuleIcon";
 import { makeStyles } from "@mui/styles";
 import { Core, IRobotModuleDefinition } from "neutron-core";
 import { useState } from "react";
-import { existsSync } from "fs";
+import React from "react";
+import getConnectionType from "../../utils/getConnectionType";
+import { setCommentRange } from "typescript";
+import { useAlert } from "../../contexts/AlertContext";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -73,6 +76,11 @@ const useStyles = makeStyles(() => ({
     },
     button: {
         width: '100%',
+    },
+    statusBadge: {
+        '& span': {
+            transform: 'translate(-40px, -15px);'
+        }
     }
 }))
 
@@ -83,7 +91,7 @@ interface IOptionalModule extends IRobotModuleDefinition {
 export interface RobotConnectionModalProps {
     open: boolean
     onClose: () => void
-    onConnect: (core: Core, modules: IRobotModuleDefinition[]) => void
+    onConnect: (core: Core, modules: IRobotModuleDefinition[]) => Promise<boolean>
     coreConnection: Core
 }
 
@@ -91,7 +99,8 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
     const { open, onClose, coreConnection, onConnect } = props
     const classes = useStyles()
     const [modules, setModules] = useState<IOptionalModule[]>(coreConnection.modules.map(m => ({ ...m, enabled: true })))
-    const [isConnecting, setIsConnecting] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const alert = useAlert()
 
     const handleToggleModuleSwitch = (event: React.ChangeEvent<HTMLInputElement>, moduleId: string) => {
         setModules(
@@ -105,8 +114,9 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
     }
 
     const handleConnectClick = async () => {
+        setIsLoading(true)
         const enabledModules = modules.filter(m => m.enabled)
-        onConnect(coreConnection, enabledModules)
+        onConnect(coreConnection, enabledModules).then(() => setIsLoading(false))
     }
 
     return (
@@ -116,12 +126,16 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
         >
             <div className={classes.root}>
                 <Paper elevation={3} className={classes.paper}>
-                    {(isConnecting) && (
-                        <h1>Connecting</h1>
-                    )}
-                    <h2>{coreConnection.name}</h2>
+                    <Backdrop
+                        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                        open={isLoading}
+                    >
+                        <CircularProgress color="inherit" />
+                    </Backdrop>
+
+                    <h2 style={{ marginTop: 0 }}>{coreConnection.name}</h2>
                     <div className={classes.groupStatus}>
-                        <Badge badgeContent=" " color="primary" anchorOrigin={{ horizontal: "right", vertical: "bottom" }}>
+                        <Badge className={classes.statusBadge} badgeContent=" " color="success" anchorOrigin={{ horizontal: "left", vertical: "bottom" }}>
                             <p>{coreConnection.status}</p>
                         </Badge>
                         <div>
@@ -138,7 +152,7 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
                         <div>
                             <div className={classes.networkField}>
                                 <h4>Connection</h4>
-                                <p>{coreConnection.contextConfiguration.type}</p>
+                                <p>{getConnectionType(coreConnection.contextConfiguration.type)}</p>
                             </div>
                             <div className={classes.networkField}>
                                 <h4>Host</h4>

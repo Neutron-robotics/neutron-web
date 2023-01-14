@@ -1,4 +1,4 @@
-import { createContext, Dispatch, useContext, useReducer } from 'react';
+import React, { createContext, Dispatch, useContext, useReducer } from 'react';
 import { IOperationComponentBuilder, IOperationComponentSettings, IOperationComponentSpecifics } from '../components/OperationComponents/IOperationComponents';
 import { ViewType } from './ViewProvider';
 

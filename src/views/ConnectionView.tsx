@@ -1,5 +1,7 @@
+import { Fade } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import { Core, IRobotConnectionInfo, IRobotModuleDefinition, makeConnectionContext, RobotConnectionType } from "neutron-core"
+import React from "react"
 import { useContext, useEffect, useState } from "react"
 import RobotConnection from "../components/Connection/RobotConnection"
 import { MultiConnectionContext } from "../contexts/MultiConnectionProvider"
@@ -18,27 +20,25 @@ const useStyles = makeStyles(() => ({
 }))
 
 interface IConnectionViewProps extends IViewProps {
-    // setHeaderMenues: (item: IHeaderMenu, viewType: ViewType, active: boolean) => void;
 }
 
 const ConnectionView = (props: IConnectionViewProps) => {
     const classes = useStyles()
-    // const { setHeaderMenues } = props
     const [robotConnectionsInfos, setRobotConnectionsInfos] = useState<IRobotConnectionInfo[]>([])
     const [coreConnections, setCoreConnections] = useState<Core[]>([])
     const { addConnection, connections } = useContext(MultiConnectionContext)
     const tabsDispatcher = useTabsDispatch()
     const { setViewType } = useContext(ViewContext);
 
-    const handleOnRobotConnect = async (core: Core, modules: IRobotModuleDefinition[]) => {
+    const handleOnRobotConnect = async (core: Core, modules: IRobotModuleDefinition[]): Promise<boolean> => {
         if (core.id in connections) {
             console.log("Already connected to this robot")
-            return
+            return false
         }
 
         try {
             const context = makeConnectionContext(core.contextConfiguration.type, core.contextConfiguration);
-            console.log("Connecting with context",  context)
+            console.log("Connecting with context", context)
             const res = await addConnection(core, context, modules)
             if (!res) {
                 console.log("Failed to connect")
@@ -68,10 +68,12 @@ const ConnectionView = (props: IConnectionViewProps) => {
                 type: 'create',
                 builder: item
             })
+            return true
             // setHeaderMenues(item, ViewType.OperationView, true)
         }
         catch (e) {
             console.log("error happend during connectionview")
+            return false
             // console.error(e);
         }
     }
@@ -85,11 +87,6 @@ const ConnectionView = (props: IConnectionViewProps) => {
                 port: 8000,
                 type: RobotConnectionType.ROSBRIDGE,
             },
-            // {
-            //     hostname: '192.168.1.116',
-            //     port: 8000,
-            //     type: RobotConnectionType.ROSBRIDGE,
-            // },
             {
                 hostname: '192.168.3.3',
                 port: 8000,
@@ -121,7 +118,11 @@ const ConnectionView = (props: IConnectionViewProps) => {
         <div className={classes.root}>
             <h1 className={classes.title}>Connect to a robot</h1>
             {coreConnections.map((coreConnection) => (
-                <RobotConnection coreConnection={coreConnection} key={coreConnection.id} handleOnRobotConnect={handleOnRobotConnect} />
+                <Fade in timeout={200} key={coreConnection.id}>
+                    <div>
+                        <RobotConnection coreConnection={coreConnection} handleOnRobotConnect={handleOnRobotConnect} />
+                    </div>
+                </Fade>
             ))}
         </div>
     )
