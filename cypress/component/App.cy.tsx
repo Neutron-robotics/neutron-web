@@ -53,6 +53,7 @@ describe("Neutron web", () => {
 
     // Assert page is correctly loaded after connection has been made
 
+    cy.get('.MuiAlert-standardSuccess')
     cy.get(`[class^='makeStyles-tabheader']`).contains('sarcophagus mock')
     cy.get('[title="Robot Base"] > .MuiButtonBase-root').click().then(() => {
       cy.get('.MuiList-root > .MuiButtonBase-root')
