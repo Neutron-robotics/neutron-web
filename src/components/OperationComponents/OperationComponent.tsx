@@ -5,6 +5,7 @@ import Draggable from "react-draggable";
 import CloseIcon from '@mui/icons-material/Close';
 import { ILayoutCoordinates } from "./IOperationComponents";
 import { useTabsDispatch } from "../../contexts/TabContext";
+import React from "react";
 
 const useStyle = makeStyles(() => ({
     root: {
@@ -67,8 +68,6 @@ const OperationComponent = (props: OperationComponentProps) => {
     const [isClosing, setIsClosing] = useState(false)
     const [componentSpecific, setComponentSpecific] = useState<unknown>()
 
-    // console.log("OperationComponent", props, "is closing", isClosing)
-
     useEffect(() => {
         posRef.current = position;
     }, [position]);
@@ -81,24 +80,15 @@ const OperationComponent = (props: OperationComponentProps) => {
     useEffect(() => {
         if (isClosing) {
             onClose(id)
-            console.log("closing")
         }
         return () => {
-            // console.log("OPERATION COMPONENT USE EFFECT UNMOUNT", id, "IS CLOSING ?", isClosing)
-            if (isClosing) {
-                console.log("babaye")
+            if (isClosing)
                 return
-            }
-            // else if ((posRef.current.x !== 0 && posRef.current.y !== 0) &&
-                // (posRef.current.x !== defaultPosition?.x && posRef.current.y !== defaultPosition?.y)) {
-                console.log(`Unmounting ${id}`, posRef.current)
-                tabDispatcher({ type: 'commit', payload: { defaultWidth: width, defaultHeight: height, defaultPosition: posRef.current }, specifics: componentSpecific, tabId, componentId: id })
-            // }
+            tabDispatcher({ type: 'commit', payload: { defaultWidth: width, defaultHeight: height, defaultPosition: posRef.current }, specifics: componentSpecific, tabId, componentId: id })
         }
     }, [componentSpecific, defaultPosition?.x, defaultPosition?.y, height, id, isClosing, onClose, tabDispatcher, tabId, width]) // [id, isClosing])
 
     const handleCloseButton = () => {
-        console.log("closing")
         setIsClosing(true)
     }
 

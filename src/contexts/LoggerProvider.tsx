@@ -1,5 +1,5 @@
 import { ILoggerMessage, LiteEvent, Logger } from "neutron-core";
-import { createContext, ReactNode, useState } from "react";
+import React, { createContext, ReactNode, useState } from "react";
 
 type ContextProps = {
     getLogger: (name: string) => Logger;
@@ -17,7 +17,6 @@ export const LoggerProvider = ({ children }: { children: ReactNode }) => {
     const [log] = useState(new LiteEvent<ILoggerMessage>());
 
     const getLogger = (name: string) => {
-        console.log("Create logger: " + name);
         if (!loggers[name]) {
             const logger = new Logger(name);
             logger.OnLog.on((message) => {

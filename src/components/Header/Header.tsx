@@ -27,11 +27,9 @@ interface HeaderProps {
 const Header = (props: HeaderProps) => {
     const title = `${process.env.REACT_APP_NAME} - ${process.env.REACT_APP_VERSION}`;
     const classes = useStyle();
-    const { headerTabs, headerBody, activeTabId } = props;
+    const { headerTabs, headerBody } = props;
     const { setViewType } = useContext(ViewContext);
     const tabDispatch = useTabsDispatch()
-
-    console.log("header is using ", headerTabs, activeTabId)
 
     const handleHomeButtonClick = () => {
         tabDispatch({

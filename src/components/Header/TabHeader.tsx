@@ -26,7 +26,6 @@ const TabHeader = (props: IOperationTab) => {
     onClose()
   }
 
-  console.log("Tab is ", props)
   const style = {
     backgroundColor: isActive ? '#525CD2' : '',
     width: isActive ? undefined : '200px',

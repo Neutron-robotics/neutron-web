@@ -1,6 +1,8 @@
 import { Core, IConnectionContext, makeModule } from "neutron-core";
 import { IRobotModule, IRobotModuleDefinition } from "neutron-core/dist/interfaces/RobotConnection";
 import React, { createContext, ReactNode, useContext, useState } from "react";
+import getConnectionType from "../utils/getConnectionType";
+import { useAlert } from "./AlertContext";
 
 interface IConnection {
     context: IConnectionContext;
@@ -22,23 +24,24 @@ export const MultiConnectionContext = createContext<ContextProps>({
 
 export const MultiConnectionProvider = ({ children }: { children: ReactNode }) => {
     const [connections, setConnections] = useState<Record<string, IConnection>>({});
+    const alert = useAlert()
 
     const addConnection = async (connectionCore: Core, connectionContext: IConnectionContext, modules: IRobotModuleDefinition[]): Promise<boolean> => {
         if (!connectionCore || !connectionContext) {
-            console.log("No core or context")
+            alert.error(`Missing Core or ConnectionContext. Aborting`)
             return false;
         }
         await connectionCore.getProcessesStatus();
         for (const module of modules) {
             const success = await connectionCore.startRobotProcess(module.id, 30000)
             if (!success) {
-                console.log("Failed to start process", module.name)
+                alert.error(`Failed to start process ${module.name}`)
                 return false;
             }
         }
         const success = await connectionContext.connect()
         if (!success) {
-            console.log("Failed to connect to context")
+            alert.error(`Failed to connect to the context ${getConnectionType(connectionContext.type)}`)
             return false;
         }
         const robotModules = modules.filter(module => module.framePackage).map((module) =>
@@ -50,7 +53,6 @@ export const MultiConnectionProvider = ({ children }: { children: ReactNode }) =
                 framePackage: module.framePackage
             })
         )
-        console.log("ROBOTMODULES", robotModules, modules)
         const newConnection = {
             context: connectionContext,
             core: connectionCore,
@@ -62,13 +64,17 @@ export const MultiConnectionProvider = ({ children }: { children: ReactNode }) =
 
     const removeConnection = async (id: string) => {
         if (!connections[id]) {
-            console.log("No connection with id", id)
+            alert.error(`Could not found connection with id ${id}`)
             return;
         }
         const resCtx = await connections[id].context.disconnect()
         const resCore = await connections[id].core.stopProcesses()
-        if (!resCtx || !resCore)
-            console.log("Failed to disconnect or stop processes")
+        if (!resCtx)
+            alert.error(`An error happens while disconnecting the context`)
+        else if (!resCore)
+            alert.error(`An error happens while disconnecting the core`)
+        else
+            alert.success(`Disconnected`)
         delete connections[id]
         setConnections({ ...connections })
     }

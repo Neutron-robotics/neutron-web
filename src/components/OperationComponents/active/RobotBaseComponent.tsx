@@ -11,6 +11,7 @@ import { RobotBase } from "neutron-core";
 import { useConnection } from "../../../contexts/MultiConnectionProvider";
 import { useState } from "react";
 import { useEffect } from "react";
+import React from "react";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -44,20 +45,16 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
     const handleForward = async () => {
         setDirection(1)
         setRotateFactor(0)
-        console.log("forward")
     }
     const handleBackward = () => {
         setDirection(-1)
         setRotateFactor(0)
-        console.log("backward")
     }
     const handleLeft = () => {
         setRotateFactor(rotateFactor - 1)
-        console.log("left")
     }
     const handleRight = () => {
         setRotateFactor(rotateFactor + 1)
-        console.log("right")
     }
 
     const handleStop = () => {
@@ -70,7 +67,6 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
         if (typeof value === "number" && robotBase) {
             robotBase.speed = value
         }
-        console.log("speed", value)
     }
 
     return (

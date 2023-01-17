@@ -100,7 +100,6 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
     const classes = useStyles()
     const [modules, setModules] = useState<IOptionalModule[]>(coreConnection.modules.map(m => ({ ...m, enabled: true })))
     const [isLoading, setIsLoading] = useState(false)
-    const alert = useAlert()
 
     const handleToggleModuleSwitch = (event: React.ChangeEvent<HTMLInputElement>, moduleId: string) => {
         setModules(

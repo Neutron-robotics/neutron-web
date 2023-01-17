@@ -26,13 +26,13 @@ function App() {
       <LoggerProvider>
         <TabProvider>
           <ViewProvider>
-            <MultiConnectionProvider>
-              <ThemeProvider theme={neutronMuiThemeDefault}>
-                <AlertProvider>
+            <AlertProvider>
+              <MultiConnectionProvider>
+                <ThemeProvider theme={neutronMuiThemeDefault}>
                   <ViewManager />
-                </AlertProvider>
-              </ThemeProvider>
-            </MultiConnectionProvider>
+                </ThemeProvider>
+              </MultiConnectionProvider>
+            </AlertProvider>
           </ViewProvider>
         </TabProvider>
       </LoggerProvider>

@@ -30,8 +30,6 @@ export const AlertContext = createContext<ContextProps>({
 export const AlertProvider = ({ children }: { children: ReactNode }) => {
     const [alerts, setAlerts] = useState<AlertProps[]>([])
 
-    console.log("{ALERTE} ", alerts)
-
     const error = (message: string, opts?: Partial<AlertOptions>) => {
         handleAddAlert(message, 'error', opts)
     }
