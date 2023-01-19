@@ -102,32 +102,30 @@ const OperationComponent = (props: OperationComponentProps) => {
     } = content
 
     return (
-        <>
-            <Draggable defaultPosition={defaultPosition} bounds="parent" handle=".handle" nodeRef={nodeRef} onDrag={(_, data) => handlePositionUpdate({ x: data.x, y: data.y })}>
-                <div ref={nodeRef} className={classes.root} style={{ width: width, height: height }}>
-                    <div className={`handle ${classes.handle}`}>
-                        <h5>{name}</h5>
-                        <div className={classes.closeButtonContainer}>
-                            <IconButton
-                                edge="end"
-                                onClick={handleCloseButton}
-                            >
-                                <CloseIcon />
-                            </IconButton>
-                        </div>
+        <Draggable defaultPosition={defaultPosition} bounds="parent" handle=".handle" nodeRef={nodeRef} onDrag={(_, data) => handlePositionUpdate({ x: data.x, y: data.y })}>
+            <div ref={nodeRef} className={classes.root} style={{ width: width, height: height }}>
+                <div className={`handle ${classes.handle}`}>
+                    <h5>{name}</h5>
+                    <div className={classes.closeButtonContainer}>
+                        <IconButton
+                            edge="end"
+                            onClick={handleCloseButton}
+                        >
+                            <CloseIcon />
+                        </IconButton>
                     </div>
-                    <Paper className={classes.content}>
-                        {/* {children} // here need to passby method to commit specifics */}
-                        <Component {
-                            ...{
-                                ...componentProps,
-                                onCommitComponentSpecific
-                            }
-                        } />
-                    </Paper>
                 </div>
-            </Draggable>
-        </>
+                <Paper className={classes.content}>
+                    {/* {children} // here need to passby method to commit specifics */}
+                    <Component {
+                        ...{
+                            ...componentProps,
+                            onCommitComponentSpecific
+                        }
+                    } />
+                </Paper>
+            </div>
+        </Draggable>
     )
 }
 

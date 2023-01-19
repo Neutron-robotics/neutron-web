@@ -1,9 +1,9 @@
-import { AppBar, Box, IconButton, Toolbar, Typography } from "@mui/material"
+import { AppBar, Box, IconButton, Slide, Toolbar, Typography } from "@mui/material"
 import HomeIcon from '@mui/icons-material/Home';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { makeStyles } from "@mui/styles";
 import { ViewContext, ViewType } from "../../contexts/ViewProvider";
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import TabHeader from "./TabHeader";
 import { IOperationTab, useTabsDispatch } from "../../contexts/TabContext";
 import React from "react";
@@ -30,6 +30,7 @@ const Header = (props: HeaderProps) => {
     const { headerTabs, headerBody } = props;
     const { setViewType } = useContext(ViewContext);
     const tabDispatch = useTabsDispatch()
+    const headerRef = useRef(null);
 
     const handleHomeButtonClick = () => {
         tabDispatch({
@@ -42,7 +43,7 @@ const Header = (props: HeaderProps) => {
 
     return (
         <>
-            <AppBar position="static" >
+            <AppBar position="static"  >
                 <Toolbar className={classes.header}>
                     <IconButton
                         size="large"
@@ -74,7 +75,19 @@ const Header = (props: HeaderProps) => {
                     </IconButton>
                 </Toolbar>
             </AppBar>
-            {headerBody}
+            <div ref={headerRef} style={{ overflow: 'hidden' }}>
+                <Slide
+                    direction="down"
+                    in={headerBody !== undefined}
+                    mountOnEnter
+                    unmountOnExit
+                    container={headerRef.current}
+                >
+                    <div>
+                        {headerBody}
+                    </div>
+                </Slide>
+            </div>
         </>
     )
 }
