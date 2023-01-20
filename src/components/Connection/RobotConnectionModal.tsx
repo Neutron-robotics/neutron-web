@@ -7,8 +7,6 @@ import { Core, IRobotModuleDefinition } from "neutron-core";
 import { useState } from "react";
 import React from "react";
 import getConnectionType from "../../utils/getConnectionType";
-import { setCommentRange } from "typescript";
-import { useAlert } from "../../contexts/AlertContext";
 
 const useStyles = makeStyles(() => ({
     root: {

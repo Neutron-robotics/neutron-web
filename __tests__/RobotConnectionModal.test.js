@@ -12,6 +12,7 @@ describe("Robot connection modal", () => {
   beforeEach(() => {
     mockOnClose.mockClear();
     mockOnConnect.mockClear();
+    mockOnConnect.mockReturnValue(Promise.resolve(true))
     core = {
       name: "mockCore",
       status: RobotStatus.Available,
