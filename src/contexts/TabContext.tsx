@@ -1,4 +1,4 @@
-import { createContext, Dispatch, useContext, useReducer } from 'react';
+import React, { createContext, Dispatch, useContext, useReducer } from 'react';
 import { IOperationComponentBuilder, IOperationComponentSettings, IOperationComponentSpecifics } from '../components/OperationComponents/IOperationComponents';
 import { ViewType } from './ViewProvider';
 
@@ -103,7 +103,6 @@ function tabsReducer(tabs: ITabsContext, action: TabDispatchesActions) {
         case 'create': {
             const { builder } = action
             if (tabs[builder.id]) {
-                console.log(`Tab with id ${builder.id} already exists. Aborting`);
                 return tabs;
             }
             const allTabs = builder.isActive ? Object.entries(tabs).reduce((acc, [key, tab]) => {
@@ -136,7 +135,6 @@ function tabsReducer(tabs: ITabsContext, action: TabDispatchesActions) {
             const { tabId, payload } = action
             const tab = tabs[tabId]
             if (!tab) {
-                console.log("no such tab exist")
                 return tabs
             }
             const { builder, specifics } = payload
@@ -167,14 +165,11 @@ function tabsReducer(tabs: ITabsContext, action: TabDispatchesActions) {
             const { tabId, componentId, payload, specifics } = action
             const tab = tabs[tabId]
             if (!tab) {
-                console.log("no such tab exist")
                 return tabs
             }
             if (!componentId || !tab.components[componentId]) {
-                console.log('Invalid componentId or tabId', componentId, tabId)
                 return tabs
             }
-            console.log('Committing', componentId, payload, specifics)
             return {
                 ...tabs,
                 [tabId]: {

@@ -14,6 +14,7 @@ const useStyle = makeStyles({
     marginLeft: '20px',
     cursor: 'pointer',
     userSelect: 'none',
+    transition: 'width .5s ease-in-out'
   },
 })
 
@@ -26,10 +27,9 @@ const TabHeader = (props: IOperationTab) => {
     onClose()
   }
 
-  console.log("Tab is ", props)
   const style = {
     backgroundColor: isActive ? '#525CD2' : '',
-    width: isActive ? undefined : '200px',
+    width: isActive ? '200px' : '150px',
   } as React.CSSProperties;
 
   return (

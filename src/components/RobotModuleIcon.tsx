@@ -5,6 +5,9 @@ import VideocamIcon from '@mui/icons-material/Videocam';
 import WavesIcon from '@mui/icons-material/Waves';
 import FlareIcon from '@mui/icons-material/Flare';
 import LightIcon from '@mui/icons-material/Light';
+import LinkIcon from '@mui/icons-material/Link';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import React from 'react';
 
 export interface IRobotModuleIconProps {
     type: string
@@ -16,18 +19,22 @@ export interface IRobotModuleIconProps {
 const RobotModuleIcon = (props: IRobotModuleIconProps) => {
     const { type, title, width, height } = props
 
-    const typeIconDict: { [key: string]: JSX.Element } = {
+    const typeIconDict: Record<string, JSX.Element> = {
         'base': <DirectionsCarIcon />,
         'service': <MemoryIcon />,
         'camera': <CameraAltIcon />,
         'ptz': <VideocamIcon />,
         'ultasonic': <WavesIcon />,
         'lidar': <FlareIcon />,
-        'infrared': <LightIcon />
+        'infrared': <LightIcon />,
+        'rosbridge': <LinkIcon />
     }
+
+    const defaultIcon = <HelpOutlineIcon />
+
     return (
-        <div title={title} style={{width, height }}>
-            {typeIconDict[type]}
+        <div title={title} style={{ width, height }}>
+            {typeIconDict[type.toLowerCase()] || defaultIcon}
         </div>
     )
 }

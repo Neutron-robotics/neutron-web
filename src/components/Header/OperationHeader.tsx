@@ -5,12 +5,13 @@ import NetworkWifi1BarTwoToneIcon from '@mui/icons-material/NetworkWifi1BarTwoTo
 import { useState } from "react";
 import { IOperationCategory, IOperationComponentDescriptor } from "../OperationComponents/IOperationComponents";
 import { IRobotModule } from "neutron-core";
+import React from "react";
 
-const useStyle = makeStyles(() => ({
+const useStyle = makeStyles((theme: any) => ({
     root: {
         minHeight: '56px !important',
         color: '#FFFFFF',
-        background: '#525CD2',
+        background: theme.palette.primary.light,
         display: 'flex',
         flexDirection: 'row',
     },
@@ -65,8 +66,6 @@ interface OperationHeaderProps {
 const OperationHeader = (props: OperationHeaderProps) => {
     const { operationCategories, isConnected, mountComponent, modules } = props
     const classes = useStyle()
-
-    console.log("OPERATIONHEADER", modules, operationCategories)
 
     const handleWifiClick = () => { }
 
@@ -159,7 +158,6 @@ const PartCard = (props: PartCardProps) => {
             >
                 {icon}
             </IconButton>
-            <Badge color="primary" variant="dot"></Badge>
             <Menu
                 anchorEl={anchorEl}
                 open={open}

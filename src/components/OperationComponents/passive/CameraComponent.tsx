@@ -5,6 +5,7 @@ import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { IOperationComponentDescriptor, IOperationComponentSpecifics } from "../IOperationComponents"
 import { Camera } from "neutron-core"
 import { useConnection } from "../../../contexts/MultiConnectionProvider";
+import React from "react";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -25,8 +26,6 @@ const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpe
     const { moduleId, connectionId, onCommitComponentSpecific, specifics } = props
     const classes = useStyles()
     const [isConnected, setIsConnected] = useState(specifics?.isConnected ?? false)
-    // const logger = useLogger("CameraComponent")
-    console.log("mounting component props with moduleId", moduleId)
     const connection = useConnection(connectionId ?? "")
     const camera = connection?.modules.find(m => m.id === moduleId) as Camera | undefined
 
@@ -35,22 +34,18 @@ const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpe
         onCommitComponentSpecific({
             isConnected,
         });
-        console.log("camera commit", isConnected)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Cause infinite render loop
     }, [isConnected]);
 
     const handleOnConnect = async () => {
         if (!camera) return
-        console.log("boot camera")
         const success = await camera.connect()
         setIsConnected(success)
-        console.log("connect res is", success)
     }
 
     const handleOnDisconnect = async () => {
-        console.log("disconnecting")
         if (!camera) return
         const res = await camera.disconnect()
-        console.log("disconnect res is", res)
         setIsConnected(false)
     }
 

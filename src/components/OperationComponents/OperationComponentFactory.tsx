@@ -1,3 +1,4 @@
+import React from "react";
 import { IOperationComponent, IOperationComponentBuilder, IOperationComponentSpecifics } from "./IOperationComponents";
 import OperationComponent from "./OperationComponent";
 
@@ -10,8 +11,6 @@ export const makeOperationComponentLayoutItem = (componentBuilder: IOperationCom
 
 export const makeOperationComponent = (builder: IOperationComponentBuilder, props: IOperationComponentSpecifics<unknown>) => {
     const { name, settings, onClose, component, id, tabId } = builder;
-
-    console.log("make component with props", props)
 
     const OperationComponentContent = component
 
@@ -31,7 +30,3 @@ export const makeOperationComponent = (builder: IOperationComponentBuilder, prop
         />
     )
 }
-
-// <Paper elevation={3} style={{ height: '100%', width: '100%' }}>
-            //     <OperationComponentContent {...props} />
-            // </Paper>

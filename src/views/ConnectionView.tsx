@@ -1,7 +1,10 @@
+import { Fade } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import { Core, IRobotConnectionInfo, IRobotModuleDefinition, makeConnectionContext, RobotConnectionType } from "neutron-core"
+import React from "react"
 import { useContext, useEffect, useState } from "react"
 import RobotConnection from "../components/Connection/RobotConnection"
+import { useAlert } from "../contexts/AlertContext"
 import { MultiConnectionContext } from "../contexts/MultiConnectionProvider"
 import { ITabBuilder, useTabsDispatch } from "../contexts/TabContext"
 import { ViewContext, ViewType } from "../contexts/ViewProvider"
@@ -18,32 +21,32 @@ const useStyles = makeStyles(() => ({
 }))
 
 interface IConnectionViewProps extends IViewProps {
-    // setHeaderMenues: (item: IHeaderMenu, viewType: ViewType, active: boolean) => void;
 }
 
 const ConnectionView = (props: IConnectionViewProps) => {
     const classes = useStyles()
-    // const { setHeaderMenues } = props
     const [robotConnectionsInfos, setRobotConnectionsInfos] = useState<IRobotConnectionInfo[]>([])
     const [coreConnections, setCoreConnections] = useState<Core[]>([])
     const { addConnection, connections } = useContext(MultiConnectionContext)
     const tabsDispatcher = useTabsDispatch()
     const { setViewType } = useContext(ViewContext);
+    const alert = useAlert()
 
-    const handleOnRobotConnect = async (core: Core, modules: IRobotModuleDefinition[]) => {
+    const handleOnRobotConnect = async (core: Core, modules: IRobotModuleDefinition[]): Promise<boolean> => {
         if (core.id in connections) {
-            console.log("Already connected to this robot")
-            return
+            alert.warn("A connection is already active for this robot")
+            return false
         }
 
         try {
             const context = makeConnectionContext(core.contextConfiguration.type, core.contextConfiguration);
-            console.log("Connecting with context",  context)
             const res = await addConnection(core, context, modules)
             if (!res) {
-                console.log("Failed to connect")
+                alert.warn("Some error happenned during the connection to the robot")
                 // return
             }
+            else
+                alert.success("Connection to the robot has been completed successfuly")
             const item: ITabBuilder = {
                 id: core.id,
                 title: core.name,
@@ -68,11 +71,11 @@ const ConnectionView = (props: IConnectionViewProps) => {
                 type: 'create',
                 builder: item
             })
-            // setHeaderMenues(item, ViewType.OperationView, true)
+            return true
         }
-        catch (e) {
-            console.log("error happend during connectionview")
-            // console.error(e);
+        catch (e: any) {
+            alert.error(`Exception during connection: ${e.message}`)
+            return false
         }
     }
 
@@ -81,15 +84,10 @@ const ConnectionView = (props: IConnectionViewProps) => {
     useEffect(() => {
         setRobotConnectionsInfos([
             {
-                hostname: '192.168.1.117',
+                hostname: '192.168.1.116',
                 port: 8000,
                 type: RobotConnectionType.ROSBRIDGE,
             },
-            // {
-            //     hostname: '192.168.1.116',
-            //     port: 8000,
-            //     type: RobotConnectionType.ROSBRIDGE,
-            // },
             {
                 hostname: '192.168.3.3',
                 port: 8000,
@@ -106,7 +104,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
                     await core.getConnectionInfo()
                 }
                 catch (e: any) {
-                    // console.log("An error happens while trying to initiate connection to core", robotConnectionInfo.hostname)
+                    alert.warn(`Impossible to fetch robot informations for ${robotConnectionInfo.hostname}`)
                     return null
                 }
                 return core
@@ -115,13 +113,18 @@ const ConnectionView = (props: IConnectionViewProps) => {
             setCoreConnections(robotConnections)
         }
         getRobotInfos()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- alert causing infinite re-rendering
     }, [robotConnectionsInfos])
 
     return (
         <div className={classes.root}>
             <h1 className={classes.title}>Connect to a robot</h1>
             {coreConnections.map((coreConnection) => (
-                <RobotConnection coreConnection={coreConnection} key={coreConnection.id} handleOnRobotConnect={handleOnRobotConnect} />
+                <Fade in timeout={200} key={coreConnection.id}>
+                    <div>
+                        <RobotConnection coreConnection={coreConnection} handleOnRobotConnect={handleOnRobotConnect} />
+                    </div>
+                </Fade>
             ))}
         </div>
     )

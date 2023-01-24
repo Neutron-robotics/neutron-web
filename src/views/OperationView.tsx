@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { IOperationCategory, IOperationComponent, IOperationComponentBuilder, IOperationComponentDescriptor, IOperationComponentSpecifics } from '../components/OperationComponents/IOperationComponents';
 import { operationComponentsConfiguration } from '../components/OperationComponents/components';
 import { makeOperationComponentLayoutItem } from "../components/OperationComponents/OperationComponentFactory";
@@ -9,6 +9,7 @@ import { useTab, useTabsDispatch } from "../contexts/TabContext";
 import { v4 as uuid } from 'uuid';
 import { useConnection } from '../contexts/MultiConnectionProvider';
 import { makeOperationBar } from '../utils/makeOperationBar';
+import React from 'react';
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -32,25 +33,13 @@ const OperationView = (props: IOperationViewProps) => {
     const connection = useConnection(tabId)
     const dispatcher = useTabsDispatch()
     const [operationComponents, setOperationComponents] = useState<IOperationComponent[]>([])
-    // const operationComponentsRef = useRef(operationComponents)
-
-    console.log("Operation with actual tab", actualTab, "and components", operationComponents)
-    // console.log("connection", connection)
-
-    // console.log("Operation view state", operationComponents)
-
-    // useEffect(() => {
-    //     operationComponentsRef.current = operationComponents
-    // }, [operationComponents])
 
     const handleOnCloseOperationComponent = useCallback((id: string) => {
-        console.log(id, "closing from components", operationComponents, " ref")
         setOperationComponents(op => {
-            console.log("op is", op, op.filter(item => item.id !== id))
             return op.filter(item => item.id !== id)
         })
         dispatcher({ type: "remove-component", tabId, componentId: id })
-    }, [dispatcher, operationComponents, tabId])
+    }, [dispatcher, tabId])
 
     const handleOnAddOperationComponent = useCallback((descriptor: IOperationComponentDescriptor) => {
         const componentBuilder: IOperationComponentBuilder = {
@@ -78,7 +67,6 @@ const OperationView = (props: IOperationViewProps) => {
 
     useEffect(() => {
         if (initializedTab === actualTab.id) {
-            console.log("Already initialized")
             return
         }
         if (actualTab) {
@@ -90,7 +78,6 @@ const OperationView = (props: IOperationViewProps) => {
                     }
                     , component.specifics)
             )
-            console.log("Recovered operation components", recoveredOperationComponents)
             setOperationComponents(recoveredOperationComponents)
         }
         setInitializedTab(actualTab.id)

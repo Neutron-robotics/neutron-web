@@ -1,3 +1,4 @@
+import React from "react";
 import { useContext, useEffect, useState } from "react";
 import Header from "../components/Header/Header";
 import { useActiveTab, useTabs } from "../contexts/TabContext";
@@ -14,9 +15,6 @@ const ViewManager = () => {
     const [headerBody, setHeaderBody] = useState<JSX.Element>();
     const tabs = useTabs()
     const activeTab = useActiveTab()
-
-    // console.log('tabs are', tabs)
-    // console.log('active tab is ', activeTab)
 
     useEffect(() => {
         if (viewType === ViewType.Home) {

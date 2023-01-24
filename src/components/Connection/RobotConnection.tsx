@@ -6,6 +6,7 @@ import Battery80Icon from '@mui/icons-material/Battery80';
 import { useState } from "react";
 import RobotConnectionModal from "./RobotConnectionModal";
 import { Core, IRobotModuleDefinition } from "neutron-core";
+import React from "react";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -36,7 +37,7 @@ const useStyles = makeStyles(() => ({
 
 export interface IRobotConnectionProps {
     coreConnection: Core
-    handleOnRobotConnect: (core: Core, modules: IRobotModuleDefinition[]) => void
+    handleOnRobotConnect: (core: Core, modules: IRobotModuleDefinition[]) => Promise<boolean>
 }
 
 const RobotConnection = (props: IRobotConnectionProps) => {
@@ -59,7 +60,7 @@ const RobotConnection = (props: IRobotConnectionProps) => {
                 <h2>{coreConnection.name}</h2>
                 <p>{coreConnection.status}</p>
                 <div className={classes.cardBody}>
-                    <Badge badgeContent=" " color="primary"
+                    <Badge badgeContent="" color="success"
                         anchorOrigin={
                             {
                                 vertical: 'bottom',
