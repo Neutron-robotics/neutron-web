@@ -84,7 +84,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
     useEffect(() => {
         setRobotConnectionsInfos([
             {
-                hostname: '192.168.1.116',
+                hostname: '192.168.1.117',
                 port: 8000,
                 type: RobotConnectionType.ROSBRIDGE,
             },
@@ -113,7 +113,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
             setCoreConnections(robotConnections)
         }
         getRobotInfos()
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- alert causing infinite re-rendering
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- alert causing infinite re-rendering
     }, [robotConnectionsInfos])
 
     return (

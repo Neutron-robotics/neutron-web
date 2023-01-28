@@ -34,7 +34,7 @@ const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpe
         onCommitComponentSpecific({
             isConnected,
         });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Cause infinite render loop
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- Cause infinite render loop
     }, [isConnected]);
 
     const handleOnConnect = async () => {
@@ -74,8 +74,20 @@ export const CameraComponentBuilder: IOperationComponentDescriptor = {
     component: CameraComponent,
     icon: <CameraAltIcon />,
     settings: {
-        defaultWidth: 854,
-        defaultHeight: 480,
+        defaultSize: {
+            height: 480,
+            width: 854
+        },
+        minSize: {
+            height: 240,
+            width: 427
+        },
+        maxSize: {
+            height: 720,
+            width: 1281
+        },
+        resizable: true,
+        conserveSizeRatio: true
     },
 }
 

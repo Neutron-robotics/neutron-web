@@ -111,8 +111,6 @@ const Console = (props: IConsoleProps) => {
         }
     };
 
-    
-
     const onMessage = useCallback((message: ILoggerMessage) => {
         if (message.type === LogType.ERROR && !isErrorEnabled) return;
         if (message.type === LogType.DEBUG && !isDebugEnabled) return;
@@ -258,8 +256,19 @@ export const ConsoleComponentBuilder: IOperationComponentDescriptor = {
     component: Console,
     icon: <AdbIcon />,
     settings: {
-        defaultWidth: 500,
-        defaultHeight: 300,
+        defaultSize: {
+            height: 300,
+            width: 500
+        },
+        minSize: {
+            height: 150,
+            width: 250
+        },
+        maxSize: {
+            height: 600,
+            width: 1000
+        },
+        resizable: true
     },
 }
 

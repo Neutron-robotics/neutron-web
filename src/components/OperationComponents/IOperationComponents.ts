@@ -1,9 +1,12 @@
 export type OperationComponentType = "passive" | "active";
 
 export interface IOperationComponentSettings {
-  defaultWidth: number;
-  defaultHeight: number;
+  defaultSize: ILayoutSize;
   defaultPosition?: ILayoutCoordinates;
+  resizable: boolean;
+  conserveSizeRatio?: boolean;
+  minSize?: ILayoutSize;
+  maxSize?: ILayoutSize;
 }
 
 export interface IOperationComponentDescriptor {
@@ -39,6 +42,11 @@ export interface IOperationComponentSpecifics<TComponentSpecific> {
 export interface ILayoutCoordinates {
   x: number;
   y: number;
+}
+
+export interface ILayoutSize {
+  width: number;
+  height: number;
 }
 
 export interface IOperationComponent {

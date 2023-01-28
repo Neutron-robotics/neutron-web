@@ -3,12 +3,40 @@ import { makeStyles } from "@mui/styles";
 import { useEffect, useRef, useState } from "react";
 import Draggable from "react-draggable";
 import CloseIcon from '@mui/icons-material/Close';
-import { ILayoutCoordinates } from "./IOperationComponents";
+import { ILayoutCoordinates, IOperationComponentSettings } from "./IOperationComponents";
 import { useTabsDispatch } from "../../contexts/TabContext";
 import React from "react";
+import { Resizable, ResizeCallbackData } from 'react-resizable';
 
 const useStyle = makeStyles(() => ({
     root: {
+        "& .react-resizable-handle-se": {
+            bottom: 0,
+            right: 0,
+            cursor: 'se-resize'
+        },
+        "& .react-resizable-handle": {
+            position: "absolute",
+            width: "20px",
+            height: "20px",
+            backgroundRepeat: "no-repeat",
+            backgroundOrigin: "content-box",
+            boxSizing: "border-box",
+            backgroundImage: "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2IDYiIHN0eWxlPSJiYWNrZ3JvdW5kLWNvbG9yOiNmZmZmZmYwMCIgeD0iMHB4IiB5PSIwcHgiIHdpZHRoPSI2cHgiIGhlaWdodD0iNnB4Ij48ZyBvcGFjaXR5PSIwLjMwMiI+PHBhdGggZD0iTSA2IDYgTCAwIDYgTCAwIDQuMiBMIDQgNC4yIEwgNC4yIDQuMiBMIDQuMiAwIEwgNiAwIEwgNiA2IEwgNiA2IFoiIGZpbGw9IiMwMDAwMDAiLz48L2c+PC9zdmc+')",
+            backgroundPosition: "bottom right",
+            padding: "0 3px 3px 0",
+            visibility: "hidden",
+            opacity: 0,
+            transition: 'visibility 0s, opacity 0.5s linear'
+        },
+        "&:hover": {
+            "& .react-resizable-handle": {
+                visibility: "visible",
+                opacity: 1
+            }
+        },
+        position: "relative"
+
     },
     handle: {
         width: '100%',
@@ -34,7 +62,7 @@ const useStyle = makeStyles(() => ({
     },
     content: {
         width: '100%',
-        height: '100%',
+        height: 'calc(100% - 30px)',
     }
 }))
 
@@ -50,19 +78,18 @@ interface OperationComponentProps {
     name: string;
     id: string;
     tabId: string;
-    // children: JSX.Element;
-    width: number;
-    height: number;
+    settings: IOperationComponentSettings
     defaultPosition?: ILayoutCoordinates;
     content: Renderable<IBaseComponent>
     onClose: (id: string) => void;
 }
 
 const OperationComponent = (props: OperationComponentProps) => {
-    const { id, tabId, width, height, content, name, onClose, defaultPosition } = props
+    const { id, tabId, settings, content, name, onClose, defaultPosition } = props
     const classes = useStyle()
     const nodeRef = useRef(null);
     const [position, setPosition] = useState<ILayoutCoordinates>(defaultPosition || { x: 0, y: 0 })
+    const [size, setSize] = useState({ width: settings.defaultSize.width, height: settings.defaultSize.height })
     const posRef = useRef(position)
     const tabDispatcher = useTabsDispatch()
     const [isClosing, setIsClosing] = useState(false)
@@ -84,9 +111,16 @@ const OperationComponent = (props: OperationComponentProps) => {
         return () => {
             if (isClosing)
                 return
-            tabDispatcher({ type: 'commit', payload: { defaultWidth: width, defaultHeight: height, defaultPosition: posRef.current }, specifics: componentSpecific, tabId, componentId: id })
+            tabDispatcher({
+                type: 'commit',
+                payload: {
+                    ...settings, defaultSize: { width: size.width, height: size.height }
+                    , defaultPosition: posRef.current
+                }, specifics: componentSpecific, tabId, componentId: id
+            })
         }
-    }, [componentSpecific, defaultPosition?.x, defaultPosition?.y, height, id, isClosing, onClose, tabDispatcher, tabId, width]) // [id, isClosing])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [componentSpecific, defaultPosition?.x, defaultPosition?.y, id, isClosing, onClose, tabDispatcher, tabId, size])
 
     const handleCloseButton = () => {
         setIsClosing(true)
@@ -96,6 +130,15 @@ const OperationComponent = (props: OperationComponentProps) => {
         setPosition(position)
     }
 
+    const handleOnResize = (e: any, cb: ResizeCallbackData) => {
+        if (settings.conserveSizeRatio) {
+            const height = (settings.defaultSize.height / settings.defaultSize.width) * cb.size.width
+            setSize({ width: cb.size.width, height: height })
+        }
+        else
+            setSize({ width: cb.size.width, height: cb.size.height })
+    }
+
     const {
         Component,
         ...componentProps
@@ -103,29 +146,30 @@ const OperationComponent = (props: OperationComponentProps) => {
 
     return (
         <Draggable defaultPosition={defaultPosition} bounds="parent" handle=".handle" nodeRef={nodeRef} onDrag={(_, data) => handlePositionUpdate({ x: data.x, y: data.y })}>
-            <div ref={nodeRef} className={classes.root} style={{ width: width, height: height }}>
-                <div className={`handle ${classes.handle}`}>
-                    <h5>{name}</h5>
-                    <div className={classes.closeButtonContainer}>
-                        <IconButton
-                            edge="end"
-                            onClick={handleCloseButton}
-                        >
-                            <CloseIcon />
-                        </IconButton>
+            <Resizable height={size.height} width={size.width} onResize={handleOnResize} resizeHandles={settings.resizable ? ['se'] : []}>
+                <div ref={nodeRef} className={classes.root} style={{ width: size.width, height: size.height }}>
+                    <div className={`handle ${classes.handle}`}>
+                        <h5>{name}</h5>
+                        <div className={classes.closeButtonContainer}>
+                            <IconButton
+                                edge="end"
+                                onClick={handleCloseButton}
+                            >
+                                <CloseIcon />
+                            </IconButton>
+                        </div>
                     </div>
+                    <Paper className={classes.content}>
+                        <Component {
+                            ...{
+                                ...componentProps,
+                                onCommitComponentSpecific
+                            }
+                        } />
+                    </Paper>
                 </div>
-                <Paper className={classes.content}>
-                    {/* {children} // here need to passby method to commit specifics */}
-                    <Component {
-                        ...{
-                            ...componentProps,
-                            onCommitComponentSpecific
-                        }
-                    } />
-                </Paper>
-            </div>
-        </Draggable>
+            </Resizable>
+        </Draggable >
     )
 }
 
