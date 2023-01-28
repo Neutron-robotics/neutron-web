@@ -127,8 +127,11 @@ export const RobotBaseComponentBuilder: IOperationComponentDescriptor = {
     component: RobotBaseComponent,
     icon: <DirectionsCarIcon />,
     settings: {
-        defaultWidth: 300,
-        defaultHeight: 300,
+        defaultSize: {
+            width: 300,
+            height: 300
+        },
+        resizable: false
     }
 }
 

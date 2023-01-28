@@ -90,6 +90,8 @@ describe("Neutron web", () => {
 
     cy.get('[title="Camera"] > .MuiButtonBase-root').click().then(() => {
       cy.get('.MuiList-root > .MuiButtonBase-root').click().then(() => {
+
+        // Drag the component across the UI and assert everything goes well
         const draggable = cy.get('.handle').contains('Camera Viewer')
         draggable.then($el => {
           const initialPosition = $el[0].getBoundingClientRect()
@@ -125,6 +127,49 @@ describe("Neutron web", () => {
             })
           })
         })
+
+        // Resize the component and assert everything goes well
+        const resizable = cy.get('.react-resizable-handle-se')
+        const resized = cy.get('.react-resizable')
+        resized.trigger('mouseenter').then($el => {
+          const initialWidth = $el.width()
+          const initialHeight = $el.height()
+          // Simulate a mousedown event before resizing the element
+          resizable.trigger('mouseenter', { force: true }).rightclick({ force: true }).click({ force: true }).trigger('mousedown', {
+            which: 1,
+            force: true
+          });
+
+          // Simulate a mousemove event to resize the element
+          cy.get('body').trigger('mousemove', {
+            clientX: 800, // move 400px to the right
+            clientY: 300 // move 300px down
+          });
+
+          // Simulate a mouseup event to release the element
+          cy.get('body').trigger('mouseup');
+
+          cy.get('.react-resizable').trigger('mouseover').then($el => {
+            // Verify the component size has changed
+            const updatedWidth = $el.width()
+            const updatedHeight = $el.height()
+            expect(updatedWidth).to.not.equal(initialWidth)
+            expect(updatedHeight).to.not.equal(initialHeight)
+
+            // Get back into home menu and comeback to tab
+            cy.get('.MuiToolbar-root > .MuiIconButton-edgeStart').click()
+            cy.get(`[class^='makeStyles-tabheader']`).contains('sarcophagus mock').click()
+
+            cy.get('.react-resizable').trigger('mouseover').then($el => {
+              // Verify the component size has not changed
+              const finalWidth = $el.width()
+              const finalHeight = $el.height()
+              expect(finalWidth).to.equal(updatedWidth)
+              expect(finalHeight).to.equal(updatedHeight)
+            })
+          })
+        })
+
       })
     })
     cy.get(`[class^='makeStyles-closeButtonContainer'] > .MuiButtonBase-root > [data-testid="CloseIcon"]`).click()

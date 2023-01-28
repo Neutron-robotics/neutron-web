@@ -20,8 +20,7 @@ export const makeOperationComponent = (builder: IOperationComponentBuilder, prop
             tabId={tabId}
             name={name}
             onClose={onClose}
-            width={settings.defaultWidth}
-            height={settings.defaultHeight}
+            settings={settings}
             defaultPosition={settings.defaultPosition}
             content={{
                 Component: OperationComponentContent,

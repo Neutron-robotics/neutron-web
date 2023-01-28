@@ -69,7 +69,7 @@ const OperationHeader = (props: OperationHeaderProps) => {
 
     const handleWifiClick = () => { }
 
-    const handleonMountComponent = (descriptor: IOperationComponentDescriptor) => {
+    const handleOnMountComponent = (descriptor: IOperationComponentDescriptor) => {
         const module = modules.filter(m => m.type === descriptor.partType)
         if (module.length > 1) {
             console.log("more than one module of this type, need to select, not implemented yet")
@@ -115,7 +115,7 @@ const OperationHeader = (props: OperationHeaderProps) => {
 
             <Divider orientation="vertical" flexItem />
             <div className={classes.partIconGroup}>
-                {operationCategories.map(e => <PartCard key={`pc-${e.name}-${e.type}`} mountComponent={handleonMountComponent} operationCategory={e} isActivated />)}
+                {operationCategories.map(e => <PartCard key={`pc-${e.name}-${e.type}`} mountComponent={handleOnMountComponent} operationCategory={e} isActivated />)}
             </div>
         </div>
     )
