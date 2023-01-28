@@ -78,12 +78,11 @@ interface OperationComponentProps {
     name: string;
     id: string;
     tabId: string;
-    // children: JSX.Element;
     settings: IOperationComponentSettings
     defaultPosition?: ILayoutCoordinates;
     content: Renderable<IBaseComponent>
     onClose: (id: string) => void;
-} // ici ca serait pas mieux de direct recevoir les options ???IOperationComponentSettings
+}
 
 const OperationComponent = (props: OperationComponentProps) => {
     const { id, tabId, settings, content, name, onClose, defaultPosition } = props

@@ -111,8 +111,6 @@ const Console = (props: IConsoleProps) => {
         }
     };
 
-
-
     const onMessage = useCallback((message: ILoggerMessage) => {
         if (message.type === LogType.ERROR && !isErrorEnabled) return;
         if (message.type === LogType.DEBUG && !isDebugEnabled) return;
