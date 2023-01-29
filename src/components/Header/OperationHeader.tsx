@@ -2,10 +2,13 @@ import { Badge, Divider, IconButton, Menu, MenuItem, Typography } from "@mui/mat
 import { makeStyles } from "@mui/styles"
 import BatteryFullTwoToneIcon from '@mui/icons-material/BatteryFullTwoTone';
 import NetworkWifi1BarTwoToneIcon from '@mui/icons-material/NetworkWifi1BarTwoTone';
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { IOperationCategory, IOperationComponentDescriptor } from "../OperationComponents/IOperationComponents";
+import KeyboardIcon from '@mui/icons-material/Keyboard';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import { IRobotModule } from "neutron-core";
 import React from "react";
+import { InputHandlerContext } from "../../contexts/InputHandlerContext";
 
 const useStyle = makeStyles((theme: any) => ({
     root: {
@@ -24,6 +27,12 @@ const useStyle = makeStyles((theme: any) => ({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
+    },
+    inputHandlers: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 'auto',
     },
     batteryIconButton: {
         color: '#FFFFFF',
@@ -117,6 +126,28 @@ const OperationHeader = (props: OperationHeaderProps) => {
             <div className={classes.partIconGroup}>
                 {operationCategories.map(e => <PartCard key={`pc-${e.name}-${e.type}`} mountComponent={handleOnMountComponent} operationCategory={e} isActivated />)}
             </div>
+            <InputHandlerMenu />
+        </div>
+    )
+}
+
+const InputHandlerMenu = () => {
+    const classes = useStyle()
+    const { isKeyboardAvailable, isGamepadAvailable, current, setInputHandler } = useContext(InputHandlerContext)
+
+    const currentStyle = { backgroundColor: 'rgba(0, 0, 0, 0.5)' }
+    return (
+        <div className={classes.inputHandlers}>
+            {isGamepadAvailable && (
+                <IconButton onClick={() => setInputHandler('gamepad')} color="inherit" style={current === 'gamepad' ? currentStyle : undefined}>
+                    <SportsEsportsIcon />
+                </IconButton>
+            )}
+            {isKeyboardAvailable && (
+                <IconButton onClick={() => setInputHandler('keyboard')} color="inherit" style={current === 'keyboard' ? currentStyle : undefined}>
+                    <KeyboardIcon />
+                </IconButton>
+            )}
         </div>
     )
 }

@@ -10,6 +10,7 @@ import { v4 as uuid } from 'uuid';
 import { useConnection } from '../contexts/MultiConnectionProvider';
 import { makeOperationBar } from '../utils/makeOperationBar';
 import React from 'react';
+import useGamepadHandler, { SwitchControllerKeyHandler } from '../utils/useGamepadHandler';
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -33,6 +34,14 @@ const OperationView = (props: IOperationViewProps) => {
     const connection = useConnection(tabId)
     const dispatcher = useTabsDispatch()
     const [operationComponents, setOperationComponents] = useState<IOperationComponent[]>([])
+
+    const handleLeftJoystickMovement = (x: number) => {
+        console.log("left is ", x)
+    }
+    
+    useGamepadHandler(SwitchControllerKeyHandler.LeftJoystickAxeX, {
+        onChange: handleLeftJoystickMovement
+    })
 
     const handleOnCloseOperationComponent = useCallback((id: string) => {
         setOperationComponents(op => {

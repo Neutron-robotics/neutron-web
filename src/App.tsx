@@ -9,6 +9,7 @@ import { ThemeProvider } from '@mui/material';
 import neutronMuiThemeDefault from './contexts/MuiTheme';
 import { AlertProvider } from './contexts/AlertContext';
 import { Resizable, ResizeCallbackData } from 'react-resizable';
+import { InputHandlerProvider } from './contexts/InputHandlerContext';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -30,7 +31,9 @@ function App() {
             <AlertProvider>
               <MultiConnectionProvider>
                 <ThemeProvider theme={neutronMuiThemeDefault}>
-                  <ViewManager />
+                  <InputHandlerProvider>
+                    <ViewManager />
+                  </InputHandlerProvider>
                 </ThemeProvider>
               </MultiConnectionProvider>
             </AlertProvider>

@@ -12,6 +12,7 @@ import { useConnection } from "../../../contexts/MultiConnectionProvider";
 import { useState } from "react";
 import { useEffect } from "react";
 import React from "react";
+import useGamepadHandler, { SwitchControllerKeyHandler } from "../../../utils/useGamepadHandler";
 
 const useStyles = makeStyles(() => ({
     root: {
