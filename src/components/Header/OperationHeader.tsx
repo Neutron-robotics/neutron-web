@@ -2,13 +2,14 @@ import { Badge, Divider, IconButton, Menu, MenuItem, Typography } from "@mui/mat
 import { makeStyles } from "@mui/styles"
 import BatteryFullTwoToneIcon from '@mui/icons-material/BatteryFullTwoTone';
 import NetworkWifi1BarTwoToneIcon from '@mui/icons-material/NetworkWifi1BarTwoTone';
-import { useContext, useState } from "react";
+import { useEffect, useState } from "react";
 import { IOperationCategory, IOperationComponentDescriptor } from "../OperationComponents/IOperationComponents";
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import { IRobotModule } from "neutron-core";
 import React from "react";
-import { InputHandlerContext } from "../../contexts/InputHandlerContext";
+import inputActions, { gamecontrol } from "hotkeys-inputs-js";
+import { GamepadPrototype } from "hotkeys-inputs-js/dist/types";
 
 const useStyle = makeStyles((theme: any) => ({
     root: {
@@ -133,7 +134,42 @@ const OperationHeader = (props: OperationHeaderProps) => {
 
 const InputHandlerMenu = () => {
     const classes = useStyle()
-    const { isKeyboardAvailable, isGamepadAvailable, current, setInputHandler } = useContext(InputHandlerContext)
+    const [current, setCurrent] = useState(inputActions.gamepadEnabled ? 'gamepad' : 'keyboard')
+    const [isGamepadAvailable, setIsGamepadAvailable] = useState(gamecontrol.getGamepad(0) ? true : false)
+
+    useEffect(() => {
+        const handleOnGamepadConnect = (gp: GamepadPrototype) => {
+            if (gp.id === 0)
+                setIsGamepadAvailable(true)
+        }
+        const handleOnGamepadDisconnect = (gp: GamepadPrototype) => {
+            if (gp.id === 0)
+                setIsGamepadAvailable(false)
+        }
+        gamecontrol.onConnect.on(handleOnGamepadConnect)
+        gamecontrol.onDisconnect.on(handleOnGamepadDisconnect)
+        return () => {
+            gamecontrol.onConnect.off(handleOnGamepadConnect)
+            gamecontrol.onDisconnect.off(handleOnGamepadDisconnect)
+        }
+    }, [])
+
+    const setInputHandler = (inputHandler: string) => {
+        switch (inputHandler) {
+            case 'keyboard':
+                inputActions.gamepadEnabled = false
+                inputActions.keyboardEnabled = true
+                break;
+            case 'gamepad':
+                inputActions.gamepadEnabled = true
+                inputActions.keyboardEnabled = false
+                break;
+            default:
+                break;
+        }
+        setCurrent(inputHandler)
+        console.log("handlers", inputActions.handlers)
+    }
 
     const currentStyle = { backgroundColor: 'rgba(0, 0, 0, 0.5)' }
     return (
@@ -143,11 +179,9 @@ const InputHandlerMenu = () => {
                     <SportsEsportsIcon />
                 </IconButton>
             )}
-            {isKeyboardAvailable && (
-                <IconButton onClick={() => setInputHandler('keyboard')} color="inherit" style={current === 'keyboard' ? currentStyle : undefined}>
-                    <KeyboardIcon />
-                </IconButton>
-            )}
+            <IconButton onClick={() => setInputHandler('keyboard')} color="inherit" style={current === 'keyboard' ? currentStyle : undefined}>
+                <KeyboardIcon />
+            </IconButton>
         </div>
     )
 }

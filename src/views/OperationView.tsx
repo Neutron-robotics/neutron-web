@@ -10,7 +10,7 @@ import { v4 as uuid } from 'uuid';
 import { useConnection } from '../contexts/MultiConnectionProvider';
 import { makeOperationBar } from '../utils/makeOperationBar';
 import React from 'react';
-import useGamepadHandler, { SwitchControllerKeyHandler } from '../utils/useGamepadHandler';
+import RobotBaseComponent from '../components/OperationComponents/active/RobotBaseComponent';
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -34,14 +34,6 @@ const OperationView = (props: IOperationViewProps) => {
     const connection = useConnection(tabId)
     const dispatcher = useTabsDispatch()
     const [operationComponents, setOperationComponents] = useState<IOperationComponent[]>([])
-
-    const handleLeftJoystickMovement = (x: number) => {
-        console.log("left is ", x)
-    }
-    
-    useGamepadHandler(SwitchControllerKeyHandler.LeftJoystickAxeX, {
-        onChange: handleLeftJoystickMovement
-    })
 
     const handleOnCloseOperationComponent = useCallback((id: string) => {
         setOperationComponents(op => {
@@ -110,7 +102,11 @@ const OperationView = (props: IOperationViewProps) => {
 
     return (
         <>
-            <div className={classes.root}>
+            <div className={classes.root} >
+                <div style={{ width: '300px', height: '300px', background: 'white' }}>
+                    <RobotBaseComponent connectionId='dd' onCommitComponentSpecific={(d) => { }}
+                        specifics={{}} />
+                </div>
                 {operationComponents.map((e: IOperationComponent) => {
                     const OperationComponent = e.operationComponent
                     return (
