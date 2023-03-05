@@ -10,6 +10,7 @@ import { v4 as uuid } from 'uuid';
 import { useConnection } from '../contexts/MultiConnectionProvider';
 import { makeOperationBar } from '../utils/makeOperationBar';
 import React from 'react';
+import RobotBaseComponent from '../components/OperationComponents/active/RobotBaseComponent';
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -101,7 +102,7 @@ const OperationView = (props: IOperationViewProps) => {
 
     return (
         <>
-            <div className={classes.root}>
+            <div className={classes.root} >
                 {operationComponents.map((e: IOperationComponent) => {
                     const OperationComponent = e.operationComponent
                     return (

@@ -9,9 +9,10 @@ import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import { IOperationComponentDescriptor, IOperationComponentSpecifics } from "../IOperationComponents";
 import { RobotBase } from "neutron-core";
 import { useConnection } from "../../../contexts/MultiConnectionProvider";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import React from "react";
+import { InputIconButton } from "../../controls/InputButton";
+import inputActions from "hotkeys-inputs-js";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -34,13 +35,52 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
     const [rotateFactor, setRotateFactor] = useState(0)
     const [direction, setDirection] = useState(0)
     const robotBase = connection?.modules.find(m => m.id === moduleId) as RobotBase | undefined
+    const [speed, setSpeed] = useState(robotBase?.speed ?? 30)
+
+    const handleStop = useCallback(() => {
+        setRotateFactor(0)
+        setDirection(0)
+        robotBase?.stop()
+    }, [robotBase])
 
     useEffect(() => {
         if (direction === 0 && rotateFactor === 0)
             return
-        console.log(`Move ${direction};${rotateFactor / 10}`)
         robotBase?.move([direction, 0, 0, 0, 0, rotateFactor / 10])
     }, [direction, robotBase, rotateFactor])
+
+    useEffect(() => {
+        if (robotBase && robotBase.speed !== speed)
+            robotBase.speed = speed
+    }, [robotBase, speed])
+
+    useEffect(() => {
+        if (!robotBase)
+            return
+        const id = robotBase?.id ?? 0
+        inputActions.onInputActions(`robotBase-${id}`, {
+            'direction': handleDirectionChange,
+            'rotation': handleRotationChange,
+            'speed': (value) => setSpeed((prev) => prev + value!),
+            'stop': handleStop
+        })
+        return () => {
+            inputActions.offInputActions(`robotBase-${id}`)
+        }
+    }, [handleStop, robotBase, robotBase?.id])
+
+    const handleRotationChange = (v?: number) => {
+        if (!v) return
+        if (Math.abs(v) === 1)
+            setRotateFactor((prev) => prev + v!)
+        else
+            setRotateFactor(v)
+    }
+
+    const handleDirectionChange = (v?: number) => {
+        if (!v) return
+        setDirection(v)
+    }
 
     const handleForward = async () => {
         setDirection(1)
@@ -57,15 +97,10 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
         setRotateFactor(rotateFactor + 1)
     }
 
-    const handleStop = () => {
-        setRotateFactor(0)
-        setDirection(0)
-        robotBase?.stop()
-    }
-
     const handleSpeedChange = (e: any, value: number | number[]) => {
         if (typeof value === "number" && robotBase) {
             robotBase.speed = value
+            setSpeed(value)
         }
     }
 
@@ -73,34 +108,42 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
         <div className={classes.root}>
             <span>Controls</span>
             <div className={classes.buttonGroup}>
-                <IconButton
+                <InputIconButton
                     aria-label="forward-cmd"
                     color="primary"
                     onClick={handleForward}
+                    iconStrokeWidth={0.5}
+                    opacity={direction > 0 ? direction : 0}
                 >
                     <ArrowUpwardIcon />
-                </IconButton>
-                <IconButton
+                </InputIconButton>
+                <InputIconButton
                     aria-label="backward-cmd"
                     color="primary"
                     onClick={handleBackward}
+                    iconStrokeWidth={0.5}
+                    opacity={direction < 0 ? Math.abs(direction) : 0}
                 >
                     <ArrowDownwardIcon />
-                </IconButton>
-                <IconButton
+                </InputIconButton>
+                <InputIconButton
                     aria-label="left-cmd"
                     color="primary"
                     onClick={handleLeft}
+                    iconStrokeWidth={0.5}
+                    opacity={rotateFactor < 0 ? Math.abs(rotateFactor / 10) : 0}
                 >
                     <TurnLeftIcon />
-                </IconButton>
-                <IconButton
+                </InputIconButton>
+                <InputIconButton
                     aria-label="right-cmd"
                     color="primary"
                     onClick={handleRight}
+                    iconStrokeWidth={0.5}
+                    opacity={rotateFactor > 0 ? (rotateFactor / 10) : 0}
                 >
                     <TurnRightIcon />
-                </IconButton>
+                </InputIconButton>
                 <IconButton
                     aria-label="stop-cmd"
                     color="primary"
@@ -111,7 +154,7 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
             </div>
             <p>Speed</p>
             <Slider
-                defaultValue={robotBase?.speed ?? 30}
+                value={speed}
                 aria-label="speed-cmd"
                 valueLabelDisplay="on"
                 onChange={handleSpeedChange}

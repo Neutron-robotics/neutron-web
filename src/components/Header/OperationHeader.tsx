@@ -2,10 +2,14 @@ import { Badge, Divider, IconButton, Menu, MenuItem, Typography } from "@mui/mat
 import { makeStyles } from "@mui/styles"
 import BatteryFullTwoToneIcon from '@mui/icons-material/BatteryFullTwoTone';
 import NetworkWifi1BarTwoToneIcon from '@mui/icons-material/NetworkWifi1BarTwoTone';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IOperationCategory, IOperationComponentDescriptor } from "../OperationComponents/IOperationComponents";
+import KeyboardIcon from '@mui/icons-material/Keyboard';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import { IRobotModule } from "neutron-core";
 import React from "react";
+import inputActions, { gamecontrol } from "hotkeys-inputs-js";
+import { GamepadPrototype } from "hotkeys-inputs-js/dist/types";
 
 const useStyle = makeStyles((theme: any) => ({
     root: {
@@ -24,6 +28,12 @@ const useStyle = makeStyles((theme: any) => ({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
+    },
+    inputHandlers: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 'auto',
     },
     batteryIconButton: {
         color: '#FFFFFF',
@@ -117,6 +127,61 @@ const OperationHeader = (props: OperationHeaderProps) => {
             <div className={classes.partIconGroup}>
                 {operationCategories.map(e => <PartCard key={`pc-${e.name}-${e.type}`} mountComponent={handleOnMountComponent} operationCategory={e} isActivated />)}
             </div>
+            <InputHandlerMenu />
+        </div>
+    )
+}
+
+const InputHandlerMenu = () => {
+    const classes = useStyle()
+    const [current, setCurrent] = useState(inputActions.gamepadEnabled ? 'gamepad' : 'keyboard')
+    const [isGamepadAvailable, setIsGamepadAvailable] = useState(gamecontrol.getGamepad(0) ? true : false)
+
+    useEffect(() => {
+        const handleOnGamepadConnect = (gp: GamepadPrototype) => {
+            if (gp.id === 0)
+                setIsGamepadAvailable(true)
+        }
+        const handleOnGamepadDisconnect = (gp: GamepadPrototype) => {
+            if (gp.id === 0)
+                setIsGamepadAvailable(false)
+        }
+        gamecontrol.onConnect.on(handleOnGamepadConnect)
+        gamecontrol.onDisconnect.on(handleOnGamepadDisconnect)
+        return () => {
+            gamecontrol.onConnect.off(handleOnGamepadConnect)
+            gamecontrol.onDisconnect.off(handleOnGamepadDisconnect)
+        }
+    }, [])
+
+    const setInputHandler = (inputHandler: string) => {
+        switch (inputHandler) {
+            case 'keyboard':
+                inputActions.gamepadEnabled = false
+                inputActions.keyboardEnabled = true
+                break;
+            case 'gamepad':
+                inputActions.gamepadEnabled = true
+                inputActions.keyboardEnabled = false
+                break;
+            default:
+                break;
+        }
+        setCurrent(inputHandler)
+        console.log("handlers", inputActions.handlers)
+    }
+
+    const currentStyle = { backgroundColor: 'rgba(0, 0, 0, 0.5)' }
+    return (
+        <div className={classes.inputHandlers}>
+            {isGamepadAvailable && (
+                <IconButton onClick={() => setInputHandler('gamepad')} color="inherit" style={current === 'gamepad' ? currentStyle : undefined}>
+                    <SportsEsportsIcon />
+                </IconButton>
+            )}
+            <IconButton onClick={() => setInputHandler('keyboard')} color="inherit" style={current === 'keyboard' ? currentStyle : undefined}>
+                <KeyboardIcon />
+            </IconButton>
         </div>
     )
 }
