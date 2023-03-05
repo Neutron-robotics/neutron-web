@@ -103,10 +103,6 @@ const OperationView = (props: IOperationViewProps) => {
     return (
         <>
             <div className={classes.root} >
-                <div style={{ width: '300px', height: '300px', background: 'white' }}>
-                    <RobotBaseComponent connectionId='dd' onCommitComponentSpecific={(d) => { }}
-                        specifics={{}} />
-                </div>
                 {operationComponents.map((e: IOperationComponent) => {
                     const OperationComponent = e.operationComponent
                     return (
