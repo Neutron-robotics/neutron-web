@@ -5805,10 +5805,10 @@ hoopy@^0.1.4:
   resolved "https://registry.yarnpkg.com/hoopy/-/hoopy-0.1.4.tgz#609207d661100033a9a9402ad3dea677381c1b1d"
   integrity sha512-HRcs+2mr52W0K+x8RzcLzuPPmVIKMSv97RGHy0Ea9y/mpcaK+xTrjICA04KAHi4GRzxliNqNJEFYWHghy3rSfQ==
 
-hotkeys-inputs-js@^1.1.20:
-  version "1.1.20"
-  resolved "https://registry.yarnpkg.com/hotkeys-inputs-js/-/hotkeys-inputs-js-1.1.20.tgz#151aa3f0f51d4122224a4b0d3bc52c2947208e61"
-  integrity sha512-ghUiopNl5EXFcLSuasoUq7HPO4qpsEqd8PdvfEDcdRBg7FDaVRpR8IkgxITx/B3Vd3EtGR/SVdPGYL9Fab7myw==
+hotkeys-inputs-js@^1.1.21:
+  version "1.1.21"
+  resolved "https://registry.yarnpkg.com/hotkeys-inputs-js/-/hotkeys-inputs-js-1.1.21.tgz#459a277b0b920eb3e54bdcf795812b1bc0fdd878"
+  integrity sha512-EmllhATqEX43B+L5N+tjw9xRK7WWLRkF9NMtmFFvxQicsYgVHDVKA2NaTkcV9fbQE74AtOFGm/OCB/eygKtnJg==
   dependencies:
     hotkeys-js "^3.10.1"
 

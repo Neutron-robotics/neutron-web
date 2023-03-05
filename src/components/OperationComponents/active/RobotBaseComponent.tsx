@@ -9,7 +9,7 @@ import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import { IOperationComponentDescriptor, IOperationComponentSpecifics } from "../IOperationComponents";
 import { RobotBase } from "neutron-core";
 import { useConnection } from "../../../contexts/MultiConnectionProvider";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import React from "react";
 import { InputIconButton } from "../../controls/InputButton";
 import inputActions from "hotkeys-inputs-js";
@@ -37,6 +37,12 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
     const robotBase = connection?.modules.find(m => m.id === moduleId) as RobotBase | undefined
     const [speed, setSpeed] = useState(robotBase?.speed ?? 30)
 
+    const handleStop = useCallback(() => {
+        setRotateFactor(0)
+        setDirection(0)
+        robotBase?.stop()
+    }, [robotBase])
+
     useEffect(() => {
         if (direction === 0 && rotateFactor === 0)
             return
@@ -49,10 +55,9 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
     }, [robotBase, speed])
 
     useEffect(() => {
-        // if (!robotBase)
-        //     return
+        if (!robotBase)
+            return
         const id = robotBase?.id ?? 0
-        console.log("iun")
         inputActions.onInputActions(`robotBase-${id}`, {
             'direction': handleDirectionChange,
             'rotation': handleRotationChange,
@@ -62,7 +67,7 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
         return () => {
             inputActions.offInputActions(`robotBase-${id}`)
         }
-    }, [robotBase?.id])
+    }, [handleStop, robotBase, robotBase?.id])
 
     const handleRotationChange = (v?: number) => {
         if (!v) return
@@ -92,15 +97,10 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
         setRotateFactor(rotateFactor + 1)
     }
 
-    const handleStop = () => {
-        setRotateFactor(0)
-        setDirection(0)
-        robotBase?.stop()
-    }
-
     const handleSpeedChange = (e: any, value: number | number[]) => {
         if (typeof value === "number" && robotBase) {
             robotBase.speed = value
+            setSpeed(value)
         }
     }
 
