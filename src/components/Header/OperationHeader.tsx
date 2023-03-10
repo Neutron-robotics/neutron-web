@@ -1,15 +1,18 @@
-import { Badge, Divider, IconButton, Menu, MenuItem, Typography } from "@mui/material"
+import { Divider, IconButton, Menu, MenuItem } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import BatteryFullTwoToneIcon from '@mui/icons-material/BatteryFullTwoTone';
 import NetworkWifi1BarTwoToneIcon from '@mui/icons-material/NetworkWifi1BarTwoTone';
+import MenuIcon from '@mui/icons-material/Menu';
 import { useEffect, useState } from "react";
 import { IOperationCategory, IOperationComponentDescriptor } from "../OperationComponents/IOperationComponents";
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
-import { IRobotModule } from "neutron-core";
+import { Core, IRobotModule } from "neutron-core";
 import React from "react";
 import inputActions, { gamecontrol } from "hotkeys-inputs-js";
 import { GamepadPrototype } from "hotkeys-inputs-js/dist/types";
+import OperationMenuPanel from "./OperationPanel";
+import { useConnection } from "../../contexts/MultiConnectionProvider";
 
 const useStyle = makeStyles((theme: any) => ({
     root: {
@@ -19,10 +22,20 @@ const useStyle = makeStyles((theme: any) => ({
         display: 'flex',
         flexDirection: 'row',
     },
-    iconGroup: {
+    iconsMenuGroup: {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
+        paddingLeft: '10px'
+    },
+    iconsMenuVertical: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'baseline',
+        width: '25px',
+        "& button": {
+            padding: 0
+        }
     },
     partIconGroup: {
         display: 'flex',
@@ -37,6 +50,7 @@ const useStyle = makeStyles((theme: any) => ({
     },
     batteryIconButton: {
         color: '#FFFFFF',
+        transform: 'rotate(90deg)',
         "& path": {
             stroke: 'black',
             strokeWidth: '1px',
@@ -71,11 +85,21 @@ interface OperationHeaderProps {
     wifiLevel: number;
     modules: IRobotModule[];
     operationCategories: IOperationCategory[]
+    connectionId: string
 }
 
 const OperationHeader = (props: OperationHeaderProps) => {
-    const { operationCategories, isConnected, mountComponent, modules } = props
+    const { operationCategories, isConnected, mountComponent, modules, connectionId } = props
     const classes = useStyle()
+    const connection = useConnection(connectionId)
+    const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+    const open = Boolean(menuAnchorEl);
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setMenuAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setMenuAnchorEl(null);
+    };
 
     const handleWifiClick = () => { }
 
@@ -96,31 +120,66 @@ const OperationHeader = (props: OperationHeaderProps) => {
 
     return (
         <div className={classes.root}>
-            <div className={classes.iconGroup}>
+            <div className={classes.iconsMenuGroup}>
                 <IconButton
                     size="large"
                     edge="start"
                     aria-label="menu"
                     color="inherit"
                     sx={{ display: 'flex' }}
+                    onClick={handleClick}
                 >
-                    <BatteryFullTwoToneIcon className={classes.batteryIconButton} />
-                    <Typography variant="caption" component="div" sx={{ display: 'flex' }}>
-                        22V
-                    </Typography>
+                    <MenuIcon htmlColor="black" />
                 </IconButton>
-                <IconButton
-                    size="large"
-                    edge="start"
-                    aria-label="menu"
-                    color="inherit"
-                    onClick={handleWifiClick}
-                    sx={{ display: 'flex' }}
+                <Menu
+                    id="basic-menu"
+                    anchorEl={menuAnchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{
+                        'aria-labelledby': 'basic-button',
+                    }}
                 >
-                    <Badge color={isConnected ? "success" : "error"} variant="dot">
+                    {connection?.core && (
+                        <OperationMenuPanel
+                            modules={connection.core.modules}
+                            operationCategories={operationCategories}
+                            name={connection.core.name}
+                            cpu={90}
+                            ram={46}
+                            operationStartTime={1678289237946}
+                            onShutdownClick={() => { }}
+                            onModuleSwitchClick={() => {
+                                return new Promise((res) => {
+                                    setTimeout(() => {
+                                        res(true)
+                                    }, 1000)
+                                })
+                            }}
+                        />
+                    )}
+                </Menu>
+                <div className={classes.iconsMenuVertical}>
+                    <IconButton
+                        size="small"
+                        edge="start"
+                        aria-label="menu"
+                        color="inherit"
+                        sx={{ display: 'flex' }}
+                    >
+                        <BatteryFullTwoToneIcon className={classes.batteryIconButton} />
+                    </IconButton>
+                    <IconButton
+                        size="large"
+                        edge="start"
+                        aria-label="menu"
+                        color="inherit"
+                        onClick={handleWifiClick}
+                        sx={{ display: 'flex' }}
+                    >
                         <NetworkWifi1BarTwoToneIcon htmlColor="black" />
-                    </Badge>
-                </IconButton>
+                    </IconButton>
+                </div>
             </div>
 
             <Divider orientation="vertical" flexItem />
@@ -168,7 +227,6 @@ const InputHandlerMenu = () => {
                 break;
         }
         setCurrent(inputHandler)
-        console.log("handlers", inputActions.handlers)
     }
 
     const currentStyle = { backgroundColor: 'rgba(0, 0, 0, 0.5)' }

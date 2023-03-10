@@ -84,7 +84,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
     useEffect(() => {
         setRobotConnectionsInfos([
             {
-                hostname: '192.168.1.116',
+                hostname: '192.168.1.118',
                 port: 8000,
                 type: RobotConnectionType.ROSBRIDGE,
             },
