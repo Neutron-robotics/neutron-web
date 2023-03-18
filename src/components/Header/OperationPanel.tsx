@@ -5,7 +5,6 @@ import { ICoreModule } from "neutron-core";
 import { useEffect, useState } from "react";
 import CircularProgressWithLabel from "../controls/CircularProgressWithLabel";
 import Dot from "../controls/Dot";
-import { IOperationCategory } from "../OperationComponents/IOperationComponents";
 import RobotModuleIcon from "../RobotModuleIcon";
 
 const useStyle = makeStyles((theme: any) => ({
@@ -70,19 +69,21 @@ const useStyle = makeStyles((theme: any) => ({
 
 interface OperationMenuPanelProps {
     modules: ICoreModule[];
-    operationCategories: IOperationCategory[]
     name: string,
     cpu: number
     ram: number
     operationStartTime: number
     onShutdownClick: () => void
-    onModuleSwitchClick: (value: boolean) => Promise<boolean>
+    onModuleSwitchClick: (id: string, value: boolean) => Promise<boolean>
 }
+
+type ModulesState = Record<string, { enabled: boolean, loading: boolean }>
 
 const OperationMenuPanel = (props: OperationMenuPanelProps) => {
     const classes = useStyle()
-    const { modules, operationCategories, name, cpu, ram, operationStartTime } = props
-    const [modulesEnabled, setModuleEnabled] = useState(modules.reduce<Record<string, boolean>>((acc, cur) => ({ ...acc, [cur.id]: cur.process?.active ?? false }), {}))
+    const { modules, name, cpu, ram, operationStartTime, onModuleSwitchClick, onShutdownClick } = props
+    const [modulesStatus, setModuleStatus] = useState(modules.reduce<ModulesState>((acc, cur) =>
+        ({ ...acc, [cur.id]: { enabled: cur.process?.active ?? false, loading: false } }), {}))
     const [time, setTime] = useState(moment(moment().diff(moment(operationStartTime))).format('mm:ss'))
 
     useEffect(() => {
@@ -98,6 +99,24 @@ const OperationMenuPanel = (props: OperationMenuPanelProps) => {
         }
     }, [operationStartTime])
 
+    const handleModuleSwitch = async (id: string) => {
+        const enable = !modulesStatus[id].enabled
+        setModuleStatus(e => ({
+            ...e, [id]: {
+                enabled: enable,
+                loading: true
+            }
+        }))
+        const success = await onModuleSwitchClick(id, enable)
+        const moduleEnabled = success ? enable : !enable
+        setModuleStatus(e => ({
+            ...e, [id]: {
+                enabled: moduleEnabled,
+                loading: false
+            }
+        }))
+    }
+
 
     return (
         <div className={classes.root}>
@@ -109,7 +128,7 @@ const OperationMenuPanel = (props: OperationMenuPanelProps) => {
                             <Dot success={e.process?.active ?? false} />
                             <RobotModuleIcon type={e.type} width={24} height={24} title={e.name} key={module.id} />
                             <div className={classes.moduleTitle}>{e.name}</div>
-                            <Switch defaultChecked={modulesEnabled[e.id] ?? false} />
+                            <Switch disabled={modulesStatus[e.id].loading} checked={modulesStatus[e.id].enabled ?? false} onChange={() => handleModuleSwitch(e.id)} />
                         </div>
                     ))}
                 </div>
@@ -129,6 +148,7 @@ const OperationMenuPanel = (props: OperationMenuPanelProps) => {
                 <Button
                     variant="contained"
                     color="error"
+                    onClick={onShutdownClick}
                 >
                     SHUT DOWN
                 </Button>

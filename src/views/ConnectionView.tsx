@@ -42,8 +42,8 @@ const ConnectionView = (props: IConnectionViewProps) => {
             const context = makeConnectionContext(core.contextConfiguration.type, core.contextConfiguration);
             const res = await addConnection(core, context, modules)
             if (!res) {
-                alert.warn("Some error happenned during the connection to the robot")
-                // return
+                // alert.warn("Some error happenned during the connection to the robot")
+                return false
             }
             else
                 alert.success("Connection to the robot has been completed successfuly")
@@ -84,7 +84,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
     useEffect(() => {
         setRobotConnectionsInfos([
             {
-                hostname: '192.168.1.118',
+                hostname: '10.211.55.4',
                 port: 8000,
                 type: RobotConnectionType.ROSBRIDGE,
             },

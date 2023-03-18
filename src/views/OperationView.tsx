@@ -87,14 +87,8 @@ const OperationView = (props: IOperationViewProps) => {
         const operationCategoryFiltered: IOperationCategory[] = makeOperationBar(operationComponentsConfiguration, connection?.modules ?? [])
         setHeaderBody(
             <OperationHeader
-                onConnectClick={() => { }}
-                onDisconnectClick={() => { }}
                 mountComponent={handleOnAddOperationComponent}
-                isConnected={false}
-                batteryLevel={100}
-                wifiLevel={100}
                 operationCategories={operationCategoryFiltered}
-                modules={connection?.modules ?? []}
                 connectionId={tabId}
             />
         )
