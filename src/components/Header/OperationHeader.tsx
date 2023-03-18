@@ -131,7 +131,6 @@ const OperationHeader = (props: OperationHeaderProps) => {
     useEffect(() => {
         const timer = setInterval(async () => {
             const robotst = await core.getRobotStatus()
-            console.log(robotst)
             setRobotStatus(robotst)
         }, 1000)
         return () => {
