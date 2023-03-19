@@ -31,12 +31,11 @@ export const MultiConnectionProvider = ({ children }: { children: ReactNode }) =
             alert.error(`Missing Core or ConnectionContext. Aborting`)
             return false;
         }
-        await connectionCore.getProcessesStatus();
+        await connectionCore.getRobotStatus();
         for (const module of modules) {
             const success = await connectionCore.startRobotProcess(module.id, 30000)
             if (!success) {
-                alert.error(`Failed to start process ${module.name}`)
-                return false;
+                alert.warn(`Failed to start process ${module.name}`, {autoHideDuration: 20000})
             }
         }
         const success = await connectionContext.connect()

@@ -81,14 +81,14 @@ export type ITabsContext = Record<string, IOperationTab>;
 
 const TabsContext = createContext<ITabsContext>({});
 
-const TabsDispatchContext = createContext<Dispatch<TabDispatchesActions>>(null as any);
+export const TabsDispatchContext = createContext<Dispatch<TabDispatchesActions>>(null as any);
 
 export function TabProvider({ children }: { children: React.ReactNode }) {
     const [tabs, dispatch] = useReducer(
         tabsReducer,
         initialTabs
     )
-
+    
     return (
         <TabsContext.Provider value={tabs}>
             <TabsDispatchContext.Provider value={dispatch}>

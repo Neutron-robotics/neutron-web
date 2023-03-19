@@ -10,7 +10,6 @@ import { v4 as uuid } from 'uuid';
 import { useConnection } from '../contexts/MultiConnectionProvider';
 import { makeOperationBar } from '../utils/makeOperationBar';
 import React from 'react';
-import RobotBaseComponent from '../components/OperationComponents/active/RobotBaseComponent';
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -88,17 +87,12 @@ const OperationView = (props: IOperationViewProps) => {
         const operationCategoryFiltered: IOperationCategory[] = makeOperationBar(operationComponentsConfiguration, connection?.modules ?? [])
         setHeaderBody(
             <OperationHeader
-                onConnectClick={() => { }}
-                onDisconnectClick={() => { }}
                 mountComponent={handleOnAddOperationComponent}
-                isConnected={false}
-                batteryLevel={100}
-                wifiLevel={100}
                 operationCategories={operationCategoryFiltered}
-                modules={connection?.modules ?? []}
+                connectionId={tabId}
             />
         )
-    }, [handleOnAddOperationComponent, connection, setHeaderBody])
+    }, [handleOnAddOperationComponent, connection, setHeaderBody, tabId])
 
     return (
         <>

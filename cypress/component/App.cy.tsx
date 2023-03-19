@@ -18,7 +18,13 @@ describe("Neutron web", () => {
       statusCount++
       req.reply({
         statusCode: 200,
-        body: []
+        body: {
+          battery: -1,
+          cpu: 8.7,
+          memory: 70.6,
+          operationTime: -1,
+          modules: []
+        }
       })
     }).as("statusRequest")
     cy.intercept("http://192.168.3.3:8000/start", req => {

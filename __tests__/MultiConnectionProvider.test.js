@@ -19,7 +19,7 @@ describe("MultiConnectionProvider", () => {
       : null;
     if (core) {
       core.type = RobotConnectionType.ROSBRIDGE;
-      core.getProcessesStatus = props.coreOnGetProcessesStatus;
+      core.getRobotStatus = props.coreOnGetProcessesStatus;
       core.startRobotProcess = props.coreOnStartRobotProcess;
       core.stopProcesses = props.coreOnStopProcesses;
       core.contextConfiguration = {
