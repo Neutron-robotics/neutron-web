@@ -5,6 +5,7 @@ import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import AdbIcon from '@mui/icons-material/Adb';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import { IOperationCategory } from "./IOperationComponents";
+import { WebRTCCameraComponentBuilder } from "./passive/CameraRTCComponent";
 
 export const operationComponentsConfiguration: IOperationCategory[] = [
     {
@@ -29,6 +30,14 @@ export const operationComponentsConfiguration: IOperationCategory[] = [
         icon: <AdbIcon />,
         components: [
             ConsoleComponentBuilder
+        ]
+    },
+    {
+        name: 'WebRTC',
+        type: 'webrtc',
+        icon: <CameraAltIcon />,
+        components: [
+            WebRTCCameraComponentBuilder
         ]
     }
 ]

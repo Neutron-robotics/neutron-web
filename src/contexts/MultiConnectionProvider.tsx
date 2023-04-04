@@ -35,7 +35,7 @@ export const MultiConnectionProvider = ({ children }: { children: ReactNode }) =
         for (const module of modules) {
             const success = await connectionCore.startRobotProcess(module.id, 30000)
             if (!success) {
-                alert.warn(`Failed to start process ${module.name}`, {autoHideDuration: 20000})
+                alert.warn(`Failed to start process ${module.name}`, { autoHideDuration: 20000 })
             }
         }
         const success = await connectionContext.connect()
@@ -43,6 +43,7 @@ export const MultiConnectionProvider = ({ children }: { children: ReactNode }) =
             alert.error(`Failed to connect to the context ${getConnectionType(connectionContext.type)}`)
             return false;
         }
+        console.log("modules are", modules)
         const robotModules = modules.filter(module => module.framePackage).map((module) =>
             makeModule(module.type, connectionContext, {
                 id: module.id,
