@@ -32,6 +32,11 @@ describe("CameraComponent", () => {
               disconnect: jest.fn().mockReturnValue(Promise.resolve(true)),
               stop: jest.fn(),
               destroy: jest.fn(),
+              resolutions: [],
+              infoUpdated: {
+                on: jest.fn(),
+                off: jest.fn(),
+              },
             },
           ],
         },
