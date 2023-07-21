@@ -3,15 +3,18 @@ import RegisterModel from "./models/register.model"
 import { UserUpdateModel, UserModel } from "./models/user.model"
 
 const login = async (email: string, password: string) => {
-    const res = await api.post(`/auth/login`, {
+    const res = await api.post(`auth/login`, {
         email, password
     })
-    
+
     if (res.status !== 200) {
         throw new Error("Email or password incorrect")
     }
+    console.log("sss", res.data)
     startRefreshTokenTimer(res.data.token)
+    console.log("refe")
     api.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
+    console.log("common")
     return res.data.token
 }
 
@@ -40,6 +43,7 @@ const register = async (model: RegisterModel) => {
 }
 
 const me = async () => {
+    console.log("me")
     const res = await api.get('/auth/me')
     if (res.status !== 200)
         throw new Error("Cannot fetch self informations")
@@ -85,10 +89,14 @@ let refreshTokenTimeout: NodeJS.Timeout;
 
 function startRefreshTokenTimer(token: string) {
     // parse json object from base64 encoded jwt token
-    const jwtToken = JSON.parse(Buffer.from(token.split(".")[1], 'base64').toString('ascii'))
+    const b = atob(token.split(".")[1])
+    console.log("wtf")
+    const jwtToken = JSON.parse(atob(token.split(".")[1],))
+    console.log(jwtToken)
 
     // set a timeout to refresh the token a minute before it expires
     const expires = new Date(jwtToken.exp * 1000);
+    console.log("expirte", expires)
     const timeout = expires.getTime() - Date.now() - (60 * 1000);
     refreshTokenTimeout = setTimeout(refreshToken, timeout);
 }

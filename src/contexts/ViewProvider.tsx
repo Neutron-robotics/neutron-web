@@ -2,6 +2,7 @@ import { createContext, ReactNode, useState } from "react";
 
 export enum ViewType {
     Home,
+    Login,
     ConnectionView,
     OperationView
 }
