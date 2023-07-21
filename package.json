@@ -16,7 +16,7 @@
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@types/react-resizable": "^3.0.3",
-    "axios": "^0.27.2",
+    "axios": "^1.4.0",
     "hotkeys-inputs-js": "^1.1.21",
     "moment": "^2.29.4",
     "react": "^18.2.0",

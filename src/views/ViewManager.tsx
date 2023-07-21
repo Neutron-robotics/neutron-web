@@ -5,6 +5,7 @@ import { useActiveTab, useTabs } from "../contexts/TabContext";
 import { ViewContext, ViewType } from "../contexts/ViewProvider";
 import ConnectionView from "./ConnectionView";
 import OperationView from "./OperationView";
+import LoginView from "./LoginView";
 
 export interface IHeaderMenuState {
 }
@@ -32,10 +33,16 @@ const ViewManager = () => {
 
     return (
         <>
-            <Header headerBody={headerBody} headerTabs={Object.values(tabs)} activeTabId={activeTab?.id} />
+            <LoginView
+                onLogin={(a, b, c) => true}
+                onContinueLocalyClick={() => { }}
+                onForgetPasswordClick={() => { }}
+                onSignUpClick={() => { }}
+            />
+            {/* <Header headerBody={headerBody} headerTabs={Object.values(tabs)} activeTabId={activeTab?.id} />
             {(viewType === ViewType.Home) && <ConnectionView setHeaderBody={setHeaderBody} />}
             {(viewType === ViewType.ConnectionView) && <ConnectionView setHeaderBody={setHeaderBody} />}
-            {(viewType === ViewType.OperationView) && <OperationView tabId={activeTab?.id ?? ""} setHeaderBody={setHeaderBody} />}
+            {(viewType === ViewType.OperationView) && <OperationView tabId={activeTab?.id ?? ""} setHeaderBody={setHeaderBody} />} */}
         </>
     );
 }
