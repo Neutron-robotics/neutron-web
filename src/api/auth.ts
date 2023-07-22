@@ -10,11 +10,8 @@ const login = async (email: string, password: string) => {
     if (res.status !== 200) {
         throw new Error("Email or password incorrect")
     }
-    console.log("sss", res.data)
     startRefreshTokenTimer(res.data.token)
-    console.log("refe")
     api.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
-    console.log("common")
     return res.data.token
 }
 
@@ -49,9 +46,9 @@ const me = async () => {
         throw new Error("Cannot fetch self informations")
 
     const user: UserModel = {
-        ...res.data,
-        id: res.data._id,
-        _id: null
+        ...res.data.me,
+        id: res.data.me._id,
+        _id: undefined
     }
     return user
 }
@@ -89,7 +86,6 @@ let refreshTokenTimeout: NodeJS.Timeout;
 
 function startRefreshTokenTimer(token: string) {
     // parse json object from base64 encoded jwt token
-    const b = atob(token.split(".")[1])
     console.log("wtf")
     const jwtToken = JSON.parse(atob(token.split(".")[1],))
     console.log(jwtToken)

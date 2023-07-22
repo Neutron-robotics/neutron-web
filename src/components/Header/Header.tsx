@@ -1,12 +1,12 @@
 import { AppBar, Box, IconButton, Slide, Toolbar, Typography } from "@mui/material"
 import HomeIcon from '@mui/icons-material/Home';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { makeStyles } from "@mui/styles";
 import { ViewContext, ViewType } from "../../contexts/ViewProvider";
 import { useContext, useRef } from "react";
 import TabHeader from "./TabHeader";
 import { IOperationTab, useTabsDispatch } from "../../contexts/TabContext";
 import React from "react";
+import { UserLight, UserModel } from "../../api/models/user.model";
 
 const useStyle = makeStyles((theme: any) => ({
     header: {
@@ -15,6 +15,11 @@ const useStyle = makeStyles((theme: any) => ({
     },
     accountIcon: {
         marginLeft: 'auto !important',
+    },
+    icon: {
+        width: "30px",
+        borderRadius: "50%",
+        border: '1px solid black'
     }
 }));
 
@@ -22,15 +27,18 @@ interface HeaderProps {
     headerTabs: IOperationTab[];
     activeTabId?: string;
     headerBody?: JSX.Element;
+    user: UserLight | UserModel
 }
 
 const Header = (props: HeaderProps) => {
     const title = `${process.env.REACT_APP_NAME} - ${process.env.REACT_APP_VERSION}`;
     const classes = useStyle();
-    const { headerTabs, headerBody } = props;
+    const { headerTabs, headerBody, user } = props;
     const { setViewType } = useContext(ViewContext);
     const tabDispatch = useTabsDispatch()
     const headerRef = useRef(null);
+
+    console.log("user is", user)
 
     const handleHomeButtonClick = () => {
         tabDispatch({
@@ -68,10 +76,10 @@ const Header = (props: HeaderProps) => {
                         size="large"
                         edge="end"
                         color="inherit"
-                        aria-label="menu"
+                        aria-label="user-icon"
                         className={classes.accountIcon}
                     >
-                        <AccountCircleIcon />
+                        <img className={classes.icon} src={`${process.env.REACT_APP_API_URL}${user.imgUrl}`} alt={"usericon"} />
                     </IconButton>
                 </Toolbar>
             </AppBar>

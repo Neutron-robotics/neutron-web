@@ -30,6 +30,9 @@ const useStyles = makeStyles(() => ({
         color: "#0000EE",
         cursor: 'pointer',
         marginTop: '10px'
+    },
+    error: {
+        color: 'red'
     }
 }))
 
@@ -51,8 +54,8 @@ const LoginView = (props: ILoginViewProps) => {
     const classes = useStyles()
     const [error, setError] = useState<string | undefined>()
     const [form, setForm] = useState<ILoginModel>({
-        email: "",
-        password: "",
+        email: "hugo.perier@protonmail.com",
+        password: "toto",
         remember: false
     })
 
@@ -97,6 +100,9 @@ const LoginView = (props: ILoginViewProps) => {
                 control={<Checkbox />}
                 className={classes.centered}
                 label="Remember me" />
+            {error && (
+                <p className={classes.error}>{error}</p>
+            )}
             <Button onClick={handleLoginClick} variant="contained">Sign In</Button>
             <div className={classes.alternativeSignIn}>
                 <div onClick={() => onForgetPasswordClick()} className={classes.link}>Forgot password?</div>

@@ -4,7 +4,10 @@ export enum ViewType {
     Home,
     Login,
     ConnectionView,
-    OperationView
+    OperationView,
+    Organization,
+    Neutron,
+    Settings
 }
 
 export interface IViewContext {
