@@ -84,8 +84,8 @@ const OrganizationView = () => {
                         <Tab label="Activity" />
                         <Tab label="Missions" />
                     </Tabs>
-                    {activeTab === 0 && (
-                        <OrganizationMemberTable organization={selectedOrganization} />
+                    {user && activeTab === 0 && (
+                        <OrganizationMemberTable me={user} organizationModel={selectedOrganization} />
                     )}
                 </div>
             )}

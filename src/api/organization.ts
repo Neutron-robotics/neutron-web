@@ -1,5 +1,6 @@
 import api from "./api"
 import { CreateOrganizationModel, OrganizationModel } from "./models/organization.model"
+import { UserDTO } from "./models/user.model"
 
 const create = async (model: CreateOrganizationModel) => {
     const res = await api.post(`organization/create`, model)
@@ -16,6 +17,15 @@ const me = async () => {
         throw new Error("Could not get self organizations")
     }
     return res.data.organizations as OrganizationModel[]
+}
+
+const getMember = async (organizationName: string, userId: string) => {
+    const res  = await api.get(`organization/${organizationName}/getMember/${userId}`)
+
+    if (res.status !== 200) {
+        throw new Error("Could not get self organizations")
+    }
+    return res.data.user as UserDTO
 }
 
 const update = async (name: string, model: Partial<CreateOrganizationModel>) => {
@@ -61,5 +71,6 @@ export {
     update,
     promote,
     demote,
+    getMember,
     deleteOrganization
 }

@@ -89,7 +89,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
                 type: RobotConnectionType.ROSBRIDGE,
             },
             {
-                hostname: '192.168.1.176',
+                hostname: '172.20.10.12',
                 port: 8000,
                 type: RobotConnectionType.ROSBRIDGE,
             },

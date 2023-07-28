@@ -1,4 +1,4 @@
-import { AppBar, Box, IconButton, Slide, Toolbar, Typography } from "@mui/material"
+import { AppBar, Box, Button, IconButton, Popover, Slide, Toolbar, Typography } from "@mui/material"
 import HomeIcon from '@mui/icons-material/Home';
 import { makeStyles } from "@mui/styles";
 import { ViewContext, ViewType } from "../../contexts/ViewProvider";
@@ -7,6 +7,7 @@ import TabHeader from "./TabHeader";
 import { IOperationTab, useTabsDispatch } from "../../contexts/TabContext";
 import React from "react";
 import { UserLight, UserModel } from "../../api/models/user.model";
+import { capitalize } from "../../utils/string";
 
 const useStyle = makeStyles((theme: any) => ({
     header: {
@@ -20,6 +21,15 @@ const useStyle = makeStyles((theme: any) => ({
         width: "30px",
         borderRadius: "50%",
         border: '1px solid black'
+    },
+    largerIcon: {
+        width: "100px",
+        borderRadius: "50%",
+        border: '1px solid black'
+    },
+    popover: {
+        margin: '10px',
+        textAlign: 'center'
     }
 }));
 
@@ -37,8 +47,15 @@ const Header = (props: HeaderProps) => {
     const { setViewType } = useContext(ViewContext);
     const tabDispatch = useTabsDispatch()
     const headerRef = useRef(null);
+    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
 
-    console.log("user is", user)
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
 
     const handleHomeButtonClick = () => {
         tabDispatch({
@@ -78,9 +95,25 @@ const Header = (props: HeaderProps) => {
                         color="inherit"
                         aria-label="user-icon"
                         className={classes.accountIcon}
+                        onClick={handleClick}
                     >
                         <img className={classes.icon} src={`${process.env.REACT_APP_API_URL}${user.imgUrl}`} alt={"usericon"} />
                     </IconButton>
+                    <Popover
+                        open={Boolean(anchorEl)}
+                        anchorEl={anchorEl}
+                        onClose={handleClose}
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                        }}
+                    >
+                        <div className={classes.popover}>
+                            <img className={classes.largerIcon} src={`${process.env.REACT_APP_API_URL}${user.imgUrl}`} alt={"usericon"} />
+                            <p>{`${capitalize(user.firstName ?? "")} ${capitalize(user.lastName ?? "")}`}</p>
+                            <Button color="error" variant="contained">Disconnect</Button>
+                        </div>
+                    </Popover>
                 </Toolbar>
             </AppBar>
             <div ref={headerRef} style={{ overflow: 'hidden' }}>
