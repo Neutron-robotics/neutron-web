@@ -1,18 +1,12 @@
-import { useEffect, useState } from "react"
-import { OrganizationModel } from "../../api/models/organization.model"
-import { UserDTO, UserModel } from "../../api/models/user.model"
 import { makeStyles } from "@mui/styles"
-import * as organization from "../../api/organization"
-import { IconButton } from "@mui/material"
-import DeleteIcon from '@mui/icons-material/Delete';
+import { Fab, IconButton, Zoom } from "@mui/material"
 import { capitalize } from "../../utils/string"
+import ClearIcon from '@mui/icons-material/Clear';
+import { UserRanked } from "../../utils/organization";
+import AddIcon from '@mui/icons-material/Add';
 interface OrganizationMemberTableProps {
-    organizationModel: OrganizationModel
-    me: UserModel
-}
-
-interface UserRanked extends UserDTO {
-    rank: string | undefined
+    isAdmin: boolean,
+    organizationMembers: UserRanked[]
 }
 
 const useStyles = makeStyles(() => ({
@@ -39,46 +33,41 @@ const useStyles = makeStyles(() => ({
 }))
 
 const OrganizationMemberTable = (props: OrganizationMemberTableProps) => {
-    const { organizationModel, me } = props
-    const [members, setMembers] = useState<UserRanked[]>([])
+    const { isAdmin, organizationMembers } = props
     const classes = useStyles()
-
-    const isOrganizationAdmin = me.roles.includes("admin") || members.find(e => e.id === me.id && ["admin", "owner"].includes(e.rank ?? ""))
-
-    useEffect(() => {
-        const userPromise = organizationModel.users.map(usr => {
-            return organization.getMember(organizationModel.name, usr.userId)
-        })
-
-        Promise.all(userPromise).then(users => {
-            console.log("users", users)
-            const userRank = users.map(usr => ({ ...usr, rank: organizationModel.users.find(rank => rank.userId === usr.id)?.permissions[0] }))
-            setMembers(userRank)
-        })
-    }, [organizationModel])
-
 
     return (
         <div className={classes.root}>
-            {members.map(e =>
+            {organizationMembers.map(e =>
                 <div className={classes.row} key={e.id}>
                     <div className={classes.userIcon}>
-                        <img className={classes.icon} alt="user-icon" src={`${process.env.REACT_APP_API_URL}${e.imgUrl}`} />
+                        <img className={classes.icon} alt="user-icon" src={e.imgUrl} />
                         <p>{`${capitalize(e.firstName)} ${capitalize(e.lastName)}`}</p>
                     </div>
                     <p>Joined 28.07.2023</p>
                     <p>{capitalize(e.rank ?? "")}</p>
-                    {isOrganizationAdmin && (
+                    {isAdmin && e.rank !== "owner" && (
                         <div>
-                            <IconButton color="error" >
-                                <DeleteIcon />
+                            <IconButton >
+                                <ClearIcon />
                             </IconButton>
                         </div>
                     )}
 
                 </div>
             )}
-        </div>
+
+            <Fab
+                style={{
+                    position: 'absolute',
+                    bottom: '10%',
+                    right: '10%'
+                }}
+                color="primary"
+                aria-label="add">
+                <AddIcon />
+            </Fab>
+        </div >
     )
 }
 

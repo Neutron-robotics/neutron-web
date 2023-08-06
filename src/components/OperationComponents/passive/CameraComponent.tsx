@@ -1,6 +1,6 @@
 import { Button, MenuItem, Select, SelectChangeEvent, Slider } from "@mui/material"
 import { makeStyles } from "@mui/styles"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { IOperationComponentDescriptor, IOperationComponentSpecifics } from "../IOperationComponents"
 import { Camera, CameraInfoUpdate, Resolution } from "neutron-core"
@@ -91,7 +91,7 @@ const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpe
 
     const handleOnDisconnect = async () => {
         if (!camera) return
-        const res = await camera.disconnect()
+        await camera.disconnect()
         setIsConnected(false)
     }
 

@@ -7,9 +7,9 @@ import ConnectionView from "./ConnectionView";
 import OperationView from "./OperationView";
 import LoginView from "./LoginView";
 import { UserLight, UserModel } from "../api/models/user.model";
-import { login, me } from "../api/auth";
+import { login, logout, me, tryLoginFromCookie } from "../api/auth";
 import MenuVerticalTabs from "../components/MenuVerticalTab";
-import { Box, CssBaseline } from "@mui/material";
+import { Box, CircularProgress, CssBaseline } from "@mui/material";
 import OrganizationView from "./OrganizationView";
 
 export interface IHeaderMenuState {
@@ -38,27 +38,36 @@ const ViewManager = () => {
     }, [activeTab, setViewType, viewType])
 
     useEffect(() => {
-        if (user && viewType === ViewType.Login) {
-            setViewType(ViewType.Home)
-        }
+        const loggedIn = tryLoginFromCookie()
 
-        if (!user) {
+        if (loggedIn && !user) {
+            getUser()
+        }
+        else if (!user)
             setViewType(ViewType.Login)
+    }, [setViewType, user])
+
+    useEffect(() => {
+        if (user && (viewType === ViewType.Login || viewType === ViewType.Loading)) {
+            setViewType(ViewType.Home)
         }
     }, [setViewType, user, viewType])
 
-    const handleLogin = async (email: string, password: string, remember: boolean) => {
+    const handleLogin = async (email: string, password: string) => {
         await login(email, password)
-        const user = await me()
-        console.log("user", user)
+        await getUser()
+    }
 
+    const getUser = async () => {
+        const user = await me()
         if (user) {
             setUser(user)
         }
+    }
 
-        if (remember) {
-
-        }
+    const handleDisconnect = () => {
+        logout()
+        setUser(undefined)
     }
 
     const handleContinueLocaly = () => {
@@ -74,29 +83,33 @@ const ViewManager = () => {
         viewType === ViewType.Neutron ||
         viewType === ViewType.Settings
 
-    console.log("viewtyoe", viewType)
-
     return (
         <>
-            {(viewType === ViewType.Login) &&
-                <LoginView
-                    onLogin={handleLogin}
-                    onContinueLocalyClick={handleContinueLocaly}
-                    onForgetPasswordClick={() => { }}
-                    onSignUpClick={() => { }}
-                />
-            }
-            {(viewType !== ViewType.Login && user) && <Header user={user} headerBody={headerBody} headerTabs={Object.values(tabs)} activeTabId={activeTab?.id} />}
-            {hasMenu && (
-                <Box sx={{ display: 'flex' }}>
-                    <CssBaseline />
-                    <MenuVerticalTabs onSelectTab={(v) => { setViewType(v) }} isLightUser={user?.email !== undefined} />
-                    {(viewType === ViewType.Home) && <ConnectionView setHeaderBody={setHeaderBody} />}
-                    {(viewType === ViewType.ConnectionView) && <ConnectionView setHeaderBody={setHeaderBody} />}
-                    {(viewType === ViewType.Organization) && <OrganizationView />}
-                </Box>
+            {viewType === ViewType.Loading ? (<>
+                <CircularProgress />
+            </>) : (
+                <>
+                    {(viewType === ViewType.Login) &&
+                        <LoginView
+                            onLogin={handleLogin}
+                            onContinueLocalyClick={handleContinueLocaly}
+                            onForgetPasswordClick={() => { }}
+                            onSignUpClick={() => { }}
+                        />
+                    }
+                    {(viewType !== ViewType.Login && user) && <Header handleDisconnect={handleDisconnect} user={user} headerBody={headerBody} headerTabs={Object.values(tabs)} activeTabId={activeTab?.id} />}
+                    {hasMenu && (
+                        <Box sx={{ display: 'flex' }}>
+                            <CssBaseline />
+                            <MenuVerticalTabs onSelectTab={(v) => { setViewType(v) }} isLightUser={user?.email !== undefined} />
+                            {(viewType === ViewType.Home) && <ConnectionView setHeaderBody={setHeaderBody} />}
+                            {(viewType === ViewType.ConnectionView) && <ConnectionView setHeaderBody={setHeaderBody} />}
+                            {(viewType === ViewType.Organization) && <OrganizationView />}
+                        </Box>
+                    )}
+                    {(viewType === ViewType.OperationView) && <OperationView tabId={activeTab?.id ?? ""} setHeaderBody={setHeaderBody} />}
+                </>
             )}
-            {(viewType === ViewType.OperationView) && <OperationView tabId={activeTab?.id ?? ""} setHeaderBody={setHeaderBody} />}
         </>
     );
 }

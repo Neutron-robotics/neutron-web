@@ -1,6 +1,5 @@
 import { Divider, IconButton, Menu, MenuItem } from "@mui/material"
 import { makeStyles } from "@mui/styles"
-import BatteryFullTwoToneIcon from '@mui/icons-material/BatteryFullTwoTone';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useContext, useEffect, useState } from "react";
 import { IOperationCategory, IOperationComponentDescriptor } from "../OperationComponents/IOperationComponents";

@@ -38,12 +38,13 @@ interface HeaderProps {
     activeTabId?: string;
     headerBody?: JSX.Element;
     user: UserLight | UserModel
+    handleDisconnect: () => void
 }
 
 const Header = (props: HeaderProps) => {
     const title = `${process.env.REACT_APP_NAME} - ${process.env.REACT_APP_VERSION}`;
     const classes = useStyle();
-    const { headerTabs, headerBody, user } = props;
+    const { headerTabs, headerBody, user, handleDisconnect } = props;
     const { setViewType } = useContext(ViewContext);
     const tabDispatch = useTabsDispatch()
     const headerRef = useRef(null);
@@ -97,7 +98,7 @@ const Header = (props: HeaderProps) => {
                         className={classes.accountIcon}
                         onClick={handleClick}
                     >
-                        <img className={classes.icon} src={`${process.env.REACT_APP_API_URL}${user.imgUrl}`} alt={"usericon"} />
+                        <img className={classes.icon} src={user.imgUrl} alt={"usericon"} />
                     </IconButton>
                     <Popover
                         open={Boolean(anchorEl)}
@@ -111,7 +112,7 @@ const Header = (props: HeaderProps) => {
                         <div className={classes.popover}>
                             <img className={classes.largerIcon} src={`${process.env.REACT_APP_API_URL}${user.imgUrl}`} alt={"usericon"} />
                             <p>{`${capitalize(user.firstName ?? "")} ${capitalize(user.lastName ?? "")}`}</p>
-                            <Button color="error" variant="contained">Disconnect</Button>
+                            <Button color="error" onClick={handleDisconnect} variant="contained">Disconnect</Button>
                         </div>
                     </Popover>
                 </Toolbar>

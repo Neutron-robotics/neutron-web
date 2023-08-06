@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useState } from "react";
 
 export enum ViewType {
+    Loading,
     Home,
     Login,
     ConnectionView,
@@ -21,7 +22,7 @@ export const ViewContext = createContext<IViewContext>({
 });
 
 export const ViewProvider = ({ children }: { children: ReactNode }) => {
-    const [viewType, setViewType] = useState<ViewType>(ViewType.Home);
+    const [viewType, setViewType] = useState<ViewType>(ViewType.Loading);
 
     return (
         <ViewContext.Provider value={{ viewType, setViewType }}>

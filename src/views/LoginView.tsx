@@ -1,6 +1,7 @@
-import { Button, Checkbox, FormControlLabel, TextField } from "@mui/material"
+import { Button, TextField } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import { useState } from "react"
+import { useAlert } from "../contexts/AlertContext"
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -16,6 +17,10 @@ const useStyles = makeStyles(() => ({
         },
         "& > *": {
             paddingBottom: '10px'
+        },
+        "& form": {
+            display: 'flex',
+            flexDirection: 'column',
         }
     },
     centered: {
@@ -33,11 +38,14 @@ const useStyles = makeStyles(() => ({
     },
     error: {
         color: 'red'
+    },
+    submitButton: {
+        marginTop: '15px !important'
     }
 }))
 
 interface ILoginViewProps {
-    onLogin: (username: string, password: string, remember: boolean) => Promise<void>
+    onLogin: (username: string, password: string) => Promise<void>
     onForgetPasswordClick: () => void
     onSignUpClick: () => void
     onContinueLocalyClick: () => void
@@ -46,27 +54,28 @@ interface ILoginViewProps {
 interface ILoginModel {
     email: string,
     password: string,
-    remember: boolean
 }
 
 const LoginView = (props: ILoginViewProps) => {
     const { onLogin, onForgetPasswordClick, onSignUpClick, onContinueLocalyClick } = props
     const classes = useStyles()
-    const [error, setError] = useState<string | undefined>()
+    const [error, setError] = useState<boolean>(false)
     const [form, setForm] = useState<ILoginModel>({
-        email: "hugo.perier@protonmail.com",
-        password: "toto",
-        remember: false
+        email: "", //hugo.perier@protonmail.com
+        password: "", //toto
     })
+    const alert = useAlert()
 
-    const handleLoginClick = async () => {
+    const handleLoginClick = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
         try {
-            await onLogin(form.email, form.password, form.remember)
-            setError(undefined)
+            await onLogin(form.email, form.password)
         }
         catch (error) {
             if (error instanceof Error) {
-                setError(error.message)
+                alert.error(error.message)
+                setError(true)
             }
         }
     }
@@ -74,36 +83,35 @@ const LoginView = (props: ILoginViewProps) => {
     return (
         <div className={classes.root} >
             <object className={classes.centered} aria-label="robot-icon" data={`${process.env.PUBLIC_URL}/assets/icon.svg`} width={200} />
-            <TextField
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                    setForm((prevForm) => ({ ...prevForm, email: event.target.value ?? '' }));
-                }}
-                error={error !== undefined}
-                required
-                value={form.email}
-                label="Email Address"
-                style={{ marginBottom: '15px' }}
-            />
-            <TextField
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                    setForm((prevForm) => ({ ...prevForm, password: event.target.value ?? '' }));
-                }}
-                value={form.password}
-                type={"password"}
-                required
-                error={error !== undefined}
-                label="Password"
-            />
-            <FormControlLabel onChange={(event, checked) => {
-                setForm((prevForm) => ({ ...prevForm, remember: checked }))
-            }}
-                control={<Checkbox />}
-                className={classes.centered}
-                label="Remember me" />
-            {error && (
-                <p className={classes.error}>{error}</p>
-            )}
-            <Button onClick={handleLoginClick} variant="contained">Sign In</Button>
+            <form onSubmit={handleLoginClick}>
+                <TextField
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                        setForm((prevForm) => ({ ...prevForm, email: event.target.value ?? '' }));
+                    }}
+                    error={error}
+                    required
+                    id="username"
+                    name="username"
+                    autoComplete="username"
+                    value={form.email}
+                    label="Email Address"
+                    style={{ marginBottom: '15px' }}
+                />
+                <TextField
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                        setForm((prevForm) => ({ ...prevForm, password: event.target.value ?? '' }));
+                    }}
+                    value={form.password}
+                    type={"password"}
+                    id="password"
+                    name="password"
+                    autoComplete="current-password"
+                    required
+                    error={error}
+                    label="Password"
+                />
+                <Button className={classes.submitButton} type="submit" variant="contained">Sign In</Button>
+            </form>
             <div className={classes.alternativeSignIn}>
                 <div onClick={() => onForgetPasswordClick()} className={classes.link}>Forgot password?</div>
                 <div onClick={() => onSignUpClick()} className={classes.link}>Sign up</div>
