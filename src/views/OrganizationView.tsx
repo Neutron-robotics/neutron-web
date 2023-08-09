@@ -8,7 +8,7 @@ import { makeStyles } from "@mui/styles";
 import OrganizationMemberTable from "../components/Organization/OrganizationMemberTable";
 import "react-edit-text/dist/index.css";
 import { EditTextarea, onSaveProps } from "react-edit-text";
-import { UserRanked, isOrganizationUserAdmin } from "../utils/organization";
+import { OrganizationPermissions, UserRanked, isOrganizationUserAdmin } from "../utils/organization";
 import { useAlert } from "../contexts/AlertContext";
 import ClickableImageUpload from "../components/controls/imageUpload";
 import { uploadFile } from "../api/file";
@@ -79,14 +79,15 @@ const OrganizationView = () => {
         if (members.length > 0) return
 
         const userPromise = selectedOrganization.users.map((usr) => {
+            console.log("fetching ", usr.userId)
             return organization.getMember(selectedOrganization.name, usr.userId);
         });
 
         Promise.all(userPromise).then((users) => {
             const userRank = users.map((usr) => ({
                 ...usr,
-                rank: selectedOrganization.users.find((rank) => rank.userId === usr.id)
-                    ?.permissions[0],
+                rank: (selectedOrganization.users.find((rank) => rank.userId === usr.id)
+                    ?.permissions[0] as OrganizationPermissions) ?? OrganizationPermissions.Guest,
             }));
             setMembers(userRank);
         });

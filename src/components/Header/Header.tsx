@@ -110,7 +110,7 @@ const Header = (props: HeaderProps) => {
                         }}
                     >
                         <div className={classes.popover}>
-                            <img className={classes.largerIcon} src={`${process.env.REACT_APP_API_URL}${user.imgUrl}`} alt={"usericon"} />
+                            <img className={classes.largerIcon} src={`${user.imgUrl}`} alt={"usericon"} />
                             <p>{`${capitalize(user.firstName ?? "")} ${capitalize(user.lastName ?? "")}`}</p>
                             <Button color="error" onClick={handleDisconnect} variant="contained">Disconnect</Button>
                         </div>
