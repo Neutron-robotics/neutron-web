@@ -2,6 +2,9 @@ import { Button, TextField } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import { useState } from "react"
 import { useAlert } from "../contexts/AlertContext"
+import { useAuth } from "../contexts/AuthContext"
+import * as auth from "../api/auth";
+import { Navigate } from "react-router-dom"
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -45,10 +48,10 @@ const useStyles = makeStyles(() => ({
 }))
 
 interface ILoginViewProps {
-    onLogin: (username: string, password: string) => Promise<void>
-    onForgetPasswordClick: () => void
-    onSignUpClick: () => void
-    onContinueLocalyClick: () => void
+    // onLogin: (username: string, password: string) => Promise<void>
+    // onForgetPasswordClick: () => void
+    // onSignUpClick: () => void
+    // onContinueLocalyClick: () => void
 }
 
 interface ILoginModel {
@@ -57,7 +60,9 @@ interface ILoginModel {
 }
 
 const LoginView = (props: ILoginViewProps) => {
-    const { onLogin, onForgetPasswordClick, onSignUpClick, onContinueLocalyClick } = props
+    // const { onLogin, onForgetPasswordClick, onSignUpClick, onContinueLocalyClick } = props
+    const { login, user } = useAuth()
+
     const classes = useStyles()
     const [error, setError] = useState<boolean>(false)
     const [form, setForm] = useState<ILoginModel>({
@@ -66,11 +71,17 @@ const LoginView = (props: ILoginViewProps) => {
     })
     const alert = useAlert()
 
+    if (user !== null) {
+        return <Navigate to="/" />;
+    }
+    
     const handleLoginClick = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         try {
-            await onLogin(form.email, form.password)
+            await auth.login(form.email, form.password)
+            const me = await auth.me()
+            login(me)
         }
         catch (error) {
             if (error instanceof Error) {
@@ -79,6 +90,23 @@ const LoginView = (props: ILoginViewProps) => {
             }
         }
     }
+
+    const handleContinueLocaly = () => {
+        login({
+            firstName: 'guest',
+            imgUrl: 'file/anonymous-icon.jpg'
+        })
+    }
+
+    const handleForgotPasswordClick = () => {
+
+    }
+
+    const handleSignUp = () => {
+
+    }
+
+
 
     return (
         <div className={classes.root} >
@@ -113,11 +141,11 @@ const LoginView = (props: ILoginViewProps) => {
                 <Button className={classes.submitButton} type="submit" variant="contained">Sign In</Button>
             </form>
             <div className={classes.alternativeSignIn}>
-                <div onClick={() => onForgetPasswordClick()} className={classes.link}>Forgot password?</div>
-                <div onClick={() => onSignUpClick()} className={classes.link}>Sign up</div>
+                <div onClick={handleForgotPasswordClick} className={classes.link}>Forgot password?</div>
+                <div onClick={handleSignUp} className={classes.link}>Sign up</div>
             </div>
             <div className={classes.centered}>Or</div>
-            <div onClick={() => onContinueLocalyClick()} className={`${classes.link} ${classes.centered}`}>Continue localy</div>
+            <div onClick={handleContinueLocaly} className={`${classes.link} ${classes.centered}`}>Continue localy</div>
         </div>
     )
 }

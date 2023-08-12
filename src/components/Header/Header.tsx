@@ -8,6 +8,7 @@ import { IOperationTab, useTabsDispatch } from "../../contexts/TabContext";
 import React from "react";
 import { UserLight, UserModel } from "../../api/models/user.model";
 import { capitalize } from "../../utils/string";
+import { useAuth } from "../../contexts/AuthContext";
 
 const useStyle = makeStyles((theme: any) => ({
     header: {
@@ -38,17 +39,17 @@ interface HeaderProps {
     activeTabId?: string;
     headerBody?: JSX.Element;
     user: UserLight | UserModel
-    handleDisconnect: () => void
 }
 
 const Header = (props: HeaderProps) => {
     const title = `${process.env.REACT_APP_NAME} - ${process.env.REACT_APP_VERSION}`;
     const classes = useStyle();
-    const { headerTabs, headerBody, user, handleDisconnect } = props;
+    const { headerTabs, headerBody, user } = props;
     const { setViewType } = useContext(ViewContext);
     const tabDispatch = useTabsDispatch()
     const headerRef = useRef(null);
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+    const { logout } = useAuth()
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -112,7 +113,7 @@ const Header = (props: HeaderProps) => {
                         <div className={classes.popover}>
                             <img className={classes.largerIcon} src={`${user.imgUrl}`} alt={"usericon"} />
                             <p>{`${capitalize(user.firstName ?? "")} ${capitalize(user.lastName ?? "")}`}</p>
-                            <Button color="error" onClick={handleDisconnect} variant="contained">Disconnect</Button>
+                            <Button color="error" onClick={logout} variant="contained">Disconnect</Button>
                         </div>
                     </Popover>
                 </Toolbar>

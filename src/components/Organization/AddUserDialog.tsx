@@ -60,7 +60,7 @@ function AddUserDialog(props: AddUserProps) {
                     required
                     label="Email"
                     fullWidth
-                    onChange={(e) => handleEmailSelect}
+                    onChange={handleEmailSelect}
                 />
                 <Select
                     className={classes.textfield}

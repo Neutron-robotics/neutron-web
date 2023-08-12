@@ -12,7 +12,6 @@ function ClickableImageUpload(props: ClickableImageUploadProps) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const handleImageClick = () => {
-        console.log("image click")
         if (fileInputRef.current) {
             fileInputRef.current.click();
         }
@@ -23,7 +22,6 @@ function ClickableImageUpload(props: ClickableImageUploadProps) {
         const selectedFile = event.target.files[0];
         if (selectedFile) {
             // You can handle the file upload logic here
-            console.log('Selected file:', selectedFile);
             onImageClick(selectedFile)
         }
     };

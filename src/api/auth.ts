@@ -60,7 +60,6 @@ const register = async (model: RegisterModel) => {
 };
 
 const me = async () => {
-  console.log("me");
   const res = await api.get("/auth/me");
   if (res.status !== 200) throw new Error("Cannot fetch self informations");
 
@@ -105,7 +104,6 @@ let refreshTokenTimeout: NodeJS.Timeout;
 function startRefreshTokenTimer(token: string) {
   // parse json object from base64 encoded jwt token
   const jwtToken = JSON.parse(atob(token.split(".")[1]));
-  console.log(jwtToken);
 
   // set a timeout to refresh the token a minute before it expires
   const expires = new Date(jwtToken.exp * 1000);

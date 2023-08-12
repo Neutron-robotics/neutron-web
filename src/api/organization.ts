@@ -19,8 +19,10 @@ const me = async () => {
     return res.data.organizations as OrganizationModel[]
 }
 
-const getMember = async (organizationName: string, userId: string) => {
-    const res  = await api.get(`organization/${organizationName}/getMember/${userId}`)
+const getMember = async (organizationName: string, filter: {userId?: string, email?: string}) => {
+    const res  = await api.get(`organization/${organizationName}/getMember`, {
+        params: filter
+    })
 
     if (res.status !== 200) {
         throw new Error("Could not get self organizations")

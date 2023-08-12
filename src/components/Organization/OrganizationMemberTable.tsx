@@ -11,6 +11,8 @@ import AddUserDialog from "./AddUserDialog";
 interface OrganizationMemberTableProps {
     isAdmin: boolean,
     organizationMembers: UserRanked[]
+    handleUserPromotion: (email: string, role: string) => void
+    handleRemoveUser: (user: UserRanked) => void
 }
 
 const useStyles = makeStyles(() => ({
@@ -45,11 +47,11 @@ const useStyles = makeStyles(() => ({
 }))
 
 const OrganizationMemberTable = (props: OrganizationMemberTableProps) => {
-    const { isAdmin, organizationMembers } = props
+    const { isAdmin, organizationMembers, handleUserPromotion, handleRemoveUser } = props
     const classes = useStyles()
 
     const handleAddUser = (d: any) => {
-        console.log("add user", d)
+        handleUserPromotion(d.email, d.role)
     }
 
     return (
@@ -71,7 +73,7 @@ const OrganizationMemberTable = (props: OrganizationMemberTableProps) => {
                             {isAdmin && e.rank !== "owner" && (
                                 <div>
                                     <ButtonDialog
-                                        onConfirm={(data: any) => { console.log("confirmed", data) }}
+                                        onConfirm={() => handleRemoveUser(e)}
                                         dialog={ConfirmationDialog}
                                         dialogProps={{
                                             title: `Are you sure you want to remove ${capitalize(e.firstName)} from the organization ?`

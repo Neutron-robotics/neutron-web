@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { UserModel } from "../api/models/user.model";
-import * as auth from "../api/auth";
 import * as organization from "../api/organization";
 import { OrganizationModel } from "../api/models/organization.model";
 import { MenuItem, Select, SelectChangeEvent, Tab, Tabs } from "@mui/material";
@@ -43,8 +42,12 @@ const useStyles = makeStyles(() => ({
     },
 }));
 
-const OrganizationView = () => {
-    const [user, setUser] = useState<UserModel>();
+interface OrganizationViewProps {
+    user: UserModel
+}
+
+const OrganizationView = (props: OrganizationViewProps) => {
+    const { user } = props
     const [organizations, setOrganizations] = useState<OrganizationModel[]>([]);
     const [selectedOrganization, setSelectedOrganization] =
         useState<OrganizationModel>();
@@ -54,33 +57,35 @@ const OrganizationView = () => {
     const isAdmin = user ? isOrganizationUserAdmin(user, members) : false;
     const alert = useAlert();
 
-    useEffect(() => {
-        auth
-            .me()
-            .then((user) => {
-                setUser(user);
-            })
-            .catch(() => {
-                console.log("failed to fetch user");
-            });
+    const fetchOrganization = useCallback(async () => {
+        try {
+            const organizations = await organization.me()
+            setOrganizations(organizations)
+            if (organizations.length > 0) setSelectedOrganization(organizations[0]);
+        }
+        catch (err: any) {
+            alert.error("An error has occured while fetching organizations");
+        }
         organization
             .me()
             .then((organizations) => {
                 setOrganizations(organizations);
-                if (organizations.length > 0) setSelectedOrganization(organizations[0]);
+
             })
             .catch(() => {
                 console.log("failed to fetch organizations");
             });
-    }, []);
+    }, [alert])
 
     useEffect(() => {
+        fetchOrganization()
+    }, [fetchOrganization]);
+
+    const fetchOrganizationMembers = useCallback(() => {
         if (!selectedOrganization) return;
         if (members.length > 0) return
-
         const userPromise = selectedOrganization.users.map((usr) => {
-            console.log("fetching ", usr.userId)
-            return organization.getMember(selectedOrganization.name, usr.userId);
+            return organization.getMember(selectedOrganization.name, { userId: usr.userId });
         });
 
         Promise.all(userPromise).then((users) => {
@@ -91,7 +96,11 @@ const OrganizationView = () => {
             }));
             setMembers(userRank);
         });
-    }, [members, selectedOrganization]);
+    }, [members.length, selectedOrganization])
+
+    useEffect(() => {
+        fetchOrganizationMembers()
+    }, [fetchOrganizationMembers, members, selectedOrganization]);
 
     const handleOrganizationChange = (event: SelectChangeEvent<string>) => {
         const organization = organizations.find(
@@ -126,6 +135,32 @@ const OrganizationView = () => {
         }
         catch (err: any) {
             alert.error("An error has occured while uploading an image");
+        }
+    }
+
+    const handleUserPromotion = async (email: string, role: string) => {
+        if (!selectedOrganization)
+            return
+        try {
+            await organization.promote(selectedOrganization.name, role, email)
+            const member = await organization.getMember(selectedOrganization.name, { email })
+            setMembers((e) => ([...e, { ...member, rank: role as OrganizationPermissions }]))
+        }
+        catch (err: any) {
+            alert.error("An error has occured while promoting a member");
+        }
+    }
+
+    const handleUserRemoved = async (user: UserRanked) => {
+        if (!selectedOrganization)
+            return
+        try {
+            await organization.demote(selectedOrganization.name, user.email)
+            setMembers(e => e.filter(e => e.id !== user.id))
+            setSelectedOrganization(e => e && ({ ...e, users: e?.users.filter(e => e.userId !== user.id) }))
+        }
+        catch (err: any) {
+            alert.error("An error has occured while demoting a member");
         }
     }
 
@@ -174,6 +209,8 @@ const OrganizationView = () => {
                         <OrganizationMemberTable
                             isAdmin={isAdmin}
                             organizationMembers={members}
+                            handleUserPromotion={handleUserPromotion}
+                            handleRemoveUser={handleUserRemoved}
                         />
                     )}
                 </div>

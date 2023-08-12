@@ -10,6 +10,10 @@ import neutronMuiThemeDefault from './contexts/MuiTheme';
 import { AlertProvider } from './contexts/AlertContext';
 import inputActions from 'hotkeys-inputs-js';
 import neutronDefault from './utils/mapping';
+import { Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import LoginView from './views/LoginView';
+import { ProtectedRoute } from './components/controls/ProtectedRoute';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -34,17 +38,27 @@ function App() {
   return (
     <div className={classes.root}>
       <LoggerProvider>
-        <TabProvider>
-          <ViewProvider>
-            <AlertProvider>
-              <MultiConnectionProvider>
-                <ThemeProvider theme={neutronMuiThemeDefault}>
-                  <ViewManager />
-                </ThemeProvider>
-              </MultiConnectionProvider>
-            </AlertProvider>
-          </ViewProvider>
-        </TabProvider>
+        <AuthProvider>
+          <TabProvider>
+            <ViewProvider>
+              <AlertProvider>
+                <MultiConnectionProvider>
+                  <ThemeProvider theme={neutronMuiThemeDefault}>
+                    <Routes>
+                      <Route path="/" element={
+                        <ProtectedRoute>
+                          <ViewManager />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/login" element={<LoginView />} />
+                      {/* <ViewManager /> */}
+                    </Routes>
+                  </ThemeProvider>
+                </MultiConnectionProvider>
+              </AlertProvider>
+            </ViewProvider>
+          </TabProvider>
+        </AuthProvider>
       </LoggerProvider>
     </div>
   );
