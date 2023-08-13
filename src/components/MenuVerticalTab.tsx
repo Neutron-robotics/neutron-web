@@ -128,7 +128,7 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
         onSelectTab(menuOption.viewType);
     };
 
-    const menuItems = listItems.filter(e => (isLightUser || e.lightUserVisible))
+    const menuItems = listItems.filter(e => (!isLightUser || e.lightUserVisible))
 
     return (
         <div>

@@ -1,5 +1,6 @@
 import api from "./api"
 import { CreateOrganizationModel, OrganizationModel } from "./models/organization.model"
+import { IRobot } from "./models/robot.model"
 import { UserDTO } from "./models/user.model"
 
 const create = async (model: CreateOrganizationModel) => {
@@ -67,6 +68,15 @@ const deleteOrganization = async (name: string) => {
     }
 }
 
+const getOrganizationRobots = async (name: string) => {
+    const res = await api.get(`organization/${name}/robots`)
+
+    if (res.status !== 200) {
+        throw new Error("Failed to delete the organization")
+    }
+    return res.data.robots as IRobot[]
+}
+
 export {
     create,
     me,
@@ -74,5 +84,6 @@ export {
     promote,
     demote,
     getMember,
-    deleteOrganization
+    deleteOrganization,
+    getOrganizationRobots
 }

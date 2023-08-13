@@ -15,7 +15,7 @@ export interface OrganizationModel {
     company: string;
     description: string;
     imgUrl: string;
-    robots: [];
+    robots: string[];
     active: boolean;
     users: UserRelationModel[]
 }

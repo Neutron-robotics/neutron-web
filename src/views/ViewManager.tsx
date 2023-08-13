@@ -11,6 +11,7 @@ import OrganizationView from "./OrganizationView";
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { UserLight, UserModel } from "../api/models/user.model";
+import OrganizationPage from "./OrganizationPage";
 
 export interface IHeaderMenuState {
 }
@@ -22,6 +23,8 @@ const ViewManager = () => {
     const tabs = useTabs()
     const activeTab = useActiveTab()
     const { user } = useAuth() as { user: UserModel | UserLight }
+    const isUserLight = user.email == null
+    console.log("user light ?", isUserLight)
 
     useEffect(() => {
         if (viewType === ViewType.Home) {
@@ -37,13 +40,6 @@ const ViewManager = () => {
             setViewType(ViewType.Home)
     }, [activeTab, setViewType, viewType])
 
-    console.log("user", user)
-
-    if (!user) {
-        console.log("navigating")
-        return <Navigate to="/login" />;
-    }
-
     const hasMenu = viewType === ViewType.Home ||
         viewType === ViewType.ConnectionView ||
         viewType === ViewType.Organization ||
@@ -57,10 +53,10 @@ const ViewManager = () => {
             {hasMenu && (
                 <Box sx={{ display: 'flex' }}>
                     <CssBaseline />
-                    <MenuVerticalTabs onSelectTab={(v) => { setViewType(v) }} isLightUser={user?.email !== undefined} />
+                    <MenuVerticalTabs onSelectTab={(v) => { setViewType(v) }} isLightUser={isUserLight} />
                     {(viewType === ViewType.Home) && <ConnectionView setHeaderBody={setHeaderBody} />}
                     {(viewType === ViewType.ConnectionView) && <ConnectionView setHeaderBody={setHeaderBody} />}
-                    {(viewType === ViewType.Organization) && <OrganizationView user={user as UserModel} />}
+                    {(!isUserLight &&  viewType === ViewType.Organization) && <OrganizationPage user={user as UserModel} />}
                 </Box>
             )}
             {(viewType === ViewType.OperationView) && <OperationView tabId={activeTab?.id ?? ""} setHeaderBody={setHeaderBody} />}
