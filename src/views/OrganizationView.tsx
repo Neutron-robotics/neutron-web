@@ -11,6 +11,8 @@ import { OrganizationPermissions, UserRanked, isOrganizationUserAdmin } from "..
 import { useAlert } from "../contexts/AlertContext";
 import ClickableImageUpload from "../components/controls/imageUpload";
 import { uploadFile } from "../api/file";
+import RobotTable from "../components/Organization/RobotTable";
+import { OrganizationViewType } from "./OrganizationPage";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -46,12 +48,13 @@ interface OrganizationViewProps {
     user: UserModel
     activeOrganization: OrganizationModel
     organizations: OrganizationModel[]
-    handleOrganizationSwitch: (organizatioName: string) => void
-    handleUpdateOrganization: (model: Partial<OrganizationModel>) => void
+    onOrganizationSwitch: (organizatioName: string) => void
+    onUpdateOrganization: (model: Partial<OrganizationModel>) => void
+    onPageChange: (viewType: OrganizationViewType) => void
 }
 
 const OrganizationView = (props: OrganizationViewProps) => {
-    const { user, activeOrganization, organizations, handleOrganizationSwitch, handleUpdateOrganization } = props
+    const { user, activeOrganization, organizations, onOrganizationSwitch, onUpdateOrganization, onPageChange } = props
     const [members, setMembers] = useState<UserRanked[]>([]);
     const [activeTab, setActiveTab] = useState(0);
     const classes = useStyles();
@@ -80,7 +83,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
     }, [fetchOrganizationMembers, activeOrganization]);
 
     const handleOrganizationChange = (event: SelectChangeEvent<string>) => {
-        handleOrganizationSwitch(event.target.value)
+        onOrganizationSwitch(event.target.value)
     };
 
     const handleDescriptionUpdate = async (data: onSaveProps) => {
@@ -105,7 +108,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
                 imgUrl
             })
             // setSelectedOrganization(prev => ({ ...prev, imgUrl: imgUrl } as any))
-            handleUpdateOrganization({ imgUrl: imgUrl })
+            onUpdateOrganization({ imgUrl: imgUrl })
             alert.success('The image has successfuly been updated')
         }
         catch (err: any) {
@@ -120,7 +123,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
             await organization.promote(activeOrganization.name, role, email)
             const member = await organization.getMember(activeOrganization.name, { email })
 
-            handleUpdateOrganization({ ...activeOrganization, users: [...activeOrganization.users, { userId: member.id, permissions: [role] }] })
+            onUpdateOrganization({ ...activeOrganization, users: [...activeOrganization.users, { userId: member.id, permissions: [role] }] })
             setMembers((e) => ([...e, { ...member, rank: role as OrganizationPermissions }]))
         }
         catch (err: any) {
@@ -134,7 +137,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
         try {
             await organization.demote(activeOrganization.name, user.email)
             setMembers(e => e.filter(e => e.id !== user.id))
-            handleUpdateOrganization({ ...activeOrganization, users: activeOrganization.users.filter(e => e.userId !== user.id) })
+            onUpdateOrganization({ ...activeOrganization, users: activeOrganization.users.filter(e => e.userId !== user.id) })
         }
         catch (err: any) {
             alert.error("An error has occured while demoting a member");
@@ -189,7 +192,13 @@ const OrganizationView = (props: OrganizationViewProps) => {
                     />
                 )}
                 {activeTab === 1 && (
-                    <></>
+                    <>
+                        <RobotTable
+                            user={user}
+                            activeOrganization={activeOrganization}
+                            onPageChange={onPageChange}
+                        />
+                    </>
                 )}
             </div>
         </>

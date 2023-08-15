@@ -5,14 +5,15 @@ import { OrganizationModel } from "../api/models/organization.model";
 import { useAlert } from "../contexts/AlertContext";
 import * as organization from "../api/organization";
 import OrganizationView from "./OrganizationView";
+import RobotView from "./RobotView";
 
 interface OrganizationPageProps {
     user: UserModel
 }
 
-enum OrganizationViewType {
+export enum OrganizationViewType {
     Summary,
-    Robot,
+    CreateRobot,
     Part
 }
 
@@ -65,13 +66,24 @@ const OrganizationPage = (props: OrganizationPageProps) => {
                             user={user}
                             organizations={organizations}
                             activeOrganization={organizations[activeOrganizationIndex]}
-                            handleOrganizationSwitch={handleOrganizationChange}
-                            handleUpdateOrganization={handleUpdateOrganization}
+                            onOrganizationSwitch={handleOrganizationChange}
+                            onUpdateOrganization={handleUpdateOrganization}
+                            onPageChange={(page: OrganizationViewType) => viewItemStack.push(page)}
                         />
                     )}
                 </>
             )
-
+        case OrganizationViewType.CreateRobot:
+            return (
+                <>
+                    <RobotView
+                        user={user}
+                        activeOrganization={organizations[activeOrganizationIndex]}
+                        title={"Create Robot"}
+                        onBreadcrumbsClick={() => viewItemStack.pop()}
+                    />
+                </>
+            )
         default:
             return <>no organizations</>
     }

@@ -7,9 +7,7 @@ import ConnectionView from "./ConnectionView";
 import OperationView from "./OperationView";
 import MenuVerticalTabs from "../components/MenuVerticalTab";
 import { Box, CssBaseline } from "@mui/material";
-import OrganizationView from "./OrganizationView";
 import { useAuth } from "../contexts/AuthContext";
-import { Navigate } from "react-router-dom";
 import { UserLight, UserModel } from "../api/models/user.model";
 import OrganizationPage from "./OrganizationPage";
 
@@ -56,7 +54,7 @@ const ViewManager = () => {
                     <MenuVerticalTabs onSelectTab={(v) => { setViewType(v) }} isLightUser={isUserLight} />
                     {(viewType === ViewType.Home) && <ConnectionView setHeaderBody={setHeaderBody} />}
                     {(viewType === ViewType.ConnectionView) && <ConnectionView setHeaderBody={setHeaderBody} />}
-                    {(!isUserLight &&  viewType === ViewType.Organization) && <OrganizationPage user={user as UserModel} />}
+                    {(!isUserLight && viewType === ViewType.Organization) && <OrganizationPage user={user as UserModel} />}
                 </Box>
             )}
             {(viewType === ViewType.OperationView) && <OperationView tabId={activeTab?.id ?? ""} setHeaderBody={setHeaderBody} />}
