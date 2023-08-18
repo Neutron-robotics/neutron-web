@@ -22,7 +22,6 @@ const ViewManager = () => {
     const activeTab = useActiveTab()
     const { user } = useAuth() as { user: UserModel | UserLight }
     const isUserLight = user.email == null
-    console.log("user light ?", isUserLight)
 
     useEffect(() => {
         if (viewType === ViewType.Home) {

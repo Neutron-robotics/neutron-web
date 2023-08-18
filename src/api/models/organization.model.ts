@@ -11,6 +11,7 @@ export interface UserRelationModel {
 }
 
 export interface OrganizationModel {
+    _id: string
     name: string;
     company: string;
     description: string;

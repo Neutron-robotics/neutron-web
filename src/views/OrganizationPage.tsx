@@ -20,6 +20,7 @@ export enum OrganizationViewType {
 const OrganizationPage = (props: OrganizationPageProps) => {
     const { user } = props
     const [organizations, setOrganizations] = useState<OrganizationModel[]>([])
+    const [organizationActiveTab, setOrganizationActiveTab] = useState(0)
     const [activeOrganizationIndex, setActiveOrganizationIndex] = useState(0)
     const viewItemStack = useStack<OrganizationViewType>(
         OrganizationViewType.Summary
@@ -56,7 +57,6 @@ const OrganizationPage = (props: OrganizationPageProps) => {
     }
 
     const currentItem = viewItemStack.peek()
-    console.log(currentItem, organizations, activeOrganizationIndex)
     switch (currentItem) {
         case OrganizationViewType.Summary:
             return (
@@ -66,9 +66,12 @@ const OrganizationPage = (props: OrganizationPageProps) => {
                             user={user}
                             organizations={organizations}
                             activeOrganization={organizations[activeOrganizationIndex]}
+                            activeTab={organizationActiveTab}
+                            onTabChange={(t) => setOrganizationActiveTab(t)}
                             onOrganizationSwitch={handleOrganizationChange}
                             onUpdateOrganization={handleUpdateOrganization}
                             onPageChange={(page: OrganizationViewType) => viewItemStack.push(page)}
+
                         />
                     )}
                 </>
@@ -80,6 +83,7 @@ const OrganizationPage = (props: OrganizationPageProps) => {
                         user={user}
                         activeOrganization={organizations[activeOrganizationIndex]}
                         title={"Create Robot"}
+                        robotModel={null}
                         onBreadcrumbsClick={() => viewItemStack.pop()}
                     />
                 </>

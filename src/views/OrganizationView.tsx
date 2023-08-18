@@ -48,15 +48,16 @@ interface OrganizationViewProps {
     user: UserModel
     activeOrganization: OrganizationModel
     organizations: OrganizationModel[]
+    activeTab: number
     onOrganizationSwitch: (organizatioName: string) => void
     onUpdateOrganization: (model: Partial<OrganizationModel>) => void
     onPageChange: (viewType: OrganizationViewType) => void
+    onTabChange: (tabId: number) => void
 }
 
 const OrganizationView = (props: OrganizationViewProps) => {
-    const { user, activeOrganization, organizations, onOrganizationSwitch, onUpdateOrganization, onPageChange } = props
+    const { user, activeOrganization, organizations, onOrganizationSwitch, onUpdateOrganization, onPageChange, activeTab, onTabChange } = props
     const [members, setMembers] = useState<UserRanked[]>([]);
-    const [activeTab, setActiveTab] = useState(0);
     const classes = useStyles();
     const isAdmin = user ? isOrganizationUserAdmin(user, members) : false;
     const alert = useAlert();
@@ -175,7 +176,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
                 <Tabs
                     centered
                     value={activeTab}
-                    onChange={(_, v) => setActiveTab(v)}
+                    onChange={(_, v) => onTabChange(v)}
                     aria-label="tabs"
                 >
                     <Tab label="Member" />

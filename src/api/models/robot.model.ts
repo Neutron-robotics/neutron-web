@@ -18,10 +18,25 @@ export interface IRobotPart {
 }
 
 export interface IRobot {
+    _id: string
     name: string
     parts: IRobotPart[]
     linked: boolean
     imgUrl: string
     description: string
     context: ConnectionContextType
+}
+
+export interface ICreateRobotModel {
+    name: string
+    parts?: IRobotPart[]
+    imgUrl?: string
+    description: string
+}
+
+export interface IUpdateRobotModel {
+    name?: string
+    imgUrl?: string
+    description?: string
+    connexionContextType?: ConnectionContextType
 }
