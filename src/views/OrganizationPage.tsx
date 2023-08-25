@@ -60,6 +60,23 @@ const OrganizationPage = (props: OrganizationPageProps) => {
         });
     }
 
+    const handlePartUpdate = (part: IRobotPart) => {
+        console.log("PART UPDATE")
+        if (robot === null)
+            return
+
+        const rbt = {
+            ...robot,
+            parts:
+                [
+                    ...robot.parts.filter(p => p._id !== part._id),
+                    part,
+                ]
+        }
+        console.log('rbt', rbt)
+        setRobot(rbt)
+    }
+
     switch (viewItem) {
         case OrganizationViewType.Summary:
             return (
@@ -107,6 +124,7 @@ const OrganizationPage = (props: OrganizationPageProps) => {
                     activeOrganization={organizations[activeOrganizationIndex]}
                     robotModel={robot as IRobot}
                     partModel={part}
+                    onPartUpdate={handlePartUpdate}
                     onBreadcrumbsClick={(view: OrganizationViewType) => {
                         setPart(null)
                         setViewItem(view)

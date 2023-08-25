@@ -11,6 +11,7 @@ export enum ConnectionContextType {
 }
 
 export interface IRobotPart {
+    _id: string
     type: string
     category: RobotPartCategory
     name: string

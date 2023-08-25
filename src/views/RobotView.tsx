@@ -14,6 +14,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt';
 import ShareIcon from '@mui/icons-material/Share';
+import RobotPartCard from "../components/Robot/RobotPartCard"
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -33,6 +34,14 @@ const useStyles = makeStyles(() => ({
             marginRight: "40px",
             objectFit: "cover",
             height: "100%",
+        },
+        "& button": {
+            maxWidth: '150px',
+            marginRight: '10px',
+            borderRadius: '20px',
+            "&:hover": {
+                background: '#f7f7f7'
+            },
         },
         "& textarea": {
             width: "100%",
@@ -208,6 +217,11 @@ const RobotView = (props: RobotViewProps) => {
                 <Tab label="Modules" />
                 {!isNewRobot && <Tab label="History" />}
             </Tabs>
+            {activeTab === 0 && (
+                <div>
+                    {robot.parts && robot.parts.length && robot.parts.map(part => (<RobotPartCard key={part.name} robotPart={part} onClick={() => onSelectPart(part)} />))}
+                </div>
+            )}
             {Dialog}
             <SpeedDial
                 ariaLabel="robot action speeddial"
