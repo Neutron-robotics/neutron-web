@@ -5,6 +5,8 @@ export interface CreateRobotPartModel {
   category: RobotPartCategory;
   name: string;
   imgUrl: string;
+  ros2Package: string,
+  ros2Node: string
 }
 
 export interface UpdatePartModel {

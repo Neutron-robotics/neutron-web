@@ -53,10 +53,11 @@ const useStyles = makeStyles(() => ({
     },
     partSpecifics: {
         display: 'flex',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        gap: '10%'
     },
     ros: {
-        paddingRight: '50px'
+        paddingTop: '10px'
     }
 }))
 
@@ -84,8 +85,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
             if (isNewPart.current)
                 setPart((prev => ({ ...prev, imgUrl })))
             else if (!isNewPart.current && part._id) {
-                await partApi.update(robotModel._id, part._id, { imgUrl })
-                setPart((prev) => ({ ...prev, imgUrl }))
+                await updatePart({ imgUrl })
             }
         }
         catch (err: any) {
@@ -98,7 +98,6 @@ const RobotPartView = (props: RobotPartViewProps) => {
         onPartUpdate({ ...part, ...updateModel } as IRobotPart)
         setPart((prev) => ({ ...prev, ...updateModel }))
     }
-
 
     const handleNameUpdate = async (data: onSaveProps) => {
         if (isNewPart.current)
@@ -131,8 +130,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
             setPart((prev) => ({ ...prev, category: event.target.value as RobotPartCategory }))
         if (!isNewPart.current && part._id) {
             try {
-                await partApi.update(robotModel._id, part._id, { category: event.target.value as RobotPartCategory })
-                setPart((prev) => ({ ...prev, category: event.target.value as RobotPartCategory }))
+                await updatePart({ category: event.target.value as RobotPartCategory })
             }
             catch (err) {
                 alert.error("An error has occured while updating robot description")
@@ -140,9 +138,30 @@ const RobotPartView = (props: RobotPartViewProps) => {
         }
     }
 
+    const handleRos2PackageUpdate = async (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        if (isNewPart.current) { }
+        setPart((prev) => ({ ...prev, ros2Package: event.target.value as RobotPartCategory }))
+        if (!isNewPart.current && part._id) {
+            try {
+                await updatePart({ ros2Package: event.target.value })
+            }
+            catch (err) {
+                alert.error("An error has occured while updating robot description")
+            }
+        }
+    }
 
-    const handleEmailSelect = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        throw new Error("Function not implemented.")
+    const handleRos2NodeUpdate = async (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        if (isNewPart.current)
+            setPart((prev) => ({ ...prev, ros2Node: event.target.value as RobotPartCategory }))
+        if (!isNewPart.current && part._id) {
+            try {
+                await updatePart({ ros2Node: event.target.value })
+            }
+            catch (err) {
+                alert.error("An error has occured while updating robot description")
+            }
+        }
     }
 
     const handleBreadcrumbsClick = (view: OrganizationViewType) => {
@@ -151,6 +170,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
                 if (confirmed) {
                     try {
                         await partApi.create(robotModel._id, part as CreateRobotPartModel)
+                        onPartUpdate({ ...part } as IRobotPart)
                     }
                     catch (err) {
                         alert.error("")
@@ -196,7 +216,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
                     <Select
                         fullWidth
                         disabled
-                        value={part.type}
+                        value={part?.type?.length ? part.type : ConnectionContextType.Ros2}
                         label="Type"
                         onChange={handleTypeUpdate}
                     >
@@ -218,22 +238,26 @@ const RobotPartView = (props: RobotPartViewProps) => {
                 </div>
             </div>
             <div className={classes.partSpecifics}>
-                <div className={classes.ros}>
+                <div>
                     <span>Ros</span>
-                    <TextField
-                        className={classes.textfield}
-                        required
-                        label="ROS Package"
-                        fullWidth
-                        onChange={handleEmailSelect}
-                    />
-                    <TextField
-                        className={classes.textfield}
-                        required
-                        label="ROS Node"
-                        fullWidth
-                        onChange={handleEmailSelect}
-                    />
+                    <div className={classes.ros}>
+                        <TextField
+                            className={classes.textfield}
+                            required
+                            label="ROS Package"
+                            fullWidth
+                            defaultValue={part.ros2Package}
+                            onChange={handleRos2PackageUpdate}
+                        />
+                        <TextField
+                            className={classes.textfield}
+                            required
+                            label="ROS Node"
+                            fullWidth
+                            defaultValue={part.ros2Node}
+                            onChange={handleRos2NodeUpdate}
+                        />
+                    </div>
                 </div>
                 <div>
                     <span>{capitalize(part.category as string)}</span>

@@ -16,6 +16,12 @@ export interface IRobotPart {
     category: RobotPartCategory
     name: string
     imgUrl: string
+    ros2Package: string
+    ros2Node: string
+    publishers: string[]
+    subscribers: string[]
+    services: string[]
+    actions: string[]
 }
 
 export interface IRobot {
