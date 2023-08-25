@@ -22,7 +22,7 @@ const update = async (robotId: string, model: IUpdateRobotModel) => {
 }
 
 const deleteRobot = async (robotId: string) => {
-    const res = await api.delete(`robot/delete/${robotId}`)
+    const res = await api.delete(`robot/${robotId}`)
 
     if (res.status !== 200) {
         throw new Error("Could not delete the robot")

@@ -1,4 +1,4 @@
-import { Breadcrumbs, Link, Tab, Tabs, Typography } from "@mui/material"
+import { Breadcrumbs, Link, SpeedDial, SpeedDialAction, SpeedDialIcon, Tab, Tabs, Typography } from "@mui/material"
 import { OrganizationModel } from "../api/models/organization.model"
 import { UserModel } from "../api/models/user.model"
 import ClickableImageUpload from "../components/controls/imageUpload"
@@ -6,10 +6,14 @@ import { EditText, EditTextarea, onSaveProps } from "react-edit-text"
 import { makeStyles } from "@mui/styles";
 import { useState } from "react"
 import { uploadFile } from "../api/file"
-import { ICreateRobotModel, IRobot } from "../api/models/robot.model"
+import { ICreateRobotModel, IRobot, IRobotPart } from "../api/models/robot.model"
 import { useAlert } from "../contexts/AlertContext"
 import useConfirmationDialog from "../components/controls/useConfirmationDialog"
 import * as robotApi from "../api/robot"
+import SettingsIcon from '@mui/icons-material/Settings';
+import DeleteIcon from '@mui/icons-material/Delete';
+import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt';
+import ShareIcon from '@mui/icons-material/Share';
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -21,7 +25,6 @@ const useStyles = makeStyles(() => ({
         marginRight: "auto",
         display: "flex !important",
         maxWidth: "300px",
-
     },
     robotsInfos: {
         display: "flex",
@@ -42,19 +45,29 @@ const useStyles = makeStyles(() => ({
     },
 }));
 
+type RobotSpeedDialActions = 'Remove' | 'Add Part' | 'Add Module' | 'Share'
+
+const robotSpeedDialActions: { icon: JSX.Element, name: RobotSpeedDialActions }[] = [
+    { icon: <DeleteIcon color={"error"} />, name: 'Remove' },
+    { icon: <SettingsIcon color={"primary"} />, name: 'Add Part' },
+    { icon: <PsychologyAltIcon color={"primary"} />, name: 'Add Module' },
+    { icon: <ShareIcon color={"primary"} />, name: 'Share' },
+];
+
 interface RobotViewProps {
     user: UserModel
     activeOrganization: OrganizationModel
     title: string
     robotModel: IRobot | null
     onBreadcrumbsClick: () => void
+    onSelectPart: (part: IRobotPart | null) => void
 }
 
 const RobotView = (props: RobotViewProps) => {
-    const { activeOrganization, title, onBreadcrumbsClick, robotModel } = props
+    const { activeOrganization, title, onBreadcrumbsClick, robotModel, onSelectPart } = props
     const [activeTab, setActiveTab] = useState(0);
     const classes = useStyles()
-    const newRobot = robotModel === null
+    const isNewRobot = robotModel === null
     const [robot, setRobot] = useState<Partial<IRobot>>(robotModel ?? { name: "New Robot", description: "Enter here the description of the robot" })
     const alert = useAlert()
     const [Dialog, prompt] = useConfirmationDialog()
@@ -63,23 +76,61 @@ const RobotView = (props: RobotViewProps) => {
     const handleRobotImageUpload = async (file: File) => {
         try {
             const imgUrl = await uploadFile(file)
-            setRobot((prev => ({ ...prev, imgUrl })))
+            if (isNewRobot)
+                setRobot((prev => ({ ...prev, imgUrl })))
+            else if (!isNewRobot && robot._id) {
+                try {
+                    await robotApi.update(robot._id, { imgUrl })
+                    setRobot((prev) => ({ ...prev, imgUrl }))
+                }
+                catch (err) {
+                    alert.error("An error has occured while updating robot description")
+                }
+            }
         }
         catch (err: any) {
             alert.error("An error has occured while uploading an image");
         }
     }
 
-    const handleDescriptionUpdate = (data: onSaveProps) => {
-        setRobot((prev) => ({ ...prev, description: data.value }))
+    const handleDescriptionUpdate = async (data: onSaveProps) => {
+        if (isNewRobot)
+            setRobot((prev) => ({ ...prev, description: data.value }))
+        if (!isNewRobot && robot._id) {
+            try {
+                await robotApi.update(robot._id, { description: data.value })
+                setRobot((prev) => ({ ...prev, description: data.value }))
+            }
+            catch (err) {
+                alert.error("An error has occured while updating robot description")
+            }
+        }
+    }
+
+    const handleNameUpdate = async (data: onSaveProps) => {
+        if (isNewRobot)
+            setRobot((prev) => ({ ...prev, name: data.value }))
+        if (!isNewRobot && robot._id) {
+            try {
+                await robotApi.update(robot._id, { name: data.value })
+                setRobot((prev) => ({ ...prev, name: data.value }))
+            }
+            catch (err) {
+                alert.error("An error has occured while updating robot description")
+            }
+        }
     }
 
     const handleBreadcrumbsClick = () => {
-        if (newRobot) {
-            prompt("Do you want to save the robot", (confirmed: boolean) => {
+        if (isNewRobot) {
+            prompt("Do you want to save the robot", async (confirmed: boolean) => {
                 if (confirmed) {
-                    console.log("Create robot", robot)
-                    robotApi.create(activeOrganization._id, robot as ICreateRobotModel)
+                    try {
+                        await robotApi.create(activeOrganization._id, robot as ICreateRobotModel)
+                    }
+                    catch (err) {
+                        alert.error("")
+                    }
                     onBreadcrumbsClick()
                 }
                 else {
@@ -87,20 +138,49 @@ const RobotView = (props: RobotViewProps) => {
                 }
             })
         }
+        else {
+            onBreadcrumbsClick()
+        }
+    }
+
+    const handleSpeedDialClick = (action: RobotSpeedDialActions) => {
+        switch (action) {
+            case 'Remove':
+                prompt("Are you sure you want to delete this robot ?", async () => {
+                    try {
+                        robot?._id && await robotApi.deleteRobot(robot._id)
+                        onBreadcrumbsClick()
+                    }
+                    catch {
+                        alert.error("An error occured while trying to delete the robot")
+                    }
+                })
+                break;
+            case 'Add Part':
+                onSelectPart(null)
+                break;
+            case 'Add Module':
+                break;
+            case 'Share':
+                alert.info("The link to this robot has been copied to your clipboard")
+                break;
+            default:
+                break;
+        }
     }
 
     return (
         <div className={classes.root}>
             <Breadcrumbs aria-label="breadcrumb">
                 <Link underline="hover" color="inherit" onClick={handleBreadcrumbsClick}>
-                    {robot.name}
+                    {activeOrganization.name}
                 </Link>
                 <Typography color="text.primary">{title}</Typography>
             </Breadcrumbs>
             <EditText
-                name="textbox2"
                 defaultValue={robot.name}
                 inputClassName={classes.robotNameTextfield}
+                onSave={handleNameUpdate}
                 className={classes.robotNameTextfield}
             />
             <div className={classes.robotsInfos}>
@@ -124,11 +204,26 @@ const RobotView = (props: RobotViewProps) => {
                 aria-label="tabs"
             >
                 <Tab label="Parts" />
-                {!newRobot && <Tab label="Reports" />}
+                {!isNewRobot && <Tab label="Reports" />}
                 <Tab label="Modules" />
-                {!newRobot && <Tab label="History" />}
+                {!isNewRobot && <Tab label="History" />}
             </Tabs>
             {Dialog}
+            <SpeedDial
+                ariaLabel="robot action speeddial"
+                sx={{ position: 'absolute', bottom: '10%', right: '10%' }}
+                icon={<SpeedDialIcon />}
+            >
+                {robotSpeedDialActions.map((action) => (
+                    <SpeedDialAction
+                        onClick={() => handleSpeedDialClick(action.name)}
+                        key={action.name}
+                        icon={action.icon}
+                        tooltipTitle={action.name}
+
+                    />
+                ))}
+            </SpeedDial>
         </div>
     )
 }

@@ -13,6 +13,7 @@ import ClickableImageUpload from "../components/controls/imageUpload";
 import { uploadFile } from "../api/file";
 import RobotTable from "../components/Organization/RobotTable";
 import { OrganizationViewType } from "./OrganizationPage";
+import { IRobot } from "../api/models/robot.model";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -51,12 +52,12 @@ interface OrganizationViewProps {
     activeTab: number
     onOrganizationSwitch: (organizatioName: string) => void
     onUpdateOrganization: (model: Partial<OrganizationModel>) => void
-    onPageChange: (viewType: OrganizationViewType) => void
+    onSelectRobot: (robot: IRobot | null) => void
     onTabChange: (tabId: number) => void
 }
 
 const OrganizationView = (props: OrganizationViewProps) => {
-    const { user, activeOrganization, organizations, onOrganizationSwitch, onUpdateOrganization, onPageChange, activeTab, onTabChange } = props
+    const { user, activeOrganization, organizations, onOrganizationSwitch, onUpdateOrganization, activeTab, onTabChange, onSelectRobot } = props
     const [members, setMembers] = useState<UserRanked[]>([]);
     const classes = useStyles();
     const isAdmin = user ? isOrganizationUserAdmin(user, members) : false;
@@ -197,7 +198,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
                         <RobotTable
                             user={user}
                             activeOrganization={activeOrganization}
-                            onPageChange={onPageChange}
+                            onSelectRobot={onSelectRobot}
                         />
                     </>
                 )}

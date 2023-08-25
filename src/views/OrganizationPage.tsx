@@ -6,6 +6,8 @@ import { useAlert } from "../contexts/AlertContext";
 import * as organization from "../api/organization";
 import OrganizationView from "./OrganizationView";
 import RobotView from "./RobotView";
+import { IRobot, IRobotPart } from "../api/models/robot.model";
+import RobotPartView from "./RobotPartView";
 
 interface OrganizationPageProps {
     user: UserModel
@@ -13,16 +15,18 @@ interface OrganizationPageProps {
 
 export enum OrganizationViewType {
     Summary,
-    CreateRobot,
+    Robot,
     Part
 }
 
 const OrganizationPage = (props: OrganizationPageProps) => {
     const { user } = props
     const [organizations, setOrganizations] = useState<OrganizationModel[]>([])
+    const [robot, setRobot] = useState<IRobot | null>(null)
+    const [part, setPart] = useState<IRobotPart | null>(null)
     const [organizationActiveTab, setOrganizationActiveTab] = useState(0)
     const [activeOrganizationIndex, setActiveOrganizationIndex] = useState(0)
-    const viewItemStack = useStack<OrganizationViewType>(
+    const [viewItem, setViewItem] = useState<OrganizationViewType>(
         OrganizationViewType.Summary
     )
     const alert = useAlert();
@@ -56,8 +60,7 @@ const OrganizationPage = (props: OrganizationPageProps) => {
         });
     }
 
-    const currentItem = viewItemStack.peek()
-    switch (currentItem) {
+    switch (viewItem) {
         case OrganizationViewType.Summary:
             return (
                 <>
@@ -70,23 +73,45 @@ const OrganizationPage = (props: OrganizationPageProps) => {
                             onTabChange={(t) => setOrganizationActiveTab(t)}
                             onOrganizationSwitch={handleOrganizationChange}
                             onUpdateOrganization={handleUpdateOrganization}
-                            onPageChange={(page: OrganizationViewType) => viewItemStack.push(page)}
-
+                            onSelectRobot={(robot: IRobot | null) => {
+                                setRobot(robot)
+                                setViewItem(OrganizationViewType.Robot)
+                            }}
                         />
                     )}
                 </>
             )
-        case OrganizationViewType.CreateRobot:
+        case OrganizationViewType.Robot:
             return (
                 <>
                     <RobotView
                         user={user}
                         activeOrganization={organizations[activeOrganizationIndex]}
-                        title={"Create Robot"}
-                        robotModel={null}
-                        onBreadcrumbsClick={() => viewItemStack.pop()}
+                        title={robot?.name ?? "Create Robot"}
+                        robotModel={robot}
+                        onBreadcrumbsClick={() => {
+                            setRobot(null)
+                            setViewItem(OrganizationViewType.Summary)
+                        }}
+                        onSelectPart={(part: IRobotPart | null) => {
+                            setPart(part)
+                            setViewItem(OrganizationViewType.Part)
+                        }}
                     />
                 </>
+            )
+        case OrganizationViewType.Part:
+            return (
+                <RobotPartView
+                    title={part?.name ?? "New Part"}
+                    activeOrganization={organizations[activeOrganizationIndex]}
+                    robotModel={robot as IRobot}
+                    partModel={part}
+                    onBreadcrumbsClick={(view: OrganizationViewType) => {
+                        setPart(null)
+                        setViewItem(view)
+                    }}
+                />
             )
         default:
             return <>no organizations</>
