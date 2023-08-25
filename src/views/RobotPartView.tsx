@@ -2,7 +2,7 @@ import { Breadcrumbs, InputLabel, Link, MenuItem, Select, SelectChangeEvent, Tab
 import { OrganizationModel } from "../api/models/organization.model"
 import { ConnectionContextType, IRobot, IRobotPart, RobotPartCategory } from "../api/models/robot.model"
 import { makeStyles } from "@mui/styles"
-import { ChangeEvent, useEffect, useRef, useState } from "react"
+import { ChangeEvent, useRef, useState } from "react"
 import useConfirmationDialog from "../components/controls/useConfirmationDialog"
 import { useAlert } from "../contexts/AlertContext"
 import { OrganizationViewType } from "./OrganizationPage"

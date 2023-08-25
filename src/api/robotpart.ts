@@ -7,7 +7,6 @@ const create = async (robotId: string, createModel: CreateRobotPartModel) => {
     if (res.status !== 200) {
         throw new Error("Could not update the robot")
     }
-
 }
 
 const update = async (robotId: string, partId: string, updateModel: Partial<CreateRobotPartModel>) => {
@@ -16,7 +15,6 @@ const update = async (robotId: string, partId: string, updateModel: Partial<Crea
     if (res.status !== 200) {
         throw new Error("Could not update the robot")
     }
-    
 }
 
 const deleteRobotPart = async (robotId: string, partId: string) => {
