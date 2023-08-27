@@ -8,6 +8,7 @@ import {
   CreateSubscriberModel,
   CreateTopicModel,
   Ros2SystemModel,
+  UpdateSchemaTypeModel,
 } from "./models/ros2.model";
 
 const createTopic = async (
@@ -98,6 +99,7 @@ const createMessageType = async (
   if (res.status !== 200) {
     throw new Error("Could not achieve ros2 operation");
   }
+  return res.data.id as string
 };
 
 const getRos2System = async (
@@ -113,12 +115,28 @@ const getRos2System = async (
   return ros2System
 };
 
+const updateSchemaType = async (
+  robotId: string,
+  schemaType: 'publisher' | 'action' | 'service' | 'topic' | 'subscriber',
+  updateModel: UpdateSchemaTypeModel
+) => {
+  const res = await api.post(
+    `ros2/${robotId}/${schemaType}/update`,
+    updateModel
+  );
+
+  if (res.status !== 200) {
+    throw new Error("Could not achieve ros2 operation");
+  }
+  return res.data.id as string
+};
+
 const deleteTopic = async (
   robotId: string,
   partId: string,
   topicId: string
 ) => {
-  const res = await api.post(
+  const res = await api.delete(
     `ros2/${robotId}/${partId}/deleteTopic/${topicId}`
   );
 
@@ -132,7 +150,7 @@ const deletePublisher = async (
   partId: string,
   publisherId: string
 ) => {
-  const res = await api.post(
+  const res = await api.delete(
     `ros2/${robotId}/${partId}/deletePublisher/${publisherId}`
   );
 
@@ -146,7 +164,7 @@ const deleteSubscriber = async (
   partId: string,
   subscriberId: string
 ) => {
-  const res = await api.post(
+  const res = await api.delete(
     `ros2/${robotId}/${partId}/deleteSubscriber/${subscriberId}`
   );
 
@@ -160,7 +178,7 @@ const deleteAction = async (
   partId: string,
   deleteId: string
 ) => {
-  const res = await api.post(
+  const res = await api.delete(
     `ros2/${robotId}/${partId}/deleteAction/${deleteId}`
   );
 
@@ -174,7 +192,7 @@ const deleteService = async (
   partId: string,
   serviceId: string
 ) => {
-  const res = await api.post(
+  const res = await api.delete(
     `ros2/${robotId}/${partId}/deleteService/${serviceId}`
   );
 
@@ -193,6 +211,7 @@ export {
   createService,
   createSubscriber,
   getRos2System,
+  updateSchemaType,
   deleteAction,
   deletePublisher,
   deleteService,

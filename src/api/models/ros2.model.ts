@@ -1,3 +1,4 @@
+import { IRos2Action, IRos2ActionMessage, IRos2Publisher, IRos2Service, IRos2ServiceMessage, IRos2Subscriber, IRos2Topic } from "neutron-core"
 import { IDBObject } from "./common"
 
 export interface CreateTopicModel {
@@ -27,8 +28,17 @@ export interface CreateServiceModel {
   }
 
   export interface CreateMessageTypeModel {
-    robotId: string
-    partId: string
+    message?: Omit<IMessageType, "_id">
+    service?: Omit<IRos2ServiceMessage, "_id">,
+    action?: Omit<IRos2ActionMessage, "_id">
+  }
+
+  export interface UpdateSchemaTypeModel {
+    publisher?: IRos2Publisher;
+    subscriber?: IRos2Subscriber;
+    topic?: IRos2Topic;
+    action?: IRos2Action;
+    service: IRos2Service
   }
 
   export interface Ros2SystemModel extends IDBObject {

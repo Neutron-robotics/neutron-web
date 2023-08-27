@@ -73,9 +73,10 @@ export const toPartSystem = (part: IRobotPart, system: IRos2System) => {
     name: "",
     robotId: system.robotId,
     _id: v4(),
-    topics: system.topics.filter(
-      (e) => part.publishers.includes(e._id) || part.subscribers.includes(e._id)
-    ),
+    topics: system.topics.reduce((acc: IRos2Topic[], cur: IRos2Topic) => {
+      if (!acc.find((e) => e._id === cur._id)) acc.push(cur);
+      return acc;
+    }, [] as IRos2Topic[]),
     publishers: system.publishers.filter((e) =>
       part.publishers.includes(e._id)
     ),
@@ -101,7 +102,7 @@ export const toPartSystem = (part: IRobotPart, system: IRos2System) => {
 
   partSystem.messageTypes = partSystem.topics.reduce<IRos2Message[]>(
     (acc, cur) => {
-      if (!acc.includes(cur.messageType)) {
+      if (!acc.find(a => a._id === cur.messageType._id)) {
         acc.push(cur.messageType);
       }
       return acc;
@@ -118,7 +119,6 @@ export const toPartSystem = (part: IRobotPart, system: IRos2System) => {
     },
     []
   );
-
   return partSystem;
 };
 
