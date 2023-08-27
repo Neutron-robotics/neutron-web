@@ -1,3 +1,4 @@
+import { IRos2System } from "../utils/ros2";
 import api from "./api";
 import {
   CreateActionModel,
@@ -6,6 +7,7 @@ import {
   CreateServiceModel,
   CreateSubscriberModel,
   CreateTopicModel,
+  Ros2SystemModel,
 } from "./models/ros2.model";
 
 const createTopic = async (
@@ -100,14 +102,15 @@ const createMessageType = async (
 
 const getRos2System = async (
   robotId: string,
-  partId: string,
-  createModel: CreateServiceModel
 ) => {
   const res = await api.get(`ros2/${robotId}`);
 
   if (res.status !== 200) {
     throw new Error("Could not achieve ros2 operation");
   }
+
+  const ros2System = res.data.model as IRos2System
+  return ros2System
 };
 
 const deleteTopic = async (
@@ -179,6 +182,8 @@ const deleteService = async (
     throw new Error("Could not achieve ros2 operation");
   }
 };
+
+
 
 export {
   createTopic,

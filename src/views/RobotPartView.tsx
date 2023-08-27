@@ -12,6 +12,8 @@ import ClickableImageUpload from "../components/controls/imageUpload"
 import { uploadFile } from "../api/file"
 import { capitalize } from "../utils/string"
 import { CreateRobotPartModel } from "../api/models/part.model"
+import Ros2Table from "../components/Robot/Ros2Table"
+import { IRos2System, toPartSystem } from "../utils/ros2"
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -58,6 +60,11 @@ const useStyles = makeStyles(() => ({
     },
     ros: {
         paddingTop: '10px'
+    },
+    tableContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        paddingTop: '10px'
     }
 }))
 
@@ -65,19 +72,22 @@ interface RobotPartViewProps {
     activeOrganization: OrganizationModel
     title: string
     robotModel: IRobot
+    ros2System: IRos2System | null
     partModel: IRobotPart | null
     onBreadcrumbsClick: (view: OrganizationViewType) => void
     onPartUpdate: (part: IRobotPart) => void
 }
 
 const RobotPartView = (props: RobotPartViewProps) => {
-    const { activeOrganization, title, robotModel, partModel, onBreadcrumbsClick, onPartUpdate } = props
+    const { activeOrganization, title, robotModel, partModel, ros2System, onBreadcrumbsClick, onPartUpdate } = props
     const [activeTab, setActiveTab] = useState(0);
     const isNewPart = useRef(partModel === null)
     const [part, setPart] = useState<Partial<IRobotPart>>(partModel ?? { name: "New Part", type: 'ros2', category: RobotPartCategory.Actuator })
     const alert = useAlert()
     const [Dialog, prompt] = useConfirmationDialog()
     const classes = useStyles()
+
+    const ros2PartSystem = ros2System && partModel && toPartSystem(partModel, ros2System)
 
     const handleRobotImageUpload = async (file: File) => {
         try {
@@ -272,9 +282,13 @@ const RobotPartView = (props: RobotPartViewProps) => {
                 <Tab label="Topic" />
                 <Tab label="Publisher" />
                 <Tab label="Subscribers" />
+                <Tab label="Services" />
                 <Tab label="Actions" />
                 <Tab label="Adapters" />
             </Tabs>
+            <div className={classes.tableContainer}>
+                {partModel && ros2System && ros2PartSystem && <Ros2Table ros2SystemModel={ros2System} ros2PartModel={ros2PartSystem} />}
+            </div>
             {Dialog}
         </div>
     )
