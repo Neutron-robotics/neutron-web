@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { IDBObject } from "../api/models/common";
-import { IRobotPart } from "../api/models/robot.model";
+import { IRobot, IRobotPart } from "../api/models/robot.model";
 
 export interface IRos2System extends IDBObject {
   name: string;
@@ -66,6 +66,17 @@ interface IRos2Publisher extends IDBObject {
 interface IRos2Action extends IDBObject {
   name: string;
   actionType: IRos2ActionMessage;
+}
+
+export const cacheRos2System = (robot: IRobot , system: IRos2System) => {
+  for (const part of robot.parts) {
+    const partSystem = toPartSystem(part, system)
+
+    localStorage.setItem(`topics-${robot._id}-${part._id}`, JSON.stringify(partSystem.topics));
+    localStorage.setItem(`messageTypes-${robot._id}-${part._id}`, JSON.stringify(partSystem.messageTypes));
+    // localStorage.setItem(`topics-${robot._id}-${part._id}`, JSON.stringify(partSystem.topics));
+    // localStorage.setItem(`topics-${robot._id}-${part._id}`, JSON.stringify(partSystem.topics));
+  }
 }
 
 export const toPartSystem = (part: IRobotPart, system: IRos2System) => {

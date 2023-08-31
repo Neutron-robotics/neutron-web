@@ -8,7 +8,7 @@ import RobotView from "./RobotView";
 import { IRobot, IRobotPart } from "../api/models/robot.model";
 import RobotPartView from "./RobotPartView";
 import * as ros2Api from '../api/ros2'
-import { IRos2System } from "../utils/ros2";
+import { cacheRos2System } from "../utils/ros2";
 
 interface OrganizationPageProps {
     user: UserModel
@@ -25,15 +25,12 @@ const OrganizationPage = (props: OrganizationPageProps) => {
     const [organizations, setOrganizations] = useState<OrganizationModel[]>([])
     const [robot, setRobot] = useState<IRobot | null>(null)
     const [part, setPart] = useState<IRobotPart | null>(null)
-    const [ros2System, setRos2System] = useState<IRos2System | null>(null)
     const [organizationActiveTab, setOrganizationActiveTab] = useState(0)
     const [activeOrganizationIndex, setActiveOrganizationIndex] = useState(0)
     const [viewItem, setViewItem] = useState<OrganizationViewType>(
         OrganizationViewType.Summary
     )
     const alert = useAlert();
-
-
 
     useEffect(() => {
         organization
@@ -64,6 +61,21 @@ const OrganizationPage = (props: OrganizationPageProps) => {
         });
     }
 
+    const handleOnSelectRobot = async (robot: IRobot | null) => {
+        if (!robot) {
+            return
+        }
+        try {
+            const ros2System = await ros2Api.getRos2System(robot._id)
+            cacheRos2System(robot, ros2System)
+            setRobot(robot)
+            setViewItem(OrganizationViewType.Robot)
+        }
+        catch {
+            alert.warn("An error has occured while fetching Ros2System")
+        }
+    }
+
     const handlePartUpdate = (part: IRobotPart) => {
         if (robot === null)
             return
@@ -92,21 +104,7 @@ const OrganizationPage = (props: OrganizationPageProps) => {
                             onTabChange={(t) => setOrganizationActiveTab(t)}
                             onOrganizationSwitch={handleOrganizationChange}
                             onUpdateOrganization={handleUpdateOrganization}
-                            onSelectRobot={(robot: IRobot | null) => {
-                                if (robot)
-                                    ros2Api.getRos2System(robot._id)
-                                        .then((ros2SystemModel) => {
-                                            console.log("system", ros2SystemModel)
-                                            setRos2System(ros2SystemModel)
-                                        })
-                                        .catch(() => {
-                                            alert.warn("An error has occured while fetching Ros2System")
-                                        })
-                                else
-                                    setRos2System(null)
-                                setRobot(robot)
-                                setViewItem(OrganizationViewType.Robot)
-                            }}
+                            onSelectRobot={handleOnSelectRobot}
                         />
                     )}
                 </>
@@ -142,7 +140,6 @@ const OrganizationPage = (props: OrganizationPageProps) => {
                         setPart(null)
                         setViewItem(view)
                     }}
-                    ros2System={ros2System}
                 />
             )
         default:

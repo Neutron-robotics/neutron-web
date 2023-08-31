@@ -1,5 +1,4 @@
 import { Box, Button, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { IMessageType } from "../../api/models/ros2.model";
 import {
     GridRowsProp,
     GridRowModesModel,
@@ -23,36 +22,33 @@ import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import { useEffect, useState } from "react";
 import { v4 } from "uuid";
-import {
-    IRos2Message,
-    IRos2PartSystem,
-    IRos2System,
-    IRos2Topic,
-} from "../../utils/ros2";
 import ButtonDialog from "../controls/ButtonDialog";
 import AddMessageType from "./AddMessageType";
 import * as ros2Api from '../../api/ros2'
 import { useAlert } from "../../contexts/AlertContext";
+import useCachedState from "../../utils/useCachedState";
+import { IMessageType, IRos2Message, IRos2Topic } from "neutron-core";
 
 interface IRos2TableProps {
-    ros2SystemModel: IRos2System;
-    ros2PartModel: IRos2PartSystem;
+    robotId: string
+    partId: string
 }
 
 interface RenderTypeEditProps extends GridRenderCellParams<any, string> {
-    ros2Part: IRos2PartSystem
+    messageTypes: IMessageType[]
 }
 
 interface RenderTypeProps extends GridRenderCellParams<any, string> {
-    ros2Part: IRos2PartSystem
+    messageTypes: IMessageType[]
 }
 
 const RenderTypeEdit = (props: RenderTypeEditProps) => {
-    const { id, field, ros2Part } = props;
+    const { id, field, messageTypes } = props;
     const apiRef = useGridApiContext();
 
     useEffect(() => {
-        apiRef.current.setEditCellValue({ id, field, value: ros2Part.messageTypes.length ? ros2Part.messageTypes[0]._id : '' });
+        apiRef.current.setEditCellValue({ id, field, value: messageTypes.length ? messageTypes[0]._id : '' });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     function handleSelectChange(event: SelectChangeEvent<string>): void {
@@ -60,8 +56,8 @@ const RenderTypeEdit = (props: RenderTypeEditProps) => {
     }
 
     return (
-        <Select onChange={handleSelectChange} defaultValue={ros2Part.messageTypes.length ? ros2Part.messageTypes[0]._id : ''} fullWidth>
-            {ros2Part.messageTypes.map((e) => (
+        <Select onChange={handleSelectChange} defaultValue={messageTypes.length ? messageTypes[0]._id : ''} fullWidth>
+            {messageTypes.map((e) => (
                 <MenuItem key={e._id} value={e._id}>
                     {e.name}
                 </MenuItem>
@@ -71,23 +67,26 @@ const RenderTypeEdit = (props: RenderTypeEditProps) => {
 };
 
 const RenderType = (props: RenderTypeProps) => {
-    const { ros2Part, value } = props;
+    const { messageTypes, value } = props;
 
     return (
         <div>
-            {ros2Part.messageTypes.find(e => e._id === value)?.name ?? 'Unknown'}
+            {messageTypes.find(e => e._id === value)?.name ?? 'Unknown'}
         </div>
     )
 }
 
 const Ros2Table = (props: IRos2TableProps) => {
-    const { ros2PartModel, ros2SystemModel } = props;
-    const [ros2Part, setRos2Part] = useState(ros2PartModel);
-
-    const [rows, setRows] = useState<IRos2Topic[]>(ros2Part.topics.map(e => ({ ...e, id: e._id, type: e.messageType._id })));
+    const { robotId, partId } = props
+    const [messageTypes, setMessageTypes] = useCachedState<IRos2Message[]>(`messageTypes-${robotId}-${partId}`, [])
+    const [topics, setTopics] = useCachedState<IRos2Topic[]>(`topics-${robotId}-${partId}`, [])
+    const [rows, setRows] = useState<IRos2Topic[]>([]);
     const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
     const alert = useAlert()
 
+    useEffect(() => {
+        setRows(topics.map(e => ({ ...e, id: e._id, type: e.messageType._id })))
+    }, [topics])
 
     const handleRowEditStop: GridEventListener<"rowEditStop"> = (
         params,
@@ -99,25 +98,19 @@ const Ros2Table = (props: IRos2TableProps) => {
     };
 
     const handleCreateTypeClick = async (data: IRos2Message) => {
-        if (ros2Part.messageTypes.includes(data)) {
+        if (messageTypes.includes(data)) {
             alert.warn("The message already exist...")
         }
 
         try {
-            const id = await ros2Api.createMessageType(ros2SystemModel.robotId, ros2Part.partId, {
+            const id = await ros2Api.createMessageType(robotId, partId, {
                 message: {
                     name: data.name,
                     fields: data.fields
                 }
             })
             data._id = id
-            setRos2Part(e => ({
-                ...e,
-                messageTypes: [
-                    ...e.messageTypes,
-                    data
-                ]
-            }))
+            setMessageTypes([...messageTypes, data])
         }
         catch {
             alert.error("An error has occured while creating a message type")
@@ -125,7 +118,6 @@ const Ros2Table = (props: IRos2TableProps) => {
     };
 
     const handleEditClick = (id: GridRowId) => () => {
-        console.log("Editing ", id, rowModesModel[id]);
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
     };
 
@@ -134,10 +126,9 @@ const Ros2Table = (props: IRos2TableProps) => {
     }
 
     const handleDeleteClick = (id: GridRowId) => async () => {
-        console.log("delete", id, rows.find((row) => (row as any).id === id))
         try {
-            await ros2Api.deleteTopic(ros2SystemModel.robotId, ros2Part.partId, id as string)
-            setRows(rows.filter((row) => (row as any).id !== id));
+            await ros2Api.deleteTopic(robotId, partId, id as string)
+            setTopics(topics.filter(e => e._id !== id))
         }
         catch {
             alert.error("An error has occured while deleting a type")
@@ -159,13 +150,20 @@ const Ros2Table = (props: IRos2TableProps) => {
 
     const processRowUpdate = async (newRow: GridRowModel) => {
         const updatedRow = { ...newRow, isNew: false } as any;
+        const messageType = messageTypes.find(e => e._id === updatedRow.type) as IMessageType
         if (newRow.isNew) {
             try {
-                console.log('create')
-                await ros2Api.createTopic(ros2SystemModel.robotId, ros2Part.partId, {
+                const topicId = await ros2Api.createTopic(robotId, partId, {
                     name: updatedRow.name,
                     messageTypeId: updatedRow.type
                 })
+                const topic: IRos2Topic = {
+                    _id: topicId,
+                    name: updatedRow.name,
+                    messageType
+
+                }
+                setTopics([...topics, topic])
             }
             catch {
                 alert.error("Failed to create a topic")
@@ -174,8 +172,7 @@ const Ros2Table = (props: IRos2TableProps) => {
         }
         else {
             try {
-                console.log('update')
-                await ros2Api.updateSchemaType(ros2SystemModel.robotId, 'topic', {
+                await ros2Api.updateSchemaType(robotId, 'topic', {
                     topic: {
                         _id: updatedRow.id,
                         messageType: {
@@ -184,14 +181,17 @@ const Ros2Table = (props: IRos2TableProps) => {
                         name: updatedRow.name,
                     }
                 } as any)
+                const updatedTopic: IRos2Topic = {
+                    _id: updatedRow.id as string,
+                    name: updatedRow.name as string,
+                    messageType
+                }
+                setTopics(topics.map(e => e._id === updatedTopic._id ? updatedTopic : e))
             }
             catch {
                 alert.error("Failed to update a topic")
             }
         }
-        setRows(
-            rows.map((row) => ((row as any).id === newRow.id ? updatedRow : row))
-        );
         return updatedRow;
     };
 
@@ -214,10 +214,10 @@ const Ros2Table = (props: IRos2TableProps) => {
             flex: 1,
             editable: true,
             renderEditCell: (params: GridRenderEditCellParams) => (
-                <RenderTypeEdit {...params} ros2Part={ros2Part} />
+                <RenderTypeEdit {...params} messageTypes={messageTypes} />
             ),
             renderCell: (params: GridRenderCellParams) => (
-                <RenderType {...params} ros2Part={ros2Part} />
+                <RenderType {...params} messageTypes={messageTypes} />
             )
         },
         {
@@ -276,7 +276,6 @@ const Ros2Table = (props: IRos2TableProps) => {
         <Box
             sx={{
                 height: 400,
-                width: "80%",
                 "& .actions": {
                     color: "text.secondary",
                 },

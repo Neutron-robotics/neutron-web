@@ -1,19 +1,36 @@
-import { Breadcrumbs, InputLabel, Link, MenuItem, Select, SelectChangeEvent, Tab, Tabs, TextField, Typography } from "@mui/material"
-import { OrganizationModel } from "../api/models/organization.model"
-import { ConnectionContextType, IRobot, IRobotPart, RobotPartCategory } from "../api/models/robot.model"
-import { makeStyles } from "@mui/styles"
-import { ChangeEvent, useRef, useState } from "react"
-import useConfirmationDialog from "../components/controls/useConfirmationDialog"
-import { useAlert } from "../contexts/AlertContext"
-import { OrganizationViewType } from "./OrganizationPage"
-import { EditText, onSaveProps } from "react-edit-text"
-import * as partApi from '../api/robotpart'
-import ClickableImageUpload from "../components/controls/imageUpload"
-import { uploadFile } from "../api/file"
-import { capitalize } from "../utils/string"
-import { CreateRobotPartModel } from "../api/models/part.model"
-import Ros2Table from "../components/Robot/Ros2Table"
-import { IRos2System, toPartSystem } from "../utils/ros2"
+import {
+    Breadcrumbs,
+    InputLabel,
+    Link,
+    MenuItem,
+    Select,
+    SelectChangeEvent,
+    Slide,
+    Tab,
+    Tabs,
+    TextField,
+    Typography,
+} from "@mui/material";
+import { OrganizationModel } from "../api/models/organization.model";
+import {
+    ConnectionContextType,
+    IRobot,
+    IRobotPart,
+    RobotPartCategory,
+} from "../api/models/robot.model";
+import { makeStyles } from "@mui/styles";
+import { ChangeEvent, useRef, useState } from "react";
+import useConfirmationDialog from "../components/controls/useConfirmationDialog";
+import { useAlert } from "../contexts/AlertContext";
+import { OrganizationViewType } from "./OrganizationPage";
+import { EditText, onSaveProps } from "react-edit-text";
+import * as partApi from "../api/robotpart";
+import ClickableImageUpload from "../components/controls/imageUpload";
+import { uploadFile } from "../api/file";
+import { capitalize } from "../utils/string";
+import { CreateRobotPartModel } from "../api/models/part.model";
+import Ros2Table from "../components/Robot/Ros2Table";
+import useStateWithPrevious from "../utils/useStateWithPrevious";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -22,7 +39,7 @@ const useStyles = makeStyles(() => ({
     },
     partInfos: {
         display: "flex",
-        justifyContent: 'space-between',
+        justifyContent: "space-between",
         "& img": {
             maxWidth: "150px",
             marginRight: "40px",
@@ -30,11 +47,11 @@ const useStyles = makeStyles(() => ({
             height: "100%",
         },
         "& button": {
-            maxWidth: '150px',
-            marginRight: '10px',
-            borderRadius: '20px',
+            maxWidth: "150px",
+            marginRight: "10px",
+            borderRadius: "20px",
             "&:hover": {
-                background: '#f7f7f7'
+                background: "#f7f7f7",
             },
         },
         "& textarea": {
@@ -48,162 +65,196 @@ const useStyles = makeStyles(() => ({
         maxWidth: "300px",
     },
     partInfosRightPanel: {
-        width: '200px'
+        width: "200px",
     },
     textfield: {
-        marginBottom: '10px !important'
+        marginBottom: "10px !important",
     },
     partSpecifics: {
-        display: 'flex',
-        flexDirection: 'row',
-        gap: '10%'
+        display: "flex",
+        flexDirection: "row",
+        gap: "10%",
     },
     ros: {
-        paddingTop: '10px'
+        paddingTop: "10px",
     },
     tableContainer: {
-        display: 'flex',
-        justifyContent: 'center',
-        paddingTop: '10px'
-    }
-}))
+        display: "flex",
+        justifyContent: "center",
+        paddingTop: "10px",
+    },
+}));
 
 interface RobotPartViewProps {
-    activeOrganization: OrganizationModel
-    title: string
-    robotModel: IRobot
-    ros2System: IRos2System | null
-    partModel: IRobotPart | null
-    onBreadcrumbsClick: (view: OrganizationViewType) => void
-    onPartUpdate: (part: IRobotPart) => void
+    activeOrganization: OrganizationModel;
+    title: string;
+    robotModel: IRobot;
+    partModel: IRobotPart | null;
+    onBreadcrumbsClick: (view: OrganizationViewType) => void;
+    onPartUpdate: (part: IRobotPart) => void;
 }
 
 const RobotPartView = (props: RobotPartViewProps) => {
-    const { activeOrganization, title, robotModel, partModel, ros2System, onBreadcrumbsClick, onPartUpdate } = props
-    const [activeTab, setActiveTab] = useState(0);
-    const isNewPart = useRef(partModel === null)
-    const [part, setPart] = useState<Partial<IRobotPart>>(partModel ?? { name: "New Part", type: 'ros2', category: RobotPartCategory.Actuator })
-    const alert = useAlert()
-    const [Dialog, prompt] = useConfirmationDialog()
-    const classes = useStyles()
-
-    const ros2PartSystem = ros2System && partModel && toPartSystem(partModel, ros2System)
+    const {
+        activeOrganization,
+        title,
+        robotModel,
+        partModel,
+        onBreadcrumbsClick,
+        onPartUpdate,
+    } = props;
+    const [activeTab, previousTab, setActiveTab] = useStateWithPrevious(0);
+    const isNewPart = useRef(partModel === null);
+    const [part, setPart] = useState<Partial<IRobotPart>>(
+        partModel ?? {
+            name: "New Part",
+            type: "ros2",
+            category: RobotPartCategory.Actuator,
+        }
+    );
+    const alert = useAlert();
+    const [Dialog, prompt] = useConfirmationDialog();
+    const classes = useStyles();
 
     const handleRobotImageUpload = async (file: File) => {
         try {
-            const imgUrl = await uploadFile(file)
-            if (isNewPart.current)
-                setPart((prev => ({ ...prev, imgUrl })))
+            const imgUrl = await uploadFile(file);
+            if (isNewPart.current) setPart((prev) => ({ ...prev, imgUrl }));
             else if (!isNewPart.current && part._id) {
-                await updatePart({ imgUrl })
+                await updatePart({ imgUrl });
             }
-        }
-        catch (err: any) {
+        } catch (err: any) {
             alert.error("An error has occured while uploading an image");
         }
-    }
+    };
 
     const updatePart = async (updateModel: Partial<CreateRobotPartModel>) => {
-        await partApi.update(robotModel._id, part._id!, updateModel)
-        onPartUpdate({ ...part, ...updateModel } as IRobotPart)
-        setPart((prev) => ({ ...prev, ...updateModel }))
-    }
+        await partApi.update(robotModel._id, part._id!, updateModel);
+        onPartUpdate({ ...part, ...updateModel } as IRobotPart);
+        setPart((prev) => ({ ...prev, ...updateModel }));
+    };
 
     const handleNameUpdate = async (data: onSaveProps) => {
-        if (isNewPart.current)
-            setPart((prev) => ({ ...prev, name: data.value }))
+        if (isNewPart.current) setPart((prev) => ({ ...prev, name: data.value }));
         if (!isNewPart.current && part._id) {
             try {
-                await updatePart({ name: data.value })
-            }
-            catch (err) {
-                alert.error("An error has occured while updating part name")
+                await updatePart({ name: data.value });
+            } catch (err) {
+                alert.error("An error has occured while updating part name");
             }
         }
-    }
+    };
 
     const handleTypeUpdate = async (event: SelectChangeEvent<string>) => {
         if (isNewPart.current)
-            setPart((prev) => ({ ...prev, type: event.target.value }))
+            setPart((prev) => ({ ...prev, type: event.target.value }));
         if (!isNewPart.current && part._id) {
             try {
-                await updatePart({ type: event.target.value })
-            }
-            catch (err) {
-                alert.error("An error has occured while updating part type")
+                await updatePart({ type: event.target.value });
+            } catch (err) {
+                alert.error("An error has occured while updating part type");
             }
         }
-    }
+    };
 
     const handleCategoryUpdate = async (event: SelectChangeEvent<string>) => {
         if (isNewPart.current)
-            setPart((prev) => ({ ...prev, category: event.target.value as RobotPartCategory }))
+            setPart((prev) => ({
+                ...prev,
+                category: event.target.value as RobotPartCategory,
+            }));
         if (!isNewPart.current && part._id) {
             try {
-                await updatePart({ category: event.target.value as RobotPartCategory })
-            }
-            catch (err) {
-                alert.error("An error has occured while updating robot description")
+                await updatePart({ category: event.target.value as RobotPartCategory });
+            } catch (err) {
+                alert.error("An error has occured while updating robot description");
             }
         }
-    }
+    };
 
-    const handleRos2PackageUpdate = async (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        if (isNewPart.current) { }
-        setPart((prev) => ({ ...prev, ros2Package: event.target.value as RobotPartCategory }))
+    const handleRos2PackageUpdate = async (
+        event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+        if (isNewPart.current) {
+        }
+        setPart((prev) => ({
+            ...prev,
+            ros2Package: event.target.value as RobotPartCategory,
+        }));
         if (!isNewPart.current && part._id) {
             try {
-                await updatePart({ ros2Package: event.target.value })
-            }
-            catch (err) {
-                alert.error("An error has occured while updating robot description")
+                await updatePart({ ros2Package: event.target.value });
+            } catch (err) {
+                alert.error("An error has occured while updating robot description");
             }
         }
-    }
+    };
 
-    const handleRos2NodeUpdate = async (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleRos2NodeUpdate = async (
+        event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         if (isNewPart.current)
-            setPart((prev) => ({ ...prev, ros2Node: event.target.value as RobotPartCategory }))
+            setPart((prev) => ({
+                ...prev,
+                ros2Node: event.target.value as RobotPartCategory,
+            }));
         if (!isNewPart.current && part._id) {
             try {
-                await updatePart({ ros2Node: event.target.value })
-            }
-            catch (err) {
-                alert.error("An error has occured while updating robot description")
+                await updatePart({ ros2Node: event.target.value });
+            } catch (err) {
+                alert.error("An error has occured while updating robot description");
             }
         }
-    }
+    };
 
     const handleBreadcrumbsClick = (view: OrganizationViewType) => {
         if (isNewPart.current) {
             prompt("Do you want to save the part", async (confirmed: boolean) => {
                 if (confirmed) {
                     try {
-                        await partApi.create(robotModel._id, part as CreateRobotPartModel)
-                        onPartUpdate({ ...part } as IRobotPart)
+                        await partApi.create(robotModel._id, part as CreateRobotPartModel);
+                        onPartUpdate({ ...part } as IRobotPart);
+                    } catch (err) {
+                        alert.error("");
                     }
-                    catch (err) {
-                        alert.error("")
-                    }
-                    onBreadcrumbsClick(view)
+                    onBreadcrumbsClick(view);
+                } else {
+                    onBreadcrumbsClick(view);
                 }
-                else {
-                    onBreadcrumbsClick(view)
-                }
-            })
+            });
+        } else {
+            onBreadcrumbsClick(view);
+        }
+    };
+
+    const computePlacement = (active: boolean) => {
+        if (activeTab > previousTab) {
+            if (active)
+                return 'left'
+            return 'right'
         }
         else {
-            onBreadcrumbsClick(view)
+            if (active)
+                return 'right'
+            return 'left'
         }
     }
 
     return (
         <div className={classes.root}>
             <Breadcrumbs aria-label="breadcrumb">
-                <Link underline="hover" color="inherit" onClick={() => handleBreadcrumbsClick(OrganizationViewType.Summary)}>
+                <Link
+                    underline="hover"
+                    color="inherit"
+                    onClick={() => handleBreadcrumbsClick(OrganizationViewType.Summary)}
+                >
                     {activeOrganization.name}
                 </Link>
-                <Link underline="hover" color="inherit" onClick={() => handleBreadcrumbsClick(OrganizationViewType.Robot)}>
+                <Link
+                    underline="hover"
+                    color="inherit"
+                    onClick={() => handleBreadcrumbsClick(OrganizationViewType.Robot)}
+                >
                     {robotModel.name}
                 </Link>
                 <Typography color="text.primary">{title}</Typography>
@@ -232,7 +283,9 @@ const RobotPartView = (props: RobotPartViewProps) => {
                     >
                         <MenuItem value={ConnectionContextType.Ros2}>ROS2</MenuItem>
                         <MenuItem value={ConnectionContextType.Tcp}>TCP</MenuItem>
-                        <MenuItem value={ConnectionContextType.WebSocket}>WebSocket</MenuItem>
+                        <MenuItem value={ConnectionContextType.WebSocket}>
+                            WebSocket
+                        </MenuItem>
                     </Select>
                     <InputLabel>Category</InputLabel>
                     <Select
@@ -273,25 +326,69 @@ const RobotPartView = (props: RobotPartViewProps) => {
                     <span>{capitalize(part.category as string)}</span>
                 </div>
             </div>
-            <Tabs
-                centered
-                value={activeTab}
-                onChange={(_, v) => setActiveTab(v)}
-                aria-label="tabs"
-            >
-                <Tab label="Topic" />
-                <Tab label="Publisher" />
-                <Tab label="Subscribers" />
-                <Tab label="Services" />
-                <Tab label="Actions" />
-                <Tab label="Adapters" />
-            </Tabs>
-            <div className={classes.tableContainer}>
-                {partModel && ros2System && ros2PartSystem && <Ros2Table ros2SystemModel={ros2System} ros2PartModel={ros2PartSystem} />}
-            </div>
+            {!isNewPart.current && (
+                <>
+                    <Tabs
+                        centered
+                        value={activeTab}
+                        onChange={(_, v) => setActiveTab(v)}
+                        aria-label="tabs"
+                    >
+                        <Tab label="Topic" />
+                        <Tab label="Publisher" />
+                        <Tab label="Subscribers" />
+                        <Tab label="Services" />
+                        <Tab label="Actions" />
+                        <Tab label="Adapters" />
+                    </Tabs>
+                    <div className={classes.tableContainer}>
+                        <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 0)} in={activeTab === 0}>
+                            <div style={{ width: '90%' }}>
+                                <Ros2Table
+                                    robotId={robotModel._id}
+                                    partId={part._id as string}
+                                />
+                            </div>
+                        </Slide>
+                        <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 1)} in={activeTab === 1}>
+                            <div style={{ width: '90%', position: 'absolute' }}>
+                                <Ros2Table
+                                    robotId={robotModel._id}
+                                    partId={part._id as string}
+                                />
+                            </div>
+                        </Slide>
+                        <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 2)} in={activeTab === 2}>
+                            <div style={{ width: '90%', position: 'absolute' }}>
+                                <Ros2Table
+                                    robotId={robotModel._id}
+                                    partId={part._id as string}
+                                />
+                            </div>
+                        </Slide>
+                        <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 3)} in={activeTab === 3}>
+                            <div style={{ width: '90%', position: 'absolute' }}>
+                                <Ros2Table
+                                    robotId={robotModel._id}
+                                    partId={part._id as string}
+                                />
+                            </div>
+                        </Slide>
+                        <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 4)} in={activeTab === 4}>
+                            <div style={{ width: '90%', position: 'absolute' }}>
+                                <Ros2Table
+                                    robotId={robotModel._id}
+                                    partId={part._id as string}
+                                />
+                            </div>
+                        </Slide>
+                    </div>
+                </>
+            )}
+
             {Dialog}
         </div>
-    )
-}
+    );
+};
 
-export default RobotPartView
+export default RobotPartView;

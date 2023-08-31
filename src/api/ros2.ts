@@ -7,7 +7,6 @@ import {
   CreateServiceModel,
   CreateSubscriberModel,
   CreateTopicModel,
-  Ros2SystemModel,
   UpdateSchemaTypeModel,
 } from "./models/ros2.model";
 
@@ -15,7 +14,7 @@ const createTopic = async (
   robotId: string,
   partId: string,
   createModel: CreateTopicModel
-) => {
+): Promise<string> => {
   const res = await api.post(
     `ros2/${robotId}/${partId}/createTopic`,
     createModel
@@ -24,6 +23,7 @@ const createTopic = async (
   if (res.status !== 200) {
     throw new Error("Could not achieve ros2 operation");
   }
+  return res.data.id
 };
 
 const createPublisher = async (
