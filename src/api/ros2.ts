@@ -1,4 +1,4 @@
-import { IRos2System } from "../utils/ros2";
+import { IRos2System } from "neutron-core";
 import api from "./api";
 import {
   CreateActionModel,
@@ -30,7 +30,7 @@ const createPublisher = async (
   robotId: string,
   partId: string,
   createModel: CreatePublisherModel
-) => {
+): Promise<string> => {
   const res = await api.post(
     `ros2/${robotId}/${partId}/createPublisher`,
     createModel
@@ -39,13 +39,15 @@ const createPublisher = async (
   if (res.status !== 200) {
     throw new Error("Could not achieve ros2 operation");
   }
+
+  return res.data.id
 };
 
 const createSubscriber = async (
   robotId: string,
   partId: string,
   createModel: CreateSubscriberModel
-) => {
+): Promise<string> => {
   const res = await api.post(
     `ros2/${robotId}/${partId}/createSubscriber`,
     createModel
@@ -54,13 +56,15 @@ const createSubscriber = async (
   if (res.status !== 200) {
     throw new Error("Could not achieve ros2 operation");
   }
+
+  return res.data.id
 };
 
 const createAction = async (
   robotId: string,
   partId: string,
   createModel: CreateActionModel
-) => {
+): Promise<string> => {
   const res = await api.post(
     `ros2/${robotId}/${partId}/createAction`,
     createModel
@@ -69,13 +73,15 @@ const createAction = async (
   if (res.status !== 200) {
     throw new Error("Could not achieve ros2 operation");
   }
+
+  return res.data.id
 };
 
 const createService = async (
   robotId: string,
   partId: string,
   createModel: CreateServiceModel
-) => {
+): Promise<string> => {
   const res = await api.post(
     `ros2/${robotId}/${partId}/createService`,
     createModel
@@ -84,6 +90,8 @@ const createService = async (
   if (res.status !== 200) {
     throw new Error("Could not achieve ros2 operation");
   }
+
+  return res.data.id
 };
 
 const createMessageType = async (

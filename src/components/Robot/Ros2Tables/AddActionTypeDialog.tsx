@@ -1,10 +1,9 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Select, SelectChangeEvent, TextField, TextareaAutosize } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { ChangeEvent, useRef, useState } from "react";
-import { OrganizationPermissions } from "../../utils/organization";
-import { capitalize } from "../../utils/string";
 import { makeStyles } from "@mui/styles"
-import { IRos2Field, parseRos2MessageContent } from "../../utils/ros2";
+import { parseRos2ActionMessageContent } from "../../../utils/ros2";
 import { v4 } from "uuid";
+import { IRos2ActionMessage } from "neutron-core";
 
 const useStyles = makeStyles(() => ({
     textfield: {
@@ -34,20 +33,26 @@ const useStyles = makeStyles(() => ({
 }))
 
 
-export interface AddMessageTypeProps {
+export interface AddServiceTypeDialogProps {
     open: boolean;
     title?: string
     onClose: () => void;
     onConfirm: (data: any) => void;
 }
 
-function AddMessageType(props: AddMessageTypeProps) {
+function AddServiceTypeDialog(props: AddServiceTypeDialogProps) {
     const { title, onClose, onConfirm, open, ...other } = props;
     const radioGroupRef = useRef<HTMLElement>(null);
-    const [name, setName] = useState<string>("")
-    const [fields, setFields] = useState<IRos2Field[]>([])
+    const [actionType, setActionType] = useState<IRos2ActionMessage>({
+        _id: v4(),
+        name: "",
+        goal: [],
+        feedback: [],
+        result: []
+    })
     const classes = useStyles()
     const [error, setError] = useState(false)
+    const isActionDefined = actionType.goal.length > 0 || actionType.feedback.length > 0 || actionType.result.length > 0
 
     const handleEntering = () => {
         if (radioGroupRef.current != null) {
@@ -56,15 +61,11 @@ function AddMessageType(props: AddMessageTypeProps) {
     };
 
     const handleNameSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setName(event.target.value)
+        setActionType(act => ({ ...act, name: event.target.value }))
     }
 
     const handleSubmit = () => {
-        onConfirm({
-            _id: v4(),
-            name,
-            fields
-        })
+        onConfirm(actionType)
     }
 
     function handleFieldChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
@@ -72,13 +73,23 @@ function AddMessageType(props: AddMessageTypeProps) {
             setError(false)
         }
         try {
-            const f = parseRos2MessageContent(event.target.value)
-            setFields(f)
+            const f = parseRos2ActionMessageContent(event.target.value)
+            setActionType(e => ({
+                ...e,
+                goal: f.goal,
+                feedback: f.feedback,
+                result: f.result
+            }))
             setError(false)
         }
         catch {
             setError(true)
-            setFields([])
+            setActionType(e => ({
+                ...e,
+                goal: [],
+                feedback: [],
+                result: []
+            }))
         }
     }
 
@@ -110,7 +121,36 @@ function AddMessageType(props: AddMessageTypeProps) {
                     onChange={handleFieldChange}
                 />
                 <div className={classes.msgDisplayContainer}>
-                    {fields?.map((e, i) =>
+                    {isActionDefined && (
+                        <span style={{ fontWeight: 'bold' }}>Goal</span>
+                    )}
+                    {actionType.goal.map((e, i) =>
+                        <div key={i}>
+                            <div>
+                                {`Name: ${e.fieldname}`}
+                            </div>
+                            <div>
+                                {`Type: ${e.fieldtype}`}
+                            </div>
+                        </div>
+                    )}
+                    {isActionDefined && (
+                        <span style={{ fontWeight: 'bold' }}>Feedback</span>
+                    )}
+                    {actionType.feedback.map((e, i) =>
+                        <div key={i}>
+                            <div>
+                                {`Name: ${e.fieldname}`}
+                            </div>
+                            <div>
+                                {`Type: ${e.fieldtype}`}
+                            </div>
+                        </div>
+                    )}
+                    {isActionDefined && (
+                        <span style={{ fontWeight: 'bold' }}>Result</span>
+                    )}
+                    {actionType.result.map((e, i) =>
                         <div key={i}>
                             <div>
                                 {`Name: ${e.fieldname}`}
@@ -126,10 +166,10 @@ function AddMessageType(props: AddMessageTypeProps) {
                 <Button autoFocus onClick={onClose}>
                     Cancel
                 </Button>
-                <Button disabled={error || !fields.length} onClick={handleSubmit}>Add</Button>
+                <Button disabled={error || !isActionDefined} onClick={handleSubmit}>Add</Button>
             </DialogActions>
         </Dialog >
     );
 }
 
-export default AddMessageType
+export default AddServiceTypeDialog

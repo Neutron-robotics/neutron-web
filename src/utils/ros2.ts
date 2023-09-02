@@ -1,81 +1,20 @@
 import { v4 } from "uuid";
-import { IDBObject } from "../api/models/common";
 import { IRobot, IRobotPart } from "../api/models/robot.model";
-
-export interface IRos2System extends IDBObject {
-  name: string;
-  topics: IRos2Topic[];
-  publishers: IRos2Publisher[];
-  subscribers: IRos2Subscriber[];
-  actions: IRos2Action[];
-  services: IRos2Service[];
-  robotId: string;
-}
-
-export interface IRos2PartSystem extends IRos2System {
-  partId: string;
-  messageTypes: IRos2Message[];
-  serviceTypes: IRos2ServiceMessage[];
-  actionTypes: IRos2ActionMessage[];
-}
-
-export interface IRos2Field {
-  fieldtype: string;
-  fieldname: string;
-}
-
-interface IRos2ServiceMessage extends IDBObject {
-  name: string;
-  request: IRos2Field[];
-  response: IRos2Field[];
-}
-
-export interface IRos2Message extends IDBObject {
-  name: string;
-  fields: IRos2Field[];
-}
-
-interface IRos2ActionMessage extends IDBObject {
-  name: string;
-  goal: IRos2Field[];
-  feedback: IRos2Field[];
-  result: IRos2Field[];
-}
-
-export interface IRos2Topic extends IDBObject {
-  name: string;
-  messageType: IRos2Message;
-}
-
-interface IRos2Subscriber extends IDBObject {
-  name: string;
-  topic: IRos2Topic;
-}
-
-interface IRos2Service extends IDBObject {
-  name: string;
-  serviceType: IRos2ServiceMessage;
-}
-
-interface IRos2Publisher extends IDBObject {
-  name: string;
-  topic: IRos2Topic;
-  frequency: number;
-}
-
-interface IRos2Action extends IDBObject {
-  name: string;
-  actionType: IRos2ActionMessage;
-}
+import { IRos2ActionMessage, IRos2Field, IRos2Message, IRos2PartSystem, IRos2ServiceMessage, IRos2System, IRos2Topic } from "neutron-core";
 
 export const cacheRos2System = (robot: IRobot , system: IRos2System) => {
   for (const part of robot.parts) {
     const partSystem = toPartSystem(part, system)
 
-    localStorage.setItem(`topics-${robot._id}-${part._id}`, JSON.stringify(partSystem.topics));
     localStorage.setItem(`messageTypes-${robot._id}-${part._id}`, JSON.stringify(partSystem.messageTypes));
-    // localStorage.setItem(`topics-${robot._id}-${part._id}`, JSON.stringify(partSystem.topics));
-    // localStorage.setItem(`topics-${robot._id}-${part._id}`, JSON.stringify(partSystem.topics));
+    localStorage.setItem(`serviceType-${robot._id}-${part._id}`, JSON.stringify(partSystem.serviceTypes));
+    localStorage.setItem(`actionType-${robot._id}-${part._id}`, JSON.stringify(partSystem.actionTypes));
+
+    localStorage.setItem(`topics-${robot._id}-${part._id}`, JSON.stringify(partSystem.topics));
+    localStorage.setItem(`publishers-${robot._id}-${part._id}`, JSON.stringify(partSystem.publishers));
+    localStorage.setItem(`subscribers-${robot._id}-${part._id}`, JSON.stringify(partSystem.subscribers));
+    localStorage.setItem(`services-${robot._id}-${part._id}`, JSON.stringify(partSystem.services));
+    localStorage.setItem(`actions-${robot._id}-${part._id}`, JSON.stringify(partSystem.actions));
   }
 }
 
@@ -151,4 +90,84 @@ export function parseRos2MessageContent(fileContent: string): IRos2Field[] {
   }
 
   return fields;
+}
+
+export function parseRos2ServiceMessageContent(fileContent: string) {
+  const lines = fileContent.split("\n");
+  const requestFields: IRos2Field[] = [];
+  const responseFields: IRos2Field[] = [];
+  let isResponseSection = false;
+
+  for (const line of lines) {
+    if (!line.replaceAll(" ", "").length) continue;
+
+    if (line.trim() === "---") {
+      isResponseSection = true;
+      continue;
+    }
+
+    const [fieldName, fieldType] = line.split(" ");
+    if (!fieldName || !fieldType) throw new Error("Inconsistent type or param");
+
+    const field = {
+      fieldname: fieldName,
+      fieldtype: fieldType,
+    };
+
+    if (isResponseSection) {
+      responseFields.push(field);
+    } else {
+      requestFields.push(field);
+    }
+  }
+
+  return {
+    request: requestFields,
+    response: responseFields,
+  };
+}
+
+export function parseRos2ActionMessageContent(fileContent: string) {
+  const lines = fileContent.split("\n");
+  const goalFields: IRos2Field[] = [];
+  const feedbackFields: IRos2Field[] = [];
+  const resultFields: IRos2Field[] = [];
+  let currentSection: 'goal' | 'feedback' | 'result' = 'goal';
+
+  for (const line of lines) {
+    if (!line.replaceAll(" ", "").length) continue;
+
+    if (line.trim() === '---') {
+      if (currentSection === 'goal') {
+        currentSection = 'feedback';
+      } else if (currentSection === 'feedback') {
+        currentSection = 'result';
+      } else {
+        throw new Error("Invalid section separator");
+      }
+      continue;
+    }
+
+    const [fieldName, fieldType] = line.split(" ");
+    if (!fieldName || !fieldType) throw new Error("Inconsistent type or param");
+
+    const field = {
+      fieldname: fieldName,
+      fieldtype: fieldType,
+    };
+
+    if (currentSection === 'goal') {
+      goalFields.push(field);
+    } else if (currentSection === 'feedback') {
+      feedbackFields.push(field);
+    } else if (currentSection === 'result') {
+      resultFields.push(field);
+    }
+  }
+
+  return {
+    goal: goalFields,
+    feedback: feedbackFields,
+    result: resultFields,
+  };
 }

@@ -29,8 +29,12 @@ import ClickableImageUpload from "../components/controls/imageUpload";
 import { uploadFile } from "../api/file";
 import { capitalize } from "../utils/string";
 import { CreateRobotPartModel } from "../api/models/part.model";
-import Ros2Table from "../components/Robot/Ros2Table";
+import TopicTable from "../components/Robot/Ros2Tables/TopicTable";
 import useStateWithPrevious from "../utils/useStateWithPrevious";
+import PublisherTable from "../components/Robot/Ros2Tables/PublisherTable";
+import SubscriberTable from "../components/Robot/Ros2Tables/SubscriberTable";
+import ServiceTable from "../components/Robot/Ros2Tables/ServiceTable";
+import ActionTable from "../components/Robot/Ros2Tables/ActionTable";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -344,7 +348,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
                     <div className={classes.tableContainer}>
                         <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 0)} in={activeTab === 0}>
                             <div style={{ width: '90%' }}>
-                                <Ros2Table
+                                <TopicTable
                                     robotId={robotModel._id}
                                     partId={part._id as string}
                                 />
@@ -352,7 +356,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
                         </Slide>
                         <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 1)} in={activeTab === 1}>
                             <div style={{ width: '90%', position: 'absolute' }}>
-                                <Ros2Table
+                                <PublisherTable
                                     robotId={robotModel._id}
                                     partId={part._id as string}
                                 />
@@ -360,7 +364,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
                         </Slide>
                         <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 2)} in={activeTab === 2}>
                             <div style={{ width: '90%', position: 'absolute' }}>
-                                <Ros2Table
+                                <SubscriberTable
                                     robotId={robotModel._id}
                                     partId={part._id as string}
                                 />
@@ -368,7 +372,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
                         </Slide>
                         <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 3)} in={activeTab === 3}>
                             <div style={{ width: '90%', position: 'absolute' }}>
-                                <Ros2Table
+                                <ServiceTable
                                     robotId={robotModel._id}
                                     partId={part._id as string}
                                 />
@@ -376,7 +380,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
                         </Slide>
                         <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 4)} in={activeTab === 4}>
                             <div style={{ width: '90%', position: 'absolute' }}>
-                                <Ros2Table
+                                <ActionTable
                                     robotId={robotModel._id}
                                     partId={part._id as string}
                                 />

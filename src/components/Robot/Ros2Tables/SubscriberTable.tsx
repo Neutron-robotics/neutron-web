@@ -22,32 +22,30 @@ import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import { useEffect, useState } from "react";
 import { v4 } from "uuid";
-import ButtonDialog from "../controls/ButtonDialog";
-import AddMessageType from "./AddMessageType";
-import * as ros2Api from '../../api/ros2'
-import { useAlert } from "../../contexts/AlertContext";
-import useCachedState from "../../utils/useCachedState";
-import { IMessageType, IRos2Message, IRos2Topic } from "neutron-core";
+import * as ros2Api from '../../../api/ros2'
+import { useAlert } from "../../../contexts/AlertContext";
+import useCachedState from "../../../utils/useCachedState";
+import { IRos2Subscriber, IRos2Topic } from "neutron-core";
 
-interface IRos2TableProps {
+interface ISubscriberTableProps {
     robotId: string
     partId: string
 }
 
 interface RenderTypeEditProps extends GridRenderCellParams<any, string> {
-    messageTypes: IMessageType[]
+    topics: IRos2Topic[]
 }
 
 interface RenderTypeProps extends GridRenderCellParams<any, string> {
-    messageTypes: IMessageType[]
+    topics: IRos2Topic[]
 }
 
 const RenderTypeEdit = (props: RenderTypeEditProps) => {
-    const { id, field, messageTypes } = props;
+    const { id, field, topics, row } = props;
     const apiRef = useGridApiContext();
 
     useEffect(() => {
-        apiRef.current.setEditCellValue({ id, field, value: messageTypes.length ? messageTypes[0]._id : '' });
+        apiRef.current.setEditCellValue({ id, field, value: topics.length ? row.topicId ?? topics[0]._id : '' });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -56,8 +54,8 @@ const RenderTypeEdit = (props: RenderTypeEditProps) => {
     }
 
     return (
-        <Select onChange={handleSelectChange} defaultValue={messageTypes.length ? messageTypes[0]._id : ''} fullWidth>
-            {messageTypes.map((e) => (
+        <Select onChange={handleSelectChange} defaultValue={topics.length ? row.topicId ?? topics[0]._id : ''} value={row.topicId ?? topics[0]._id} fullWidth>
+            {topics.map((e) => (
                 <MenuItem key={e._id} value={e._id}>
                     {e.name}
                 </MenuItem>
@@ -67,26 +65,26 @@ const RenderTypeEdit = (props: RenderTypeEditProps) => {
 };
 
 const RenderType = (props: RenderTypeProps) => {
-    const { messageTypes, value } = props;
+    const { topics, row } = props;
 
     return (
         <div>
-            {messageTypes.find(e => e._id === value)?.name ?? 'Unknown'}
+            {topics.find(e => e._id === row.topicId)?.name ?? 'Unknown'}
         </div>
     )
 }
 
-const Ros2Table = (props: IRos2TableProps) => {
+const SubscriberTable = (props: ISubscriberTableProps) => {
     const { robotId, partId } = props
-    const [messageTypes, setMessageTypes] = useCachedState<IRos2Message[]>(`messageTypes-${robotId}-${partId}`, [])
-    const [topics, setTopics] = useCachedState<IRos2Topic[]>(`topics-${robotId}-${partId}`, [])
-    const [rows, setRows] = useState<IRos2Topic[]>([]);
+    const [topics] = useCachedState<IRos2Topic[]>(`topics-${robotId}-${partId}`, [])
+    const [subscribers, setSubscribers] = useCachedState<IRos2Subscriber[]>(`subscribers-${robotId}-${partId}`, [])
+    const [rows, setRows] = useState<IRos2Subscriber[]>([]);
     const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
     const alert = useAlert()
 
     useEffect(() => {
-        setRows(topics.map(e => ({ ...e, id: e._id, type: e.messageType._id })))
-    }, [topics])
+        setRows(subscribers.map(e => ({ ...e, id: e._id, topicId: e.topic._id })))
+    }, [subscribers])
 
     const handleRowEditStop: GridEventListener<"rowEditStop"> = (
         params,
@@ -94,26 +92,6 @@ const Ros2Table = (props: IRos2TableProps) => {
     ) => {
         if (params.reason === GridRowEditStopReasons.rowFocusOut) {
             event.defaultMuiPrevented = true;
-        }
-    };
-
-    const handleCreateTypeClick = async (data: IRos2Message) => {
-        if (messageTypes.includes(data)) {
-            alert.warn("The message already exist...")
-        }
-
-        try {
-            const id = await ros2Api.createMessageType(robotId, partId, {
-                message: {
-                    name: data.name,
-                    fields: data.fields
-                }
-            })
-            data._id = id
-            setMessageTypes([...messageTypes, data])
-        }
-        catch {
-            alert.error("An error has occured while creating a message type")
         }
     };
 
@@ -127,8 +105,8 @@ const Ros2Table = (props: IRos2TableProps) => {
 
     const handleDeleteClick = (id: GridRowId) => async () => {
         try {
-            await ros2Api.deleteTopic(robotId, partId, id as string)
-            setTopics(topics.filter(e => e._id !== id))
+            await ros2Api.deleteSubscriber(robotId, partId, id as string)
+            setSubscribers(subscribers.filter(e => e._id !== id))
         }
         catch {
             alert.error("An error has occured while deleting a type")
@@ -136,7 +114,6 @@ const Ros2Table = (props: IRos2TableProps) => {
     };
 
     const handleCancelClick = (id: GridRowId) => () => {
-        console.log("cancel", id)
         setRowModesModel({
             ...rowModesModel,
             [id]: { mode: GridRowModes.View, ignoreModifications: true },
@@ -150,46 +127,45 @@ const Ros2Table = (props: IRos2TableProps) => {
 
     const processRowUpdate = async (newRow: GridRowModel) => {
         const updatedRow = { ...newRow, isNew: false } as any;
-        const messageType = messageTypes.find(e => e._id === updatedRow.type) as IMessageType
+        const topic = topics.find(e => e._id === updatedRow.topicId) as IRos2Topic
         if (newRow.isNew) {
             try {
-                const topicId = await ros2Api.createTopic(robotId, partId, {
+                const subscriberId = await ros2Api.createSubscriber(robotId, partId, {
                     name: updatedRow.name,
-                    messageTypeId: updatedRow.type
+                    topicId: updatedRow.topicId,
                 })
-                const topic: IRos2Topic = {
-                    _id: topicId,
+                const subscriber: IRos2Subscriber = {
+                    _id: subscriberId,
                     name: updatedRow.name,
-                    messageType
-
+                    topic
                 }
-                setTopics([...topics, topic])
+                setSubscribers([...subscribers, subscriber])
             }
             catch {
-                alert.error("Failed to create a topic")
+                alert.error("Failed to create a subscriber")
                 return
             }
         }
         else {
             try {
-                await ros2Api.updateSchemaType(robotId, 'topic', {
-                    topic: {
+                await ros2Api.updateSchemaType(robotId, 'subscriber', {
+                    subscriber: {
                         _id: updatedRow.id,
-                        messageType: {
-                            _id: updatedRow.type,
-                        },
                         name: updatedRow.name,
+                        topic: {
+                            _id: updatedRow.topicId,
+                        },
                     }
                 } as any)
-                const updatedTopic: IRos2Topic = {
+                const updatedSubscriber: IRos2Subscriber = {
                     _id: updatedRow.id as string,
                     name: updatedRow.name as string,
-                    messageType
+                    topic
                 }
-                setTopics(topics.map(e => e._id === updatedTopic._id ? updatedTopic : e))
+                setSubscribers(subscribers.map(e => e._id === updatedSubscriber._id ? updatedSubscriber : e))
             }
             catch {
-                alert.error("Failed to update a topic")
+                alert.error("Failed to update a subscriber")
             }
         }
         return updatedRow;
@@ -202,22 +178,22 @@ const Ros2Table = (props: IRos2TableProps) => {
     const columns: GridColDef[] = [
         {
             field: "name",
-            headerName: "Topic Name",
+            headerName: "Subscriber Name",
             width: 150,
             editable: true,
             flex: 1,
         },
         {
-            field: "type",
-            headerName: "Topic type",
+            field: "topicId",
+            headerName: "Topic",
             width: 150,
             flex: 1,
             editable: true,
             renderEditCell: (params: GridRenderEditCellParams) => (
-                <RenderTypeEdit {...params} messageTypes={messageTypes} />
+                <RenderTypeEdit {...params} topics={topics} />
             ),
             renderCell: (params: GridRenderCellParams) => (
-                <RenderType {...params} messageTypes={messageTypes} />
+                <RenderType {...params} topics={topics} />
             )
         },
         {
@@ -300,7 +276,6 @@ const Ros2Table = (props: IRos2TableProps) => {
                     toolbar: {
                         setRows,
                         setRowModesModel,
-                        handleCreateTypeClick,
                     },
                 }}
             />
@@ -313,11 +288,10 @@ interface EditToolbarProps {
     setRowModesModel: (
         newModel: (oldModel: GridRowModesModel) => GridRowModesModel
     ) => void;
-    handleCreateTypeClick: (data: IRos2Message) => void;
 }
 
 function EditToolbar(props: EditToolbarProps) {
-    const { setRows, setRowModesModel, handleCreateTypeClick } = props;
+    const { setRows, setRowModesModel } = props;
 
     const handleClick = () => {
         const id = v4();
@@ -335,19 +309,8 @@ function EditToolbar(props: EditToolbarProps) {
             <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
                 Add record
             </Button>
-            <ButtonDialog
-                onConfirm={(data) => handleCreateTypeClick(data)}
-                dialog={AddMessageType}
-                dialogProps={{
-                    title: "New Message Type",
-                }}
-            >
-                <Button color="primary" startIcon={<AddIcon />}>
-                    Add Type
-                </Button>
-            </ButtonDialog>
         </GridToolbarContainer>
     );
 }
 
-export default Ros2Table
+export default SubscriberTable
