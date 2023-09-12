@@ -108,7 +108,7 @@ const ActionTable = (props: IActionTableProps) => {
                     name: data.name,
                     goal: data.goal,
                     feedback: data.feedback,
-                    result: data.feedback,
+                    result: data.result,
                 }
             })
             data._id = id

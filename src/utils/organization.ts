@@ -1,4 +1,3 @@
-import { OrganizationModel } from "../api/models/organization.model";
 import { UserDTO, UserModel } from "../api/models/user.model";
 
 export interface UserRanked extends UserDTO {

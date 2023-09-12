@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with Vectornator (http://vectornator.io/) -->
+<svg height="100%" stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;" version="1.1" viewBox="0 0 100 125" width="100%" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:vectornator="http://vectornator.io" xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs/>
+<g id="Sans-titre" vectornator:layerName="Sans titre">
+<path d="M25.303 69.394L20 74.697L14.697 69.394L9.394 74.697L14.697 80L9.394 85.303L14.697 90.606L20 85.303L25.303 90.606L30.606 85.303L25.303 80L30.606 74.697L25.303 69.394Z" fill="#000000" fill-rule="nonzero" opacity="1" stroke="none" vectornator:layerName="polygon"/>
+<path d="M77.348 80L72.045 74.697L66.742 80L77.348 90.606L93.258 74.697L87.955 69.394L77.348 80Z" fill="#000000" fill-rule="nonzero" opacity="1" stroke="none" vectornator:layerName="polygon"/>
+<path d="M50 31.25C56.203 31.25 61.25 26.203 61.25 20C61.25 13.797 56.203 8.75 50 8.75C43.797 8.75 38.75 13.797 38.75 20C38.75 26.203 43.797 31.25 50 31.25ZM50 16.25C52.068 16.25 53.75 17.932 53.75 20C53.75 22.068 52.068 23.75 50 23.75C47.932 23.75 46.25 22.068 46.25 20C46.25 17.932 47.932 16.25 50 16.25Z" fill="#000000" fill-rule="nonzero" opacity="1" stroke="none" vectornator:layerName="path"/>
+<path d="M77.5 65L82.5 65L82.5 52.5L65.59 52.5L52.5 45.955L52.5 35L47.5 35L47.5 45.955L34.41 52.5L17.5 52.5L17.5 65L22.5 65L22.5 57.5L34.41 57.5L50 65.295L65.59 57.5L77.5 57.5L77.5 65ZM50 59.705L40.59 55L50 50.295L59.41 55L50 59.705Z" fill="#000000" fill-rule="nonzero" opacity="1" stroke="none" vectornator:layerName="path"/>
+</g>
+</svg>

@@ -12,7 +12,6 @@ import { useAlert } from "../contexts/AlertContext";
 import ClickableImageUpload from "../components/controls/imageUpload";
 import { uploadFile } from "../api/file";
 import RobotTable from "../components/Organization/RobotTable";
-import { OrganizationViewType } from "./OrganizationPage";
 import { IRobot } from "../api/models/robot.model";
 
 const useStyles = makeStyles(() => ({

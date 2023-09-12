@@ -10,6 +10,7 @@ import { Box, CssBaseline } from "@mui/material";
 import { useAuth } from "../contexts/AuthContext";
 import { UserLight, UserModel } from "../api/models/user.model";
 import OrganizationPage from "./OrganizationPage";
+import NeutronView from "./NeutronView";
 
 export interface IHeaderMenuState {
 }
@@ -45,14 +46,14 @@ const ViewManager = () => {
 
     return (
         <>
-
             <Header user={user} headerBody={headerBody} headerTabs={Object.values(tabs)} activeTabId={activeTab?.id} />
             {hasMenu && (
-                <Box sx={{ display: 'flex' }}>
+                <Box sx={{ display: 'flex', height: '100%' }}>
                     <CssBaseline />
                     <MenuVerticalTabs onSelectTab={(v) => { setViewType(v) }} isLightUser={isUserLight} />
                     {(viewType === ViewType.Home) && <ConnectionView setHeaderBody={setHeaderBody} />}
                     {(viewType === ViewType.ConnectionView) && <ConnectionView setHeaderBody={setHeaderBody} />}
+                    {(viewType === ViewType.Neutron) && <NeutronView />}
                     {(!isUserLight && viewType === ViewType.Organization) && <OrganizationPage user={user as UserModel} />}
                 </Box>
             )}

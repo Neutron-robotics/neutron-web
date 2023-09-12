@@ -8,13 +8,7 @@ import ButtonDialog from "../controls/ButtonDialog";
 import { Fab } from "@mui/material";
 import AddRobotDialog from "./AddRobotDialog";
 import AddIcon from '@mui/icons-material/Add';
-import { OrganizationViewType } from "../../views/OrganizationPage";
-import { makeStyles } from "@mui/styles";
 import RobotCard from "../Robot/RobotCard";
-
-const useStyles = makeStyles(() => ({
-
-}))
 
 interface RobotTableProps {
     user: UserModel
@@ -23,10 +17,9 @@ interface RobotTableProps {
 }
 
 const RobotTable = (props: RobotTableProps) => {
-    const { user, activeOrganization, onSelectRobot } = props
+    const { activeOrganization, onSelectRobot } = props
     const [robots, setRobots] = useState<IRobot[]>([])
     const alert = useAlert();
-    const classes = useStyles()
 
     const handleAddRobot = () => {
         onSelectRobot(null)
