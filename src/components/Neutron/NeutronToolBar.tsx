@@ -16,6 +16,8 @@ import { IRos2PartSystem, IRos2System } from "neutron-core";
 import SubscriberNode from "./Nodes/ros/SubscriberNode";
 import ServiceNode from "./Nodes/ros/ServiceNode";
 import ActionNode from "./Nodes/ros/ActionNode";
+import PickNode from "./Nodes/transform/PickNode";
+import PurcentageNode from "./Nodes/transform/PurcentageNode";
 
 const useStyles = makeStyles(() => ({
     toolbar: {
@@ -226,7 +228,8 @@ const TransformMenu = (props: ComponentMenuProps) => {
         <>
             <span>Transformers</span>
             <div className={classes.rosComponentList}>
-
+                <NodePreview onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={PickNode} width={120} height={60} />
+                <NodePreview onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={PurcentageNode} width={160} height={60} />
             </div>
         </>
     )

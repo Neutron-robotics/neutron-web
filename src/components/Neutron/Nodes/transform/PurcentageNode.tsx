@@ -1,4 +1,4 @@
-import { MenuItem, Select, TextField } from "@mui/material"
+import { TextField } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import { useMemo } from "react"
 import { Handle, Position } from "reactflow"
@@ -7,7 +7,7 @@ import { CustomNodeProps } from ".."
 
 const useStyles = makeStyles(() => ({
     nodeRoot: {
-        width: "120px",
+        width: "160px",
         height: "70px",
         background: "#fff",
         border: "1px solid #eee",
@@ -23,11 +23,11 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-interface PickNodeProps {
+interface PurcentageNodeProps {
 
 }
 
-const PickNode = (props: CustomNodeProps<PickNodeProps>) => {
+const PurcentageNode = (props: CustomNodeProps<PurcentageNodeProps>) => {
     const { preview } = props
     const classes = useStyles()
     const nodeUid = useMemo(() => v4(), [])
@@ -39,18 +39,11 @@ const PickNode = (props: CustomNodeProps<PickNodeProps>) => {
                 position={Position.Left}
                 isConnectableStart={false}
                 isConnectableEnd={true} />
-            <Select
-                value={10}
-                label="Pick"
-                className="nodrag"
-                sx={{ m: 1, width: 90 }} size="small"
-                disabled={preview}
-            >
-                <MenuItem value={10}>property 1</MenuItem>
-                <MenuItem value={20}>property 2</MenuItem>
-                <MenuItem value={30}>property 3</MenuItem>
-            </Select>
-            <span className={classes.nodeLabel}>Pick</span>
+            <div>
+                <TextField className="nodrag" sx={{ m: 1, width: 60 }} size="small" disabled={preview} label="min" variant="outlined" type="number" />
+                <TextField className="nodrag" sx={{ m: 1, width: 60 }} size="small" disabled={preview} label="max" variant="outlined" type="number" />
+            </div>
+            <span className={classes.nodeLabel}>Purcentage</span>
             <Handle id={`output-${nodeUid}`}
                 type="source"
                 position={Position.Right}
@@ -60,4 +53,4 @@ const PickNode = (props: CustomNodeProps<PickNodeProps>) => {
     )
 }
 
-export default PickNode
+export default PurcentageNode

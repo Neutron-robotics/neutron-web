@@ -1,3 +1,4 @@
+import { NodeProps } from "reactflow";
 import TestNode from "./TestNode";
 import { conditionalNodeTypes } from "./conditional";
 import { rosNodeTypes } from "./ros";
@@ -8,4 +9,8 @@ export const nodeTypes: Record<string, (props: any) => JSX.Element> = {
     ...transformNodeTypes,
     ...rosNodeTypes,
     customNode: TestNode
+}
+
+export interface CustomNodeProps<T> extends NodeProps<T> {
+    preview: boolean
 }
