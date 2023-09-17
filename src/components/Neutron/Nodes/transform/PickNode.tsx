@@ -1,8 +1,6 @@
-import { MenuItem, Select, TextField } from "@mui/material"
+import { MenuItem, Select } from "@mui/material"
 import { makeStyles } from "@mui/styles"
-import { useMemo } from "react"
 import { Handle, Position } from "reactflow"
-import { v4 } from "uuid"
 import { CustomNodeProps } from ".."
 
 const useStyles = makeStyles(() => ({
@@ -30,11 +28,10 @@ interface PickNodeProps {
 const PickNode = (props: CustomNodeProps<PickNodeProps>) => {
     const { preview } = props
     const classes = useStyles()
-    const nodeUid = useMemo(() => v4(), [])
 
     return (
         <div className={classes.nodeRoot}>
-            <Handle id={`input-${nodeUid}`}
+            <Handle id={`source`}
                 type="target"
                 position={Position.Left}
                 isConnectableStart={false}
@@ -51,7 +48,7 @@ const PickNode = (props: CustomNodeProps<PickNodeProps>) => {
                 <MenuItem value={30}>property 3</MenuItem>
             </Select>
             <span className={classes.nodeLabel}>Pick</span>
-            <Handle id={`output-${nodeUid}`}
+            <Handle id={`result`}
                 type="source"
                 position={Position.Right}
                 isConnectableStart={true}

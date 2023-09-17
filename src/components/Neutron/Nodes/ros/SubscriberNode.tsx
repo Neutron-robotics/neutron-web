@@ -1,8 +1,6 @@
 import { makeStyles } from "@mui/styles"
 import { IRos2Subscriber } from "neutron-core"
-import { useMemo } from "react"
 import { Handle, NodeProps, Position } from "reactflow"
-import { v4 } from "uuid"
 
 const useStyles = makeStyles(() => ({
     nodeRoot: {
@@ -50,9 +48,6 @@ const SubscriberNode = (props: NodeProps<SubscriberNodeProps>) => {
     const { data } = props
     const { subscriber } = data
     const classes = useStyles()
-    const nodeUid = useMemo(() => v4(), [])
-
-    console.log("node Props are", props)
 
     return (
         <div className={classes.nodeRoot}>

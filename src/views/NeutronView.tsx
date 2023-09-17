@@ -12,6 +12,7 @@ import { IRos2PartSystem, IRos2System } from "neutron-core";
 import { getRos2System } from "../api/ros2";
 import { useAlert } from "../contexts/AlertContext";
 import { toPartSystem } from "../utils/ros2";
+import NodeContextMenu, { NodeContextMenuProps } from "../components/Neutron/Nodes/NodeContextMenu";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -22,7 +23,9 @@ const useStyles = makeStyles(() => ({
     flowContainer: {
         position: 'relative',
         marginTop: '2px',
-        height: 'calc(100% - 90px)',
+        // height: 'calc(100% - 90px)',
+        width: '70%',
+        height: '70%',
         '& .react-flow__attribution': {
             visibility: 'hidden',
         },
@@ -42,12 +45,8 @@ interface NeutronViewProps {
 
 }
 
-const initialNodes = [
-    { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
-    { id: '2', position: { x: 0, y: 100 }, data: { label: '2' } },
-    { id: 'node-1', type: 'customNode', position: { x: 100, y: 0 }, data: { value: 123 } }
-];
-const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
+const initialNodes: Node[] = [];
+const initialEdges: Edge[] = [];
 
 const NeutronView = (props: NeutronViewProps) => {
     const classes = useStyles()
@@ -60,6 +59,11 @@ const NeutronView = (props: NeutronViewProps) => {
     const [selectedRobot, setSelectedRobot] = useState<IRobot>()
     const [ros2System, setRos2System] = useState<IRos2System | IRos2PartSystem>()
     const [selectedPart, setSelectedPart] = useState<IRobotPart>()
+    const [menu, setMenu] = useState<NodeContextMenuProps>();
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    // console.log("Nodes: ", nodes)
+    // console.log("Edges: ", edges)
 
     useEffect(() => {
         const fetchOrganizations = async () => {
@@ -72,6 +76,31 @@ const NeutronView = (props: NeutronViewProps) => {
         }
         fetchOrganizations()
     }, [])
+
+    const onNodeContextMenu = useCallback(
+        (event: React.MouseEvent<Element, MouseEvent>, node: Node) => {
+            // Prevent native context menu from showing
+            event.preventDefault();
+            // Calculate position of the context menu. We want to make sure it
+            // doesn't get positioned off-screen.
+
+            if (!menuRef.current)
+                return
+
+            const pane = menuRef.current.getBoundingClientRect();
+
+            setMenu({
+                id: node.id,
+                top: ((event.clientY < pane.height - 200) ? event.clientY : undefined) as number,
+                left: ((event.clientX < pane.width - 200) ? event.clientX : undefined) as number,
+                right: ((event.clientX >= pane.width - 200) ? Math.abs(pane.width - event.clientX) : undefined) as number,
+                bottom: ((event.clientY >= pane.height - 200) ? Math.abs(pane.height - event.clientY) : undefined) as number,
+            });
+        },
+        [setMenu]
+    );
+
+    const onPaneClick = useCallback(() => setMenu(undefined), [setMenu]);
 
     const onNodesChange = useCallback(
         (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -103,6 +132,7 @@ const NeutronView = (props: NeutronViewProps) => {
             const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
             const type = event.dataTransfer.getData('application/reactflow');
             const data = JSON.parse(event.dataTransfer.getData('application/reactflow/data'));
+            const title = event.dataTransfer.getData('application/reactflow/title');
 
             // check if the dropped element is valid
             if (typeof type === 'undefined' || !type) {
@@ -115,16 +145,11 @@ const NeutronView = (props: NeutronViewProps) => {
             });
             const newNode = {
                 id: v4(),
+                title,
                 type,
                 position,
                 preview: false,
                 data: data,
-                publisher: {
-                    name: "toto",
-                    topic: {
-                        name: 'topic'
-                    }
-                }
             };
 
             setNodes((nds) => nds.concat(newNode));
@@ -191,11 +216,14 @@ const NeutronView = (props: NeutronViewProps) => {
                         onConnect={onConnect}
                         nodeTypes={nodeTypes}
                         onDragOver={onDragOver}
+                        onPaneClick={onPaneClick}
                         onDrop={onDrop}
+                        ref={menuRef}
+                        onNodeContextMenu={onNodeContextMenu}
                     >
                         <Controls />
-                        {/* <MiniMap /> */}
                         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+                        {menu && <NodeContextMenu onClick={onPaneClick} {...menu} />}
                     </ReactFlow>
                 </div>
             </ReactFlowProvider>

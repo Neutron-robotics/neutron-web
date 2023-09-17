@@ -1,8 +1,6 @@
 import { makeStyles } from "@mui/styles"
 import { IRos2Publisher } from "neutron-core"
-import { useMemo } from "react"
 import { Handle, NodeProps, Position } from "reactflow"
-import { v4 } from "uuid"
 
 const useStyles = makeStyles(() => ({
     nodeRoot: {
@@ -42,16 +40,13 @@ const useStyles = makeStyles(() => ({
 }))
 
 interface PublisherNodeProps {
-    publisher: IRos2Publisher
+    publisher: IRos2Publisher,
 }
 
 const PublisherNode = (props: NodeProps<PublisherNodeProps>) => {
     const { data } = props
     const { publisher } = data
     const classes = useStyles()
-    const nodeUid = useMemo(() => v4(), [])
-
-    console.log("node Props are", props)
 
     return (
         <div className={classes.nodeRoot}>

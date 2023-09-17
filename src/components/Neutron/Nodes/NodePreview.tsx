@@ -1,7 +1,7 @@
 import { makeStyles } from "@mui/styles"
 import { FC } from "react"
-import { NodeProps } from "reactflow"
 import { CustomNodeProps, nodeTypes } from "."
+import { v4 } from "uuid"
 
 const useStyles = makeStyles(() => ({
     preview: {
@@ -10,6 +10,7 @@ const useStyles = makeStyles(() => ({
 }))
 
 interface NodePreviewProps<T> {
+    title: string
     node: FC<CustomNodeProps<T>>
     nodeProps: T,
     width: number,
@@ -19,16 +20,17 @@ interface NodePreviewProps<T> {
 }
 
 const NodePreview = <T,>(props: NodePreviewProps<T>) => {
-    const { node: Node, nodeProps, width, height, onDragEnd, onDragStart } = props
+    const { node: Node, nodeProps, width, height, onDragEnd, onDragStart, title } = props
     const classes = useStyles()
     const nodeType = Object.keys(nodeTypes).find(e => nodeTypes[e] === Node) ?? ''
 
     const defaultProps: CustomNodeProps<T> = {
         zIndex: 1,
+        title,
         data: {
             ...nodeProps
         },
-        id: "ss",
+        id: v4(),
         type: nodeType,
         isConnectable: false,
         xPos: 0,

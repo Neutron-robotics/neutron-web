@@ -1,8 +1,6 @@
 import { TextField } from "@mui/material"
 import { makeStyles } from "@mui/styles"
-import { useMemo } from "react"
 import { Handle, Position } from "reactflow"
-import { v4 } from "uuid"
 import { CustomNodeProps } from ".."
 
 const useStyles = makeStyles(() => ({
@@ -30,11 +28,10 @@ interface PurcentageNodeProps {
 const PurcentageNode = (props: CustomNodeProps<PurcentageNodeProps>) => {
     const { preview } = props
     const classes = useStyles()
-    const nodeUid = useMemo(() => v4(), [])
 
     return (
         <div className={classes.nodeRoot}>
-            <Handle id={`input-${nodeUid}`}
+            <Handle id={`source`}
                 type="target"
                 position={Position.Left}
                 isConnectableStart={false}
@@ -44,7 +41,7 @@ const PurcentageNode = (props: CustomNodeProps<PurcentageNodeProps>) => {
                 <TextField className="nodrag" sx={{ m: 1, width: 60 }} size="small" disabled={preview} label="max" variant="outlined" type="number" />
             </div>
             <span className={classes.nodeLabel}>Purcentage</span>
-            <Handle id={`output-${nodeUid}`}
+            <Handle id={`result`}
                 type="source"
                 position={Position.Right}
                 isConnectableStart={true}

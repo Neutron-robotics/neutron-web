@@ -7,7 +7,6 @@ import ExtensionIcon from '@mui/icons-material/Extension';
 import { EditText } from "react-edit-text";
 import { useState } from "react";
 import NodePreview from "./Nodes/NodePreview";
-import TestNode from "./Nodes/TestNode";
 import AndNode from "./Nodes/conditional/AndNode";
 import OrNode from "./Nodes/conditional/OrNode";
 import IfNode from "./Nodes/conditional/IfNode";
@@ -147,9 +146,11 @@ const RosMenu = (props: Ros2MenuProps) => {
                         key={pub._id}
                         onDragEnd={onDragEnd}
                         onDragStart={onDragStart}
+                        title={pub.name}
                         node={PublisherNode}
                         nodeProps={{
-                            publisher: pub
+                            publisher: pub,
+                            title: pub.name
                         }}
                         width={150}
                         height={115} />
@@ -162,8 +163,9 @@ const RosMenu = (props: Ros2MenuProps) => {
                         onDragEnd={onDragEnd}
                         onDragStart={onDragStart}
                         node={SubscriberNode}
+                        title={sub.name}
                         nodeProps={{
-                            subscriber: sub
+                            subscriber: sub,
                         }}
                         width={150}
                         height={115} />
@@ -176,8 +178,9 @@ const RosMenu = (props: Ros2MenuProps) => {
                         onDragEnd={onDragEnd}
                         onDragStart={onDragStart}
                         node={ServiceNode}
+                        title={srv.name}
                         nodeProps={{
-                            service: srv
+                            service: srv,
                         }}
                         width={150}
                         height={115} />
@@ -190,8 +193,9 @@ const RosMenu = (props: Ros2MenuProps) => {
                         onDragEnd={onDragEnd}
                         onDragStart={onDragStart}
                         node={ActionNode}
+                        title={act.name}
                         nodeProps={{
-                            action: act
+                            action: act,
                         }}
                         width={150}
                         height={115} />
@@ -209,12 +213,12 @@ const ConditionalMenu = (props: ComponentMenuProps) => {
         <>
             <span>Logic gates</span>
             <div className={classes.rosComponentList}>
-                <NodePreview onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={AndNode} width={80} height={60} />
-                <NodePreview onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={OrNode} width={80} height={60} />
+                <NodePreview title='And' onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={AndNode} width={80} height={60} />
+                <NodePreview title='Or' onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={OrNode} width={80} height={60} />
             </div>
             <span>Conditions</span>
             <div className={classes.rosComponentList}>
-                <NodePreview onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={IfNode} width={50} height={50} />
+                <NodePreview title='If' onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={IfNode} width={50} height={50} />
             </div>
         </>
     )
@@ -228,8 +232,8 @@ const TransformMenu = (props: ComponentMenuProps) => {
         <>
             <span>Transformers</span>
             <div className={classes.rosComponentList}>
-                <NodePreview onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={PickNode} width={120} height={60} />
-                <NodePreview onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={PurcentageNode} width={160} height={60} />
+                <NodePreview title='Pick' onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={PickNode} width={120} height={60} />
+                <NodePreview title='Purcentage' onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={PurcentageNode} width={160} height={60} />
             </div>
         </>
     )
