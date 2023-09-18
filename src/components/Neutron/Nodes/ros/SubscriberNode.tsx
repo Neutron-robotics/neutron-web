@@ -1,8 +1,9 @@
 import { makeStyles } from "@mui/styles"
 import { IRos2Subscriber } from "neutron-core"
-import { Handle, NodeProps, Position } from "reactflow"
+import { Handle, Position } from "reactflow"
+import withBorder, { NodePropsBorderable } from "../withBorder"
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme: any) => ({
     nodeRoot: {
         border: '1px solid #eee',
         padding: '5px',
@@ -14,6 +15,9 @@ const useStyles = makeStyles(() => ({
             fontSize: '12px',
         },
         userSelect: 'none'
+    },
+    inputNode: {
+        border: `1px solid ${theme.palette.primary.main}`
     },
     nodeTitle: {
         fontWeight: 'bold',
@@ -41,16 +45,16 @@ const useStyles = makeStyles(() => ({
 }))
 
 interface SubscriberNodeProps {
-    subscriber: IRos2Subscriber
+    subscriber: IRos2Subscriber,
 }
 
-const SubscriberNode = (props: NodeProps<SubscriberNodeProps>) => {
-    const { data } = props
+const SubscriberNode = (props: NodePropsBorderable<SubscriberNodeProps>) => {
+    const { data, isInput } = props
     const { subscriber } = data
     const classes = useStyles()
 
     return (
-        <div className={classes.nodeRoot}>
+        <div className={`${classes.nodeRoot} ${isInput ? classes.inputNode : ''}`}>
             <div className={classes.nodeTitle}>
                 {subscriber.name}
             </div>
@@ -77,4 +81,4 @@ const SubscriberNode = (props: NodeProps<SubscriberNodeProps>) => {
     )
 }
 
-export default SubscriberNode
+export default withBorder<SubscriberNodeProps>(SubscriberNode)

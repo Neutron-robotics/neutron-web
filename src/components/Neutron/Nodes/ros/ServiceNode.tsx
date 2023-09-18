@@ -1,9 +1,9 @@
 import { makeStyles } from '@mui/styles';
 import { IRos2Service } from 'neutron-core';
-import { Handle, NodeProps, Position } from 'reactflow';
-import { v4 } from 'uuid';
+import { Handle, Position } from 'reactflow';
+import withBorder, { NodePropsBorderable } from '../withBorder';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme: any) => ({
     root: {
         border: '1px solid #eee',
         padding: '5px',
@@ -15,6 +15,9 @@ const useStyles = makeStyles(() => ({
             fontSize: '12px',
         },
         userSelect: 'none'
+    },
+    inputNode: {
+        border: `1px solid ${theme.palette.primary.main}`
     },
     nodeTitle: {
         fontWeight: 'bold',
@@ -51,13 +54,13 @@ interface ServiceNodeProps {
     service: IRos2Service
 }
 
-function ServiceNode(props: NodeProps<ServiceNodeProps>) {
-    const { data } = props
+function ServiceNode(props: NodePropsBorderable<ServiceNodeProps>) {
+    const { data, isInput } = props
     const { service } = data
     const classes = useStyles()
 
     return (
-        <div className={classes.root}>
+        <div className={`${classes.root} ${isInput ? classes.inputNode : ''}`}>
             <div>
                 <div className={classes.nodeTitle}>{service.name}</div>
                 <div className={classes.nodeBody}>
@@ -83,4 +86,4 @@ function ServiceNode(props: NodeProps<ServiceNodeProps>) {
     );
 }
 
-export default ServiceNode;
+export default withBorder<ServiceNodeProps>(ServiceNode);

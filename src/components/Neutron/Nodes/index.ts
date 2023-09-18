@@ -2,6 +2,7 @@ import { NodeProps } from "reactflow";
 import { conditionalNodeTypes } from "./conditional";
 import { rosNodeTypes } from "./ros";
 import { transformNodeTypes } from "./transform";
+import { Node } from "reactflow";
 
 export const nodeTypes: Record<string, (props: any) => JSX.Element> = {
   ...conditionalNodeTypes,
@@ -11,5 +12,15 @@ export const nodeTypes: Record<string, (props: any) => JSX.Element> = {
 
 export interface CustomNodeProps<T> extends NodeProps<T> {
   preview: boolean;
-  title: string;
 }
+
+export interface NodeExtension {
+  title?: string;
+  isInput?: boolean;
+  canBeInput?: boolean;
+}
+
+export type VisualNode<
+  T = any,
+  U extends string | undefined = string | undefined
+> = Node<T, U> & NodeExtension;

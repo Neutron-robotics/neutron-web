@@ -1,6 +1,6 @@
 import { makeStyles } from "@mui/styles"
 import { FC } from "react"
-import { CustomNodeProps, nodeTypes } from "."
+import { CustomNodeProps, NodeExtension, nodeTypes } from "."
 import { v4 } from "uuid"
 
 const useStyles = makeStyles(() => ({
@@ -15,18 +15,18 @@ interface NodePreviewProps<T> {
     nodeProps: T,
     width: number,
     height: number,
+    canBeInput?: boolean
     onDragStart: () => void,
     onDragEnd: () => void
 }
 
 const NodePreview = <T,>(props: NodePreviewProps<T>) => {
-    const { node: Node, nodeProps, width, height, onDragEnd, onDragStart, title } = props
+    const { node: Node, nodeProps, width, height, canBeInput, onDragEnd, onDragStart, title } = props
     const classes = useStyles()
     const nodeType = Object.keys(nodeTypes).find(e => nodeTypes[e] === Node) ?? ''
 
     const defaultProps: CustomNodeProps<T> = {
         zIndex: 1,
-        title,
         data: {
             ...nodeProps
         },
@@ -40,10 +40,16 @@ const NodePreview = <T,>(props: NodePreviewProps<T>) => {
         preview: true
     }
 
+    const nodeExtension: NodeExtension = {
+        canBeInput,
+        title
+    }
+
     const handleDragStart = (event: React.DragEvent, nodeType: string) => {
         console.log("drag started")
         event.dataTransfer.setData('application/reactflow', nodeType);
         event.dataTransfer.setData('application/reactflow/data', JSON.stringify(nodeProps));
+        event.dataTransfer.setData('application/reactflow/extension', JSON.stringify(nodeExtension));
         event.dataTransfer.effectAllowed = 'move';
         onDragStart()
     };

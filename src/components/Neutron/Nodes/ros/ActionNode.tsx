@@ -1,8 +1,9 @@
 import { makeStyles } from '@mui/styles';
 import { IRos2Action } from 'neutron-core';
-import { Handle, NodeProps, Position } from 'reactflow';
+import { Handle, Position } from 'reactflow';
+import withBorder, { NodePropsBorderable } from '../withBorder';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme: any) => ({
     root: {
         border: '1px solid #eee',
         padding: '5px',
@@ -14,6 +15,9 @@ const useStyles = makeStyles(() => ({
             fontSize: '12px',
         },
         userSelect: 'none'
+    },
+    inputNode: {
+        border: `1px solid ${theme.palette.primary.main}`
     },
     nodeTitle: {
         fontWeight: 'bold',
@@ -50,13 +54,13 @@ interface ActionNodeProps {
     action: IRos2Action
 }
 
-function ActionNode(props: NodeProps<ActionNodeProps>) {
-    const { data } = props
+function ActionNode(props: NodePropsBorderable<ActionNodeProps>) {
+    const { data, isInput } = props
     const { action } = data
     const classes = useStyles()
 
     return (
-        <div className={classes.root}>
+        <div className={`${classes.root} ${isInput ? classes.inputNode : ''}`}>
             <div>
                 <div className={classes.nodeTitle}>{action.name}</div>
                 <div className={classes.nodeBody}>
@@ -93,4 +97,4 @@ function ActionNode(props: NodeProps<ActionNodeProps>) {
     );
 }
 
-export default ActionNode;
+export default withBorder<ActionNodeProps>(ActionNode);

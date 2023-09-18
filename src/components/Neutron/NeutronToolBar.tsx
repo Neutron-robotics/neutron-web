@@ -160,6 +160,7 @@ const RosMenu = (props: Ros2MenuProps) => {
             <div className={classes.rosComponentList}>
                 {ros2System?.subscribers.map(sub => (
                     <NodePreview
+                        canBeInput
                         onDragEnd={onDragEnd}
                         onDragStart={onDragStart}
                         node={SubscriberNode}
@@ -175,6 +176,7 @@ const RosMenu = (props: Ros2MenuProps) => {
             <div className={classes.rosComponentList}>
                 {ros2System?.services.map(srv => (
                     <NodePreview
+                        canBeInput
                         onDragEnd={onDragEnd}
                         onDragStart={onDragStart}
                         node={ServiceNode}
@@ -190,6 +192,7 @@ const RosMenu = (props: Ros2MenuProps) => {
             <div className={classes.rosComponentList}>
                 {ros2System?.actions.map(act => (
                     <NodePreview
+                        canBeInput
                         onDragEnd={onDragEnd}
                         onDragStart={onDragStart}
                         node={ActionNode}
