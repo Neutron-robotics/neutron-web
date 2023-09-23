@@ -17,11 +17,12 @@ interface NodePreviewProps<T> {
     height: number,
     canBeInput?: boolean
     onDragStart: () => void,
-    onDragEnd: () => void
+    onDragEnd: () => void,
+    scale?: number
 }
 
 const NodePreview = <T,>(props: NodePreviewProps<T>) => {
-    const { node: Node, nodeProps, width, height, canBeInput, onDragEnd, onDragStart, title } = props
+    const { node: Node, nodeProps, width, height, canBeInput, onDragEnd, onDragStart, title, scale } = props
     const classes = useStyles()
     const nodeType = Object.keys(nodeTypes).find(e => nodeTypes[e] === Node) ?? ''
 
@@ -55,7 +56,7 @@ const NodePreview = <T,>(props: NodePreviewProps<T>) => {
     };
 
     return (
-        <div className={classes.preview} draggable onDragStart={(event) => handleDragStart(event, nodeType)} onDragEnd={onDragEnd} style={{ width, height }}>
+        <div className={classes.preview} draggable onDragStart={(event) => handleDragStart(event, nodeType)} onDragEnd={onDragEnd} style={scale ? { transform: `scale(${scale})` } : { width, height }}>
             <Node {...defaultProps} />
         </div>
     )

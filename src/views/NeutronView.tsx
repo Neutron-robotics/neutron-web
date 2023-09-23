@@ -1,13 +1,13 @@
 import { makeStyles } from "@mui/styles"
 import { useCallback, useEffect, useRef, useState } from "react";
 import NeutronToolBar from "../components/Neutron/NeutronToolBar";
-import ReactFlow, { Background, BackgroundVariant, Controls, Node, NodeChange, addEdge, applyEdgeChanges, applyNodeChanges, Edge, EdgeChange, Connection, ReactFlowProvider } from "reactflow";
+import ReactFlow, { Background, BackgroundVariant, Controls, NodeChange, addEdge, applyEdgeChanges, applyNodeChanges, Edge, EdgeChange, Connection, ReactFlowProvider } from "reactflow";
 import 'reactflow/dist/style.css';
 import { v4 } from "uuid";
 import * as organization from "../api/organization";
 import { IRobot, IRobotPart } from "../api/models/robot.model";
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { nodeTypes } from "../components/Neutron/Nodes";
+import { NodeExtension, VisualNode, nodeTypes } from "../components/Neutron/Nodes";
 import { IRos2PartSystem, IRos2System } from "neutron-core";
 import { getRos2System } from "../api/ros2";
 import { useAlert } from "../contexts/AlertContext";
@@ -23,9 +23,7 @@ const useStyles = makeStyles(() => ({
     flowContainer: {
         position: 'relative',
         marginTop: '2px',
-        // height: 'calc(100% - 90px)',
-        width: '70%',
-        height: '70%',
+        height: 'calc(100% - 90px)',
         '& .react-flow__attribution': {
             visibility: 'hidden',
         },
@@ -45,13 +43,13 @@ interface NeutronViewProps {
 
 }
 
-const initialNodes: Node[] = [];
+const initialNodes: VisualNode[] = [];
 const initialEdges: Edge[] = [];
 
 const NeutronView = (props: NeutronViewProps) => {
     const classes = useStyles()
     const alert = useAlert()
-    const [nodes, setNodes] = useState<Node[]>(initialNodes);
+    const [nodes, setNodes] = useState<VisualNode[]>(initialNodes);
     const [edges, setEdges] = useState<Edge[]>(initialEdges);
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
     const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
@@ -61,9 +59,6 @@ const NeutronView = (props: NeutronViewProps) => {
     const [selectedPart, setSelectedPart] = useState<IRobotPart>()
     const [menu, setMenu] = useState<NodeContextMenuProps>();
     const menuRef = useRef<HTMLDivElement>(null);
-
-    // console.log("Nodes: ", nodes)
-    // console.log("Edges: ", edges)
 
     useEffect(() => {
         const fetchOrganizations = async () => {
@@ -78,21 +73,25 @@ const NeutronView = (props: NeutronViewProps) => {
     }, [])
 
     const onNodeContextMenu = useCallback(
-        (event: React.MouseEvent<Element, MouseEvent>, node: Node) => {
-            // Prevent native context menu from showing
+        (event: React.MouseEvent<Element, MouseEvent>, node: VisualNode) => {
             event.preventDefault();
-            // Calculate position of the context menu. We want to make sure it
-            // doesn't get positioned off-screen.
-
             if (!menuRef.current)
                 return
 
             const pane = menuRef.current.getBoundingClientRect();
-
-            setMenu({
-                id: node.id,
+            console.log("opening at ", {
                 top: ((event.clientY < pane.height - 200) ? event.clientY : undefined) as number,
                 left: ((event.clientX < pane.width - 200) ? event.clientX : undefined) as number,
+                right: ((event.clientX >= pane.width - 200) ? Math.abs(pane.width - event.clientX) : undefined) as number,
+                bottom: ((event.clientY >= pane.height - 200) ? Math.abs(pane.height - event.clientY) : undefined) as number,
+            })
+            setMenu({
+                id: node.id,
+                canBeInput: node.canBeInput,
+                isInput: node.isInput,
+                title: node.title ?? 'Custom Node',
+                top: ((event.clientY < pane.height - 200) ? event.clientY - 100 : undefined) as number,
+                left: ((event.clientX < pane.width - 200) ? event.clientX - 100 : undefined) as number,
                 right: ((event.clientX >= pane.width - 200) ? Math.abs(pane.width - event.clientX) : undefined) as number,
                 bottom: ((event.clientY >= pane.height - 200) ? Math.abs(pane.height - event.clientY) : undefined) as number,
             });
@@ -116,7 +115,6 @@ const NeutronView = (props: NeutronViewProps) => {
     );
 
     const onDragOver = (event: any) => {
-        console.log("dragOver")
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
     };
@@ -132,7 +130,7 @@ const NeutronView = (props: NeutronViewProps) => {
             const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
             const type = event.dataTransfer.getData('application/reactflow');
             const data = JSON.parse(event.dataTransfer.getData('application/reactflow/data'));
-            const title = event.dataTransfer.getData('application/reactflow/title');
+            const extension = JSON.parse(event.dataTransfer.getData('application/reactflow/extension')) as NodeExtension;
 
             // check if the dropped element is valid
             if (typeof type === 'undefined' || !type) {
@@ -145,11 +143,11 @@ const NeutronView = (props: NeutronViewProps) => {
             });
             const newNode = {
                 id: v4(),
-                title,
                 type,
                 position,
                 preview: false,
                 data: data,
+                ...extension
             };
 
             setNodes((nds) => nds.concat(newNode));

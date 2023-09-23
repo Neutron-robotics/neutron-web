@@ -13,6 +13,7 @@ import { useCallback, useEffect, useState } from "react";
 import React from "react";
 import { InputIconButton } from "../../controls/InputButton";
 import inputActions from "hotkeys-inputs-js";
+import { v4 } from "uuid";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -34,30 +35,30 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
     const connection = useConnection(connectionId ?? "")
     const [rotateFactor, setRotateFactor] = useState(0)
     const [direction, setDirection] = useState(0)
-    const robotBase = connection?.modules.find(m => m.id === moduleId) as RobotBase | undefined
-    const [speed, setSpeed] = useState(robotBase?.speed ?? 30)
+    // const robotBase = connection?.modules.find(m => m.id === moduleId) as RobotBase | undefined
+    const [speed, setSpeed] = useState(/*robotBase?.speed  ??*/ 30)
 
     const handleStop = useCallback(() => {
         setRotateFactor(0)
         setDirection(0)
-        robotBase?.stop()
-    }, [robotBase])
+        //robotBase?.stop()
+    }, [/* robotBase */])
 
     useEffect(() => {
         if (direction === 0 && rotateFactor === 0)
             return
-        robotBase?.move([direction, 0, 0, 0, 0, rotateFactor / 10])
-    }, [direction, robotBase, rotateFactor])
+        //robotBase?.move([direction, 0, 0, 0, 0, rotateFactor / 10])
+    }, [direction, /*robotBase, */ rotateFactor])
+
+    // useEffect(() => {
+    //     if (robotBase && robotBase.speed !== speed)
+    //         robotBase.speed = speed
+    // }, [robotBase, speed])
 
     useEffect(() => {
-        if (robotBase && robotBase.speed !== speed)
-            robotBase.speed = speed
-    }, [robotBase, speed])
-
-    useEffect(() => {
-        if (!robotBase)
-            return
-        const id = robotBase?.id ?? 0
+        // if (!robotBase)
+        //     return
+        const id = v4() //robotBase?.id ?? 0
         inputActions.onInputActions(`robotBase-${id}`, {
             'direction': handleDirectionChange,
             'rotation': handleRotationChange,
@@ -67,7 +68,7 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
         return () => {
             inputActions.offInputActions(`robotBase-${id}`)
         }
-    }, [handleStop, robotBase, robotBase?.id])
+    }, [handleStop, /* robotBase /*, /*robotBase?.id */])
 
     const handleRotationChange = (v?: number) => {
         if (!v) return
@@ -98,8 +99,8 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
     }
 
     const handleSpeedChange = (e: any, value: number | number[]) => {
-        if (typeof value === "number" && robotBase) {
-            robotBase.speed = value
+        if (typeof value === "number"/* &&  robotBase */) {
+            //robotBase.speed = value
             setSpeed(value)
         }
     }

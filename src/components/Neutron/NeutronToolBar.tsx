@@ -17,6 +17,8 @@ import ServiceNode from "./Nodes/ros/ServiceNode";
 import ActionNode from "./Nodes/ros/ActionNode";
 import PickNode from "./Nodes/transform/PickNode";
 import PurcentageNode from "./Nodes/transform/PurcentageNode";
+import BaseControllerNode from "./Nodes/components/BaseControllerNode";
+import Ros2CameraNode from "./Nodes/components/Ros2CameraNode";
 
 const useStyles = makeStyles(() => ({
     toolbar: {
@@ -250,7 +252,11 @@ const ComponentsMenu = (props: ComponentMenuProps) => {
         <>
             <span>Controls</span>
             <div className={classes.rosComponentList}>
-
+                <NodePreview title='Base Controller' canBeInput onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{ preview: true }} node={BaseControllerNode} width={120} height={60} />
+            </div>
+            <span>Vision</span>
+            <div className={classes.rosComponentList}>
+                <NodePreview title='Ros2 Camera' onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{ preview: true }} node={Ros2CameraNode} width={120} height={60} />
             </div>
         </>
     )

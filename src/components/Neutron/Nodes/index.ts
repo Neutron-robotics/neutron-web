@@ -3,11 +3,13 @@ import { conditionalNodeTypes } from "./conditional";
 import { rosNodeTypes } from "./ros";
 import { transformNodeTypes } from "./transform";
 import { Node } from "reactflow";
+import { componentNodeType } from "./components";
 
 export const nodeTypes: Record<string, (props: any) => JSX.Element> = {
   ...conditionalNodeTypes,
   ...transformNodeTypes,
   ...rosNodeTypes,
+  ...componentNodeType,
 };
 
 export interface CustomNodeProps<T> extends NodeProps<T> {
