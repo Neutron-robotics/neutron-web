@@ -5,7 +5,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import SaveIcon from '@mui/icons-material/Save';
 import ExtensionIcon from '@mui/icons-material/Extension';
 import { EditText } from "react-edit-text";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import NodePreview from "./Nodes/NodePreview";
 import AndNode from "./Nodes/conditional/AndNode";
 import OrNode from "./Nodes/conditional/OrNode";
@@ -19,6 +19,7 @@ import PickNode from "./Nodes/transform/PickNode";
 import PurcentageNode from "./Nodes/transform/PurcentageNode";
 import BaseControllerNode from "./Nodes/components/BaseControllerNode";
 import Ros2CameraNode from "./Nodes/components/Ros2CameraNode";
+import { useEdgesState, useNodesState, useReactFlow } from "reactflow";
 
 const useStyles = makeStyles(() => ({
     toolbar: {
@@ -57,11 +58,12 @@ const useStyles = makeStyles(() => ({
 }))
 
 interface NeutronToolBarProps {
-    ros2System?: IRos2System | IRos2PartSystem
+    ros2System?: IRos2System | IRos2PartSystem,
+    reactFlowInstance: any
 }
 
 const NeutronToolBar = (props: NeutronToolBarProps) => {
-    const { ros2System } = props
+    const { ros2System, reactFlowInstance } = props
     const classes = useStyles()
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [dragging, setDragging] = useState(false)
@@ -75,6 +77,13 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
         setAnchorEl(null);
     };
 
+    const onSave = useCallback(() => {
+        if (reactFlowInstance) {
+            const flow = reactFlowInstance.toObject();
+            console.log("flow", flow)
+        }
+    }, [reactFlowInstance]);
+
     return (
         <div className={classes.toolbar}>
             <div className={classes.leftTools}>
@@ -84,7 +93,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                 <IconButton color="secondary">
                     <FolderOpenIcon />
                 </IconButton>
-                <IconButton color="secondary">
+                <IconButton onClick={onSave} color="secondary">
                     <SaveIcon />
                 </IconButton>
                 <div className={classes.separation} />

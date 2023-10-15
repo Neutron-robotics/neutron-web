@@ -219,7 +219,7 @@ const RobotView = (props: RobotViewProps) => {
             </Tabs>
             {activeTab === 0 && (
                 <div>
-                    {robot.parts && robot.parts.length && robot.parts.map(part => (<RobotPartCard key={part.name} robotPart={part} onClick={() => onSelectPart(part)} />))}
+                    {robot.parts && robot.parts.length ? robot.parts.map(part => (<RobotPartCard key={part.name} robotPart={part} onClick={() => onSelectPart(part)} />)) : ''}
                 </div>
             )}
             {Dialog}

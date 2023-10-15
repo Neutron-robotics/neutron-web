@@ -47,7 +47,7 @@ const RenderTypeEdit = (props: RenderTypeEditProps) => {
     const apiRef = useGridApiContext();
 
     useEffect(() => {
-        apiRef.current.setEditCellValue({ id, field, value: serviceTypes.length ? row.serviceTypeId ?? serviceTypes[0]._id : '' });
+        apiRef.current.setEditCellValue({ id, field, value: serviceTypes.length ? row.serviceTypeId ?? serviceTypes[0]?._id : '' });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -56,7 +56,7 @@ const RenderTypeEdit = (props: RenderTypeEditProps) => {
     }
 
     return (
-        <Select onChange={handleSelectChange} defaultValue={serviceTypes.length ? row.serviceTypeId ?? serviceTypes[0]._id : ''} value={row.serviceTypeId ?? serviceTypes[0]._id} fullWidth>
+        <Select onChange={handleSelectChange} defaultValue={serviceTypes.length ? row.serviceTypeId ?? serviceTypes[0]?._id : ''} value={row.serviceTypeId ?? serviceTypes[0]?._id} fullWidth>
             {serviceTypes.map((e) => (
                 <MenuItem key={e._id} value={e._id}>
                     {e.name}
@@ -299,7 +299,8 @@ const ServiceTable = (props: IServiceTableProps) => {
                     toolbar: {
                         setRows,
                         setRowModesModel,
-                        handleCreateServiceTypeClick
+                        handleCreateServiceTypeClick,
+                        serviceTypesLength: serviceTypes.length
                     },
                 }}
             />
@@ -308,6 +309,7 @@ const ServiceTable = (props: IServiceTableProps) => {
 };
 
 interface EditToolbarProps {
+    serviceTypesLength: number;
     setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
     setRowModesModel: (
         newModel: (oldModel: GridRowModesModel) => GridRowModesModel
@@ -316,7 +318,7 @@ interface EditToolbarProps {
 }
 
 function EditToolbar(props: EditToolbarProps) {
-    const { setRows, setRowModesModel, handleCreateServiceTypeClick } = props;
+    const { serviceTypesLength, setRows, setRowModesModel, handleCreateServiceTypeClick } = props;
 
     const handleClick = () => {
         const id = v4();
@@ -331,7 +333,7 @@ function EditToolbar(props: EditToolbarProps) {
         <GridToolbarContainer
             sx={{ display: "flex !important", justifyContent: "space-between" }}
         >
-            <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
+            <Button color="primary" disabled={serviceTypesLength === 0} startIcon={<AddIcon />} onClick={handleClick}>
                 Add record
             </Button>
             <ButtonDialog

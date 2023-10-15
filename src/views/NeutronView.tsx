@@ -60,6 +60,9 @@ const NeutronView = (props: NeutronViewProps) => {
     const [menu, setMenu] = useState<NodeContextMenuProps>();
     const menuRef = useRef<HTMLDivElement>(null);
 
+    console.log("Nodes:", nodes)
+    console.log("Edges:", edges)
+
     useEffect(() => {
         const fetchOrganizations = async () => {
             const organizations = await organization.me()
@@ -185,7 +188,7 @@ const NeutronView = (props: NeutronViewProps) => {
     return (
         <div className={classes.root}>
             <ReactFlowProvider>
-                <NeutronToolBar ros2System={ros2System} />
+                <NeutronToolBar ros2System={ros2System} reactFlowInstance={reactFlowInstance} />
                 <div className={classes.flowContainer} ref={reactFlowWrapper}>
                     <div className={classes.selectContainer}>
                         <Select sx={{ m: 1, minWidth: 120 }} native size="small" onChange={handleOnRobotChange} className={classes.select} defaultValue="Select a robot" label="Robot">

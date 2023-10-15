@@ -63,6 +63,7 @@ const OrganizationPage = (props: OrganizationPageProps) => {
 
     const handleOnSelectRobot = async (robot: IRobot | null) => {
         if (!robot) {
+            setViewItem(OrganizationViewType.Robot)
             return
         }
         try {

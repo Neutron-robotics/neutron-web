@@ -45,7 +45,7 @@ const RenderTypeEdit = (props: RenderTypeEditProps) => {
     const apiRef = useGridApiContext();
 
     useEffect(() => {
-        apiRef.current.setEditCellValue({ id, field, value: topics.length ? row.topicId ?? topics[0]._id : '' });
+        apiRef.current.setEditCellValue({ id, field, value: topics.length ? row.topicId ?? topics[0]?._id : '' });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -54,7 +54,7 @@ const RenderTypeEdit = (props: RenderTypeEditProps) => {
     }
 
     return (
-        <Select onChange={handleSelectChange} defaultValue={topics.length ? row.topicId ?? topics[0]._id : ''} value={row.topicId ?? topics[0]._id} fullWidth>
+        <Select onChange={handleSelectChange} defaultValue={topics.length ? row.topicId ?? topics[0]?._id : ''} value={row.topicId ?? topics[0]?._id} fullWidth>
             {topics.map((e) => (
                 <MenuItem key={e._id} value={e._id}>
                     {e.name}
@@ -287,6 +287,7 @@ const PublisherTable = (props: IPublisherTableProps) => {
                     toolbar: {
                         setRows,
                         setRowModesModel,
+                        topicLength: topics.length
                     },
                 }}
             />
@@ -295,6 +296,7 @@ const PublisherTable = (props: IPublisherTableProps) => {
 };
 
 interface EditToolbarProps {
+    topicLength: number
     setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
     setRowModesModel: (
         newModel: (oldModel: GridRowModesModel) => GridRowModesModel
@@ -302,7 +304,7 @@ interface EditToolbarProps {
 }
 
 function EditToolbar(props: EditToolbarProps) {
-    const { setRows, setRowModesModel } = props;
+    const { topicLength, setRows, setRowModesModel } = props;
 
     const handleClick = () => {
         const id = v4();
@@ -317,7 +319,7 @@ function EditToolbar(props: EditToolbarProps) {
         <GridToolbarContainer
             sx={{ display: "flex !important", justifyContent: "space-between" }}
         >
-            <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
+            <Button disabled={topicLength === 0} color="primary" startIcon={<AddIcon />} onClick={handleClick}>
                 Add record
             </Button>
         </GridToolbarContainer>

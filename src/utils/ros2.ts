@@ -1,22 +1,55 @@
 import { v4 } from "uuid";
 import { IRobot, IRobotPart } from "../api/models/robot.model";
-import { IRos2ActionMessage, IRos2Field, IRos2Message, IRos2PartSystem, IRos2ServiceMessage, IRos2System, IRos2Topic } from "neutron-core";
+import {
+  IRos2ActionMessage,
+  IRos2Field,
+  IRos2Message,
+  IRos2PartSystem,
+  IRos2ServiceMessage,
+  IRos2System,
+  IRos2Topic,
+  hasDuplicates,
+} from "neutron-core";
 
-export const cacheRos2System = (robot: IRobot , system: IRos2System) => {
+export const cacheRos2System = (robot: IRobot, system: IRos2System) => {
   for (const part of robot.parts) {
-    const partSystem = toPartSystem(part, system)
+    const partSystem = toPartSystem(part, system);
 
-    localStorage.setItem(`messageTypes-${robot._id}-${part._id}`, JSON.stringify(partSystem.messageTypes));
-    localStorage.setItem(`serviceType-${robot._id}-${part._id}`, JSON.stringify(partSystem.serviceTypes));
-    localStorage.setItem(`actionType-${robot._id}-${part._id}`, JSON.stringify(partSystem.actionTypes));
+    localStorage.setItem(
+      `messageTypes-${robot._id}-${part._id}`,
+      JSON.stringify(partSystem.messageTypes)
+    );
+    localStorage.setItem(
+      `serviceType-${robot._id}-${part._id}`,
+      JSON.stringify(partSystem.serviceTypes)
+    );
+    localStorage.setItem(
+      `actionType-${robot._id}-${part._id}`,
+      JSON.stringify(partSystem.actionTypes)
+    );
 
-    localStorage.setItem(`topics-${robot._id}-${part._id}`, JSON.stringify(partSystem.topics));
-    localStorage.setItem(`publishers-${robot._id}-${part._id}`, JSON.stringify(partSystem.publishers));
-    localStorage.setItem(`subscribers-${robot._id}-${part._id}`, JSON.stringify(partSystem.subscribers));
-    localStorage.setItem(`services-${robot._id}-${part._id}`, JSON.stringify(partSystem.services));
-    localStorage.setItem(`actions-${robot._id}-${part._id}`, JSON.stringify(partSystem.actions));
+    localStorage.setItem(
+      `topics-${robot._id}-${part._id}`,
+      JSON.stringify(partSystem.topics)
+    );
+    localStorage.setItem(
+      `publishers-${robot._id}-${part._id}`,
+      JSON.stringify(partSystem.publishers)
+    );
+    localStorage.setItem(
+      `subscribers-${robot._id}-${part._id}`,
+      JSON.stringify(partSystem.subscribers)
+    );
+    localStorage.setItem(
+      `services-${robot._id}-${part._id}`,
+      JSON.stringify(partSystem.services)
+    );
+    localStorage.setItem(
+      `actions-${robot._id}-${part._id}`,
+      JSON.stringify(partSystem.actions)
+    );
   }
-}
+};
 
 export const toPartSystem = (part: IRobotPart, system: IRos2System) => {
   const partSystem: IRos2PartSystem = {
@@ -52,7 +85,7 @@ export const toPartSystem = (part: IRobotPart, system: IRos2System) => {
 
   partSystem.messageTypes = partSystem.topics.reduce<IRos2Message[]>(
     (acc, cur) => {
-      if (!acc.find(a => a._id === cur.messageType._id)) {
+      if (!acc.find((a) => a._id === cur.messageType._id)) {
         acc.push(cur.messageType);
       }
       return acc;
@@ -80,7 +113,7 @@ export function parseRos2MessageContent(fileContent: string): IRos2Field[] {
 
   for (const line of lines) {
     if (!line.replaceAll(" ", "").length) continue;
-    const [fieldName, fieldType] = line.split(" ");
+    const [fieldType, fieldName] = line.split(" ");
     // The field type can be either a basic type or a message type.
     if (!fieldName || !fieldType) throw new Error("Inconsistent type or param");
     fields.push({
@@ -88,6 +121,9 @@ export function parseRos2MessageContent(fileContent: string): IRos2Field[] {
       fieldtype: fieldType,
     });
   }
+
+  if (hasDuplicates(fields, 'fieldname'))
+    throw new Error("Duplicated fieldname")
 
   return fields;
 }
@@ -132,16 +168,16 @@ export function parseRos2ActionMessageContent(fileContent: string) {
   const goalFields: IRos2Field[] = [];
   const feedbackFields: IRos2Field[] = [];
   const resultFields: IRos2Field[] = [];
-  let currentSection: 'goal' | 'feedback' | 'result' = 'goal';
+  let currentSection: "goal" | "feedback" | "result" = "goal";
 
   for (const line of lines) {
     if (!line.replaceAll(" ", "").length) continue;
 
-    if (line.trim() === '---') {
-      if (currentSection === 'goal') {
-        currentSection = 'feedback';
-      } else if (currentSection === 'feedback') {
-        currentSection = 'result';
+    if (line.trim() === "---") {
+      if (currentSection === "goal") {
+        currentSection = "feedback";
+      } else if (currentSection === "feedback") {
+        currentSection = "result";
       } else {
         throw new Error("Invalid section separator");
       }
@@ -156,11 +192,11 @@ export function parseRos2ActionMessageContent(fileContent: string) {
       fieldtype: fieldType,
     };
 
-    if (currentSection === 'goal') {
+    if (currentSection === "goal") {
       goalFields.push(field);
-    } else if (currentSection === 'feedback') {
+    } else if (currentSection === "feedback") {
       feedbackFields.push(field);
-    } else if (currentSection === 'result') {
+    } else if (currentSection === "result") {
       resultFields.push(field);
     }
   }

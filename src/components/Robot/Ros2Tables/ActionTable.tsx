@@ -47,7 +47,7 @@ const RenderTypeEdit = (props: RenderTypeEditProps) => {
     const apiRef = useGridApiContext();
 
     useEffect(() => {
-        apiRef.current.setEditCellValue({ id, field, value: actionTypes.length ? row.actionTypeId ?? actionTypes[0]._id : '' });
+        apiRef.current.setEditCellValue({ id, field, value: actionTypes.length ? row.actionTypeId ?? actionTypes[0]?._id : '' });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -56,7 +56,7 @@ const RenderTypeEdit = (props: RenderTypeEditProps) => {
     }
 
     return (
-        <Select onChange={handleSelectChange} defaultValue={actionTypes.length ? row.actionTypeId ?? actionTypes[0]._id : ''} value={row.actionTypeId ?? actionTypes[0]._id} fullWidth>
+        <Select onChange={handleSelectChange} defaultValue={actionTypes.length ? row.actionTypeId ?? actionTypes[0]?._id : ''} value={row.actionTypeId ?? actionTypes[0]?._id} fullWidth>
             {actionTypes.map((e) => (
                 <MenuItem key={e._id} value={e._id}>
                     {e.name}
@@ -300,7 +300,8 @@ const ActionTable = (props: IActionTableProps) => {
                     toolbar: {
                         setRows,
                         setRowModesModel,
-                        handleCreateActionTypeClick
+                        handleCreateActionTypeClick,
+                        actionTypesLength: actionTypes.length
                     },
                 }}
             />
@@ -309,6 +310,7 @@ const ActionTable = (props: IActionTableProps) => {
 };
 
 interface EditToolbarProps {
+    actionTypesLength: number
     setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
     setRowModesModel: (
         newModel: (oldModel: GridRowModesModel) => GridRowModesModel
@@ -317,7 +319,7 @@ interface EditToolbarProps {
 }
 
 function EditToolbar(props: EditToolbarProps) {
-    const { setRows, setRowModesModel, handleCreateActionTypeClick } = props;
+    const { actionTypesLength, setRows, setRowModesModel, handleCreateActionTypeClick } = props;
 
     const handleClick = () => {
         const id = v4();
@@ -332,7 +334,7 @@ function EditToolbar(props: EditToolbarProps) {
         <GridToolbarContainer
             sx={{ display: "flex !important", justifyContent: "space-between" }}
         >
-            <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
+            <Button disabled={actionTypesLength === 0} color="primary" startIcon={<AddIcon />} onClick={handleClick}>
                 Add record
             </Button>
             <ButtonDialog

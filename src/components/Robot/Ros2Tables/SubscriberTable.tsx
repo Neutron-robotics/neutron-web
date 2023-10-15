@@ -274,6 +274,7 @@ const SubscriberTable = (props: ISubscriberTableProps) => {
                 }}
                 slotProps={{
                     toolbar: {
+                        topicLength: topics.length,
                         setRows,
                         setRowModesModel,
                     },
@@ -284,6 +285,7 @@ const SubscriberTable = (props: ISubscriberTableProps) => {
 };
 
 interface EditToolbarProps {
+    topicLength: number
     setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
     setRowModesModel: (
         newModel: (oldModel: GridRowModesModel) => GridRowModesModel
@@ -291,7 +293,7 @@ interface EditToolbarProps {
 }
 
 function EditToolbar(props: EditToolbarProps) {
-    const { setRows, setRowModesModel } = props;
+    const { topicLength, setRows, setRowModesModel } = props;
 
     const handleClick = () => {
         const id = v4();
@@ -306,7 +308,7 @@ function EditToolbar(props: EditToolbarProps) {
         <GridToolbarContainer
             sx={{ display: "flex !important", justifyContent: "space-between" }}
         >
-            <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
+            <Button disabled={topicLength === 0} color="primary" startIcon={<AddIcon />} onClick={handleClick}>
                 Add record
             </Button>
         </GridToolbarContainer>
