@@ -4,7 +4,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import SaveIcon from '@mui/icons-material/Save';
 import ExtensionIcon from '@mui/icons-material/Extension';
-import { EditText } from "react-edit-text";
+import { EditText, onSaveProps } from "react-edit-text";
 import { useCallback, useState } from "react";
 import NodePreview from "./Nodes/NodePreview";
 import AndNode from "./Nodes/conditional/AndNode";
@@ -19,7 +19,15 @@ import PickNode from "./Nodes/transform/PickNode";
 import PurcentageNode from "./Nodes/transform/PurcentageNode";
 import BaseControllerNode from "./Nodes/components/BaseControllerNode";
 import Ros2CameraNode from "./Nodes/components/Ros2CameraNode";
-import { useEdgesState, useNodesState, useReactFlow } from "reactflow";
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { getRectOfNodes, getTransformForBounds, useEdgesState, useNodesState, useReactFlow } from "reactflow";
+import { toPng } from 'html-to-image';
+import { Options } from "html-to-image/lib/types";
+import { CreateGraphModel } from "../../api/models/graph.model";
+import { useAlert } from "../../contexts/AlertContext";
+import makeGraphThumbnailFile from "../../utils/makeGraphThumbnail";
+import { uploadFile } from "../../api/file";
 
 const useStyles = makeStyles(() => ({
     toolbar: {
@@ -57,16 +65,30 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
+function downloadImage(dataUrl: string) {
+    const a = document.createElement('a');
+
+    a.setAttribute('download', 'reactflow.png');
+    a.setAttribute('href', dataUrl);
+    a.click();
+}
+
 interface NeutronToolBarProps {
     ros2System?: IRos2System | IRos2PartSystem,
-    reactFlowInstance: any
+    reactFlowInstance: any,
+    selectedRobotId?: string
+    selectedRobotPartId?: string
 }
 
 const NeutronToolBar = (props: NeutronToolBarProps) => {
-    const { ros2System, reactFlowInstance } = props
+    const { ros2System, reactFlowInstance, selectedRobotId, selectedRobotPartId } = props
     const classes = useStyles()
+    const [title, setTitle] = useState('')
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [dragging, setDragging] = useState(false)
+    const { getNodes } = useReactFlow();
+    const alert = useAlert()
+    const [isNewDocument, setIsNewDocument] = useState(true)
 
     const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -77,12 +99,40 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
         setAnchorEl(null);
     };
 
-    const onSave = useCallback(() => {
-        if (reactFlowInstance) {
+    const onSave = useCallback(async () => {
+        if (title === '')
+            alert.error('Cannot save graph because it has no title')
+        else if (!selectedRobotId)
+            alert.error('Cannot save graph because no robot is assigned to the graph')
+        else if (!reactFlowInstance)
+            alert.error('Cannot find flow instance, contact your administrator')
+        else {
             const flow = reactFlowInstance.toObject();
             console.log("flow", flow)
+
+            const nodeGraph: CreateGraphModel = {
+                title,
+                robotId: selectedRobotId,
+                partId: selectedRobotPartId,
+                nodes: flow.nodes,
+                edges: flow.edges
+            }
+            console.log("Creating a nodeGraph with properties", nodeGraph)
+
+            const file = await makeGraphThumbnailFile(title, flow.nodes)
+            console.log("file is", file)
+            if (file) {
+                const res = await uploadFile(file)
+                console.log("res = ", res)
+            }
         }
-    }, [reactFlowInstance]);
+
+    }, [getNodes, reactFlowInstance]);
+
+    const handleTitleUpdate = (data: onSaveProps) => {
+        console.log("set title to", data.value)
+        setTitle(data.value)
+    }
 
     return (
         <div className={classes.toolbar}>
@@ -96,6 +146,12 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                 <IconButton onClick={onSave} color="secondary">
                     <SaveIcon />
                 </IconButton>
+                <IconButton disabled onClick={onSave} color="secondary">
+                    <PlayCircleIcon />
+                </IconButton>
+                <IconButton onClick={onSave} color="secondary">
+                    <DeleteIcon />
+                </IconButton>
                 <div className={classes.separation} />
                 <IconButton id="ros" onClick={handleMenuClick} color="secondary" aria-label="ros">
                     <img src={`${process.env.PUBLIC_URL}/assets/ros.svg`} height={20} alt="robot-icon" />
@@ -107,7 +163,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                     <img src={`${process.env.PUBLIC_URL}/assets/transform.svg`} width={30} alt="robot-icon" />
                 </IconButton>
             </div>
-            <EditText className={classes.title} defaultValue="Enter title here" />
+            <EditText className={classes.title} onSave={handleTitleUpdate} defaultValue="Enter title here" />
             <div>
                 <IconButton id="components" onClick={handleMenuClick} color="secondary" aria-label="components">
                     <ExtensionIcon />

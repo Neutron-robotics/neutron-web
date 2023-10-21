@@ -30,9 +30,7 @@ interface OrNodeProps {
 }
 
 const OrNode = (props: OrNodeProps) => {
-    const { } = props
     const classes = useStyles()
-    const nodeUid = useMemo(() => v4(), [])
 
     return (
         <div className={classes.ifGate}>
@@ -42,14 +40,14 @@ const OrNode = (props: OrNodeProps) => {
             <div className={classes.textNode}>
                 IF
             </div>
-            <Handle id={`input-${nodeUid}`}
+            <Handle id={`nodeInput`}
                 type="target"
                 style={{ left: '-18px' }}
                 position={Position.Left}
                 isConnectableStart={false}
                 isConnectableEnd={true} />
 
-            <Handle id={`output-true-${nodeUid}`}
+            <Handle id={`nodeOutput`}
                 type="source"
                 style={{ right: '-18px' }}
                 position={Position.Right}

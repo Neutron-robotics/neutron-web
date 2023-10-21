@@ -31,7 +31,7 @@ const PurcentageNode = (props: CustomNodeProps<PurcentageNodeProps>) => {
 
     return (
         <div className={classes.nodeRoot}>
-            <Handle id={`source`}
+            <Handle id={`nodeInput`}
                 type="target"
                 position={Position.Left}
                 isConnectableStart={false}
@@ -41,7 +41,7 @@ const PurcentageNode = (props: CustomNodeProps<PurcentageNodeProps>) => {
                 <TextField className="nodrag" sx={{ m: 1, width: 60 }} size="small" disabled={preview} label="max" variant="outlined" type="number" />
             </div>
             <span className={classes.nodeLabel}>Purcentage</span>
-            <Handle id={`result`}
+            <Handle id={`nodeOutput`}
                 type="source"
                 position={Position.Right}
                 isConnectableStart={true}

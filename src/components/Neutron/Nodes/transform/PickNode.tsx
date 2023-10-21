@@ -31,7 +31,7 @@ const PickNode = (props: CustomNodeProps<PickNodeProps>) => {
 
     return (
         <div className={classes.nodeRoot}>
-            <Handle id={`source`}
+            <Handle id={`nodeInput`}
                 type="target"
                 position={Position.Left}
                 isConnectableStart={false}
@@ -48,7 +48,7 @@ const PickNode = (props: CustomNodeProps<PickNodeProps>) => {
                 <MenuItem value={30}>property 3</MenuItem>
             </Select>
             <span className={classes.nodeLabel}>Pick</span>
-            <Handle id={`result`}
+            <Handle id={`nodeOutput`}
                 type="source"
                 position={Position.Right}
                 isConnectableStart={true}

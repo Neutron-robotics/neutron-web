@@ -24,30 +24,27 @@ interface OrNodeProps {
 }
 
 const OrNode = (props: OrNodeProps) => {
-    const { } = props
     const classes = useStyles()
-    const nodeUid = useMemo(() => v4(), [])
-
     return (
         <div className={classes.orGate}>
             <div className={classes.textNode}>
                 OR
             </div>
-            <Handle id={`input-1-${nodeUid}`}
+            <Handle id={`input-1`}
                 type="target"
                 style={{ position: 'relative', left: '-6px', top: '15px' }}
                 position={Position.Left}
                 isConnectableStart={false}
                 isConnectableEnd={true} />
 
-            <Handle id={`input-2-${nodeUid}`}
+            <Handle id={`input-2`}
                 type="target"
                 style={{ position: 'relative', left: '-6px', top: '35px' }}
                 position={Position.Left}
                 isConnectableStart={false}
                 isConnectableEnd={true} />
 
-            <Handle id={`output-${nodeUid}`}
+            <Handle id={`nodeOutput`}
                 type="source"
                 position={Position.Right}
                 isConnectableStart={true}

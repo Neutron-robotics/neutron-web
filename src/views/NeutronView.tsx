@@ -188,7 +188,12 @@ const NeutronView = (props: NeutronViewProps) => {
     return (
         <div className={classes.root}>
             <ReactFlowProvider>
-                <NeutronToolBar ros2System={ros2System} reactFlowInstance={reactFlowInstance} />
+                <NeutronToolBar
+                    ros2System={ros2System}
+                    reactFlowInstance={reactFlowInstance}
+                    selectedRobotId={selectedRobot?._id}
+                    selectedRobotPartId={selectedPart?._id}
+                />
                 <div className={classes.flowContainer} ref={reactFlowWrapper}>
                     <div className={classes.selectContainer}>
                         <Select sx={{ m: 1, minWidth: 120 }} native size="small" onChange={handleOnRobotChange} className={classes.select} defaultValue="Select a robot" label="Robot">
