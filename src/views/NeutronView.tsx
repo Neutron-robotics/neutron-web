@@ -63,7 +63,6 @@ const NeutronView = (props: NeutronViewProps) => {
     const [neutronGraph, setNeutronGraph] = useState<INeutronGraph>()
 
     const handleNeutronGraphUpdate = (graph?: INeutronGraph) => {
-        console.log("hello")
         if (!neutronGraph && graph) {
             const robot = Object.values(availableRobots).reduce((acc, cur) => [...acc, ...cur], []).find(e => e._id === graph.robot)
             if (!robot) {
@@ -83,7 +82,6 @@ const NeutronView = (props: NeutronViewProps) => {
             setEdges(graph.edges)
         }
         if (!graph) {
-            console.log("reset")
             setNodes([])
             setEdges([])
             setSelectedPart(undefined)

@@ -119,9 +119,8 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
         }
     }, [alert, edges, loadedGraph, nodes, onGraphUpdate, selectedRobotId, selectedRobotPartId, title]);
 
-    const handleTitleUpdate = (data: onSaveProps) => {
-        console.log("set title to", data.value)
-        setTitle(data.value)
+    const handleTitleUpdate = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        setTitle(e.target.value)
     }
 
     const updated = title !== loadedGraph?.title ||
@@ -133,11 +132,13 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
         if (updated) {
             prompt('There are pending changes for your current graph, do you want to discard it ?', (confirm) => {
                 if (confirm) {
-                    console.log("confirmed")
                     setTitle('')
                     onGraphUpdate()
                 }
             })
+        } else {
+            setTitle('')
+            onGraphUpdate()
         }
     }
 
@@ -171,7 +172,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                     <img src={`${process.env.PUBLIC_URL}/assets/transform.svg`} width={30} alt="robot-icon" />
                 </IconButton>
             </div>
-            <EditText className={classes.title} onSave={handleTitleUpdate} defaultValue="Enter title here" />
+            <EditText className={classes.title} onChange={handleTitleUpdate} value={title !== '' ? title : "Enter title here"} />
             <div>
                 <IconButton id="components" onClick={handleMenuClick} color="secondary" aria-label="components">
                     <ExtensionIcon />
