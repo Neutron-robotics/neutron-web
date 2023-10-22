@@ -26,8 +26,8 @@ const getByOrganization = async (organizationId: string) => {
     return res.data.graphs as INeutronGraph[]
 }
 
-const update = async (model: UpdateGraphModel): Promise<void> => {
-    const res = await api.post(`graph/update`, model)
+const update = async (graphId: string, model: UpdateGraphModel): Promise<void> => {
+    const res = await api.post(`graph/update/${graphId}`, model)
     if (res.status !== 200) {
         throw new Error("Impossible to update a graph")
     }

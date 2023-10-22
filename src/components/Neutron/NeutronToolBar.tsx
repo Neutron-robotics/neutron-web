@@ -21,13 +21,14 @@ import BaseControllerNode from "./Nodes/components/BaseControllerNode";
 import Ros2CameraNode from "./Nodes/components/Ros2CameraNode";
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getRectOfNodes, getTransformForBounds, useEdgesState, useNodesState, useReactFlow } from "reactflow";
-import { toPng } from 'html-to-image';
-import { Options } from "html-to-image/lib/types";
-import { CreateGraphModel } from "../../api/models/graph.model";
+import { Edge, Node } from "reactflow";
+import { CreateGraphModel, INeutronEdge, INeutronGraph, INeutronNode, UpdateGraphModel } from "../../api/models/graph.model";
 import { useAlert } from "../../contexts/AlertContext";
 import makeGraphThumbnailFile from "../../utils/makeGraphThumbnail";
 import { uploadFile } from "../../api/file";
+import * as graphApi from "../../api/graph"
+import _ from 'lodash'
+import useConfirmationDialog from "../controls/useConfirmationDialog";
 
 const useStyles = makeStyles(() => ({
     toolbar: {
@@ -75,20 +76,22 @@ function downloadImage(dataUrl: string) {
 
 interface NeutronToolBarProps {
     ros2System?: IRos2System | IRos2PartSystem,
-    reactFlowInstance: any,
     selectedRobotId?: string
-    selectedRobotPartId?: string
+    selectedRobotPartId?: string,
+    nodes: Node[],
+    edges: Edge[],
+    loadedGraph?: INeutronGraph
+    onGraphUpdate: (graph?: INeutronGraph) => void
 }
 
 const NeutronToolBar = (props: NeutronToolBarProps) => {
-    const { ros2System, reactFlowInstance, selectedRobotId, selectedRobotPartId } = props
+    const { ros2System, nodes, edges, selectedRobotId, selectedRobotPartId, loadedGraph, onGraphUpdate } = props
     const classes = useStyles()
     const [title, setTitle] = useState('')
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [dragging, setDragging] = useState(false)
-    const { getNodes } = useReactFlow();
     const alert = useAlert()
-    const [isNewDocument, setIsNewDocument] = useState(true)
+    const [Dialog, prompt] = useConfirmationDialog();
 
     const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -100,50 +103,79 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
     };
 
     const onSave = useCallback(async () => {
-        if (title === '')
+        if (title === '') {
             alert.error('Cannot save graph because it has no title')
-        else if (!selectedRobotId)
+            return
+        }
+        else if (!selectedRobotId) {
             alert.error('Cannot save graph because no robot is assigned to the graph')
-        else if (!reactFlowInstance)
-            alert.error('Cannot find flow instance, contact your administrator')
-        else {
-            const flow = reactFlowInstance.toObject();
-            console.log("flow", flow)
-
-            const nodeGraph: CreateGraphModel = {
-                title,
-                robotId: selectedRobotId,
-                partId: selectedRobotPartId,
-                nodes: flow.nodes,
-                edges: flow.edges
-            }
-            console.log("Creating a nodeGraph with properties", nodeGraph)
-
-            const file = await makeGraphThumbnailFile(title, flow.nodes)
-            console.log("file is", file)
-            if (file) {
-                const res = await uploadFile(file)
-                console.log("res = ", res)
-            }
+            return
         }
 
-    }, [getNodes, reactFlowInstance]);
+        const file = await makeGraphThumbnailFile(title, nodes)
+        const thumbnailUrl = file ? await uploadFile(file) : undefined
+
+        try {
+            if (!loadedGraph) {
+                const createModel: CreateGraphModel = {
+                    title,
+                    robotId: selectedRobotId,
+                    partId: selectedRobotPartId,
+                    nodes: nodes as INeutronNode[],
+                    edges: edges as INeutronEdge[],
+                    imgUrl: thumbnailUrl
+                }
+                const graphId = await graphApi.create(createModel)
+                onGraphUpdate({ ...createModel, _id: graphId, part: createModel.partId, robot: createModel.robotId, createdBy: '', modifiedBy: '' })
+            }
+            else {
+                const updateModel: UpdateGraphModel = {
+                    title,
+                    nodes: nodes as INeutronNode[],
+                    edges: edges as INeutronEdge[],
+                    imgUrl: thumbnailUrl
+                }
+                await graphApi.update(loadedGraph._id, updateModel)
+            }
+        }
+        catch (err) {
+            alert.error("An unexpected error happens while attempting to save the Neutron Graph to the server")
+        }
+    }, [alert, edges, loadedGraph, nodes, onGraphUpdate, selectedRobotId, selectedRobotPartId, title]);
 
     const handleTitleUpdate = (data: onSaveProps) => {
         console.log("set title to", data.value)
         setTitle(data.value)
     }
 
+    const updated = title !== loadedGraph?.title ||
+        !_.isEqual(edges, loadedGraph?.edges) ||
+        !_.isEqual(nodes, loadedGraph?.nodes);
+
+    const onNewGraphClick = () => {
+        console.log(updated)
+        if (updated) {
+            prompt('There are pending changes for your current graph, do you want to discard it ?', (confirm) => {
+                if (confirm) {
+                    console.log("confirmed")
+                    setTitle('')
+                    onGraphUpdate()
+                }
+            })
+        }
+    }
+
     return (
         <div className={classes.toolbar}>
+            {Dialog}
             <div className={classes.leftTools}>
-                <IconButton color="secondary">
+                <IconButton onClick={onNewGraphClick} color="secondary">
                     <InsertDriveFileIcon />
                 </IconButton>
                 <IconButton color="secondary">
                     <FolderOpenIcon />
                 </IconButton>
-                <IconButton onClick={onSave} color="secondary">
+                <IconButton disabled={!updated} onClick={onSave} color="secondary">
                     <SaveIcon />
                 </IconButton>
                 <IconButton disabled onClick={onSave} color="secondary">

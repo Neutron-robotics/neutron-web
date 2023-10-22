@@ -13,6 +13,7 @@ import { getRos2System } from "../api/ros2";
 import { useAlert } from "../contexts/AlertContext";
 import { toPartSystem } from "../utils/ros2";
 import NodeContextMenu, { NodeContextMenuProps } from "../components/Neutron/Nodes/NodeContextMenu";
+import { INeutronGraph } from "../api/models/graph.model";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -59,9 +60,37 @@ const NeutronView = (props: NeutronViewProps) => {
     const [selectedPart, setSelectedPart] = useState<IRobotPart>()
     const [menu, setMenu] = useState<NodeContextMenuProps>();
     const menuRef = useRef<HTMLDivElement>(null);
+    const [neutronGraph, setNeutronGraph] = useState<INeutronGraph>()
 
-    console.log("Nodes:", nodes)
-    console.log("Edges:", edges)
+    const handleNeutronGraphUpdate = (graph?: INeutronGraph) => {
+        console.log("hello")
+        if (!neutronGraph && graph) {
+            const robot = Object.values(availableRobots).reduce((acc, cur) => [...acc, ...cur], []).find(e => e._id === graph.robot)
+            if (!robot) {
+                alert.error("The selected robot could not be found")
+                return
+            }
+            setSelectedRobot(robot)
+            if (graph.part) {
+                const part = robot.parts.find(e => e._id === graph.part)
+                if (!part) {
+                    alert.error("The selected part could not be found")
+                    return
+                }
+                setSelectedPart(part)
+            }
+            setNodes(graph.nodes as VisualNode[])
+            setEdges(graph.edges)
+        }
+        if (!graph) {
+            console.log("reset")
+            setNodes([])
+            setEdges([])
+            setSelectedPart(undefined)
+            setSelectedRobot(undefined)
+        }
+        setNeutronGraph(graph)
+    }
 
     useEffect(() => {
         const fetchOrganizations = async () => {
@@ -190,13 +219,16 @@ const NeutronView = (props: NeutronViewProps) => {
             <ReactFlowProvider>
                 <NeutronToolBar
                     ros2System={ros2System}
-                    reactFlowInstance={reactFlowInstance}
                     selectedRobotId={selectedRobot?._id}
                     selectedRobotPartId={selectedPart?._id}
+                    nodes={nodes}
+                    edges={edges}
+                    onGraphUpdate={handleNeutronGraphUpdate}
+                    loadedGraph={neutronGraph}
                 />
                 <div className={classes.flowContainer} ref={reactFlowWrapper}>
                     <div className={classes.selectContainer}>
-                        <Select sx={{ m: 1, minWidth: 120 }} native size="small" onChange={handleOnRobotChange} className={classes.select} defaultValue="Select a robot" label="Robot">
+                        <Select sx={{ m: 1, minWidth: 120 }} native size="small" onChange={handleOnRobotChange} className={classes.select} value={selectedRobot?._id ?? 'Select a robot'} label="Robot">
                             <option disabled value={"Select a robot"}>Select a robot</option>
                             {Object.keys(availableRobots).map(key => (
                                 <optgroup label={key} key={key}>

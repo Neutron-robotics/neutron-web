@@ -29,13 +29,14 @@ export interface INeutronEdge {
 }
 
 export interface INeutronGraph {
+    _id: string
     title: string
     robot: string
-    part: string
+    part?: string
     createdBy: string
     modifiedBy: string
-    edges: INeutronEdge
-    nodes: INeutronNode
+    edges: INeutronEdge[]
+    nodes: INeutronNode[]
 }
 
 export interface CreateGraphModel {
@@ -44,10 +45,12 @@ export interface CreateGraphModel {
     partId?: string,
     nodes: INeutronNode[]
     edges: INeutronEdge[]
+    imgUrl?: string
 }
 
 export interface UpdateGraphModel {
     title?: string,
     nodes?: INeutronNode[]
     edges?: INeutronEdge[]
+    imgUrl?: string
 }
