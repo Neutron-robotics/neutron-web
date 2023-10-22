@@ -1,7 +1,5 @@
 import { makeStyles } from "@mui/styles"
-import { useMemo } from "react"
 import { Handle, Position } from "reactflow"
-import { v4 } from "uuid"
 
 const useStyles = makeStyles(() => ({
     ifGate: {
@@ -29,7 +27,7 @@ interface OrNodeProps {
 
 }
 
-const OrNode = (props: OrNodeProps) => {
+const IfNode = (props: OrNodeProps) => {
     const classes = useStyles()
 
     return (
@@ -57,4 +55,4 @@ const OrNode = (props: OrNodeProps) => {
     )
 }
 
-export default OrNode
+export default IfNode

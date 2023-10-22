@@ -6,19 +6,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import ExtensionIcon from '@mui/icons-material/Extension';
 import { EditText, onSaveProps } from "react-edit-text";
 import { useCallback, useState } from "react";
-import NodePreview from "./Nodes/NodePreview";
-import AndNode from "./Nodes/conditional/AndNode";
-import OrNode from "./Nodes/conditional/OrNode";
-import IfNode from "./Nodes/conditional/IfNode";
-import PublisherNode from "./Nodes/ros/PublisherNode";
 import { IRos2PartSystem, IRos2System } from "neutron-core";
-import SubscriberNode from "./Nodes/ros/SubscriberNode";
-import ServiceNode from "./Nodes/ros/ServiceNode";
-import ActionNode from "./Nodes/ros/ActionNode";
-import PickNode from "./Nodes/transform/PickNode";
-import PurcentageNode from "./Nodes/transform/PurcentageNode";
-import BaseControllerNode from "./Nodes/components/BaseControllerNode";
-import Ros2CameraNode from "./Nodes/components/Ros2CameraNode";
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Edge, Node } from "reactflow";
@@ -29,6 +17,10 @@ import { uploadFile } from "../../api/file";
 import * as graphApi from "../../api/graph"
 import _ from 'lodash'
 import useConfirmationDialog from "../controls/useConfirmationDialog";
+import RosMenu from "./Menus/RosMenu";
+import ConditionalMenu from "./Menus/ConditionalMenu";
+import TransformMenu from "./Menus/TransformMenu";
+import ComponentsMenu from "./Menus/ComponentsMenu";
 
 const useStyles = makeStyles(() => ({
     toolbar: {
@@ -56,23 +48,7 @@ const useStyles = makeStyles(() => ({
         width: '550px',
         height: '350px'
     },
-    rosComponentList: {
-        paddingTop: '10px',
-        paddingBottom: '10px',
-        display: 'flex',
-        "& > div": {
-            marginLeft: '25px'
-        }
-    }
 }))
-
-function downloadImage(dataUrl: string) {
-    const a = document.createElement('a');
-
-    a.setAttribute('download', 'reactflow.png');
-    a.setAttribute('href', dataUrl);
-    a.click();
-}
 
 interface NeutronToolBarProps {
     ros2System?: IRos2System | IRos2PartSystem,
@@ -219,143 +195,6 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                 </div>
             </Popover>
         </div>
-    )
-}
-
-interface ComponentMenuProps {
-    components: Record<string, string[]>
-    onDragStart: () => void,
-    onDragEnd: () => void
-}
-
-interface Ros2MenuProps extends ComponentMenuProps {
-    ros2System?: IRos2System | IRos2PartSystem
-}
-
-const RosMenu = (props: Ros2MenuProps) => {
-    const { ros2System, onDragStart, onDragEnd } = props
-    const classes = useStyles()
-
-    return (
-        <>
-            <span>Publishers</span>
-            <div className={classes.rosComponentList}>
-                {ros2System?.publishers.map(pub => (
-                    <NodePreview
-                        key={pub._id}
-                        onDragEnd={onDragEnd}
-                        onDragStart={onDragStart}
-                        title={pub.name}
-                        node={PublisherNode}
-                        nodeProps={{
-                            publisher: pub,
-                            title: pub.name
-                        }}
-                        width={150}
-                        height={115} />
-                ))}
-            </div>
-            <span>Subscribers</span>
-            <div className={classes.rosComponentList}>
-                {ros2System?.subscribers.map(sub => (
-                    <NodePreview
-                        canBeInput
-                        onDragEnd={onDragEnd}
-                        onDragStart={onDragStart}
-                        node={SubscriberNode}
-                        title={sub.name}
-                        nodeProps={{
-                            subscriber: sub,
-                        }}
-                        width={150}
-                        height={115} />
-                ))}
-            </div>
-            <span>Services</span>
-            <div className={classes.rosComponentList}>
-                {ros2System?.services.map(srv => (
-                    <NodePreview
-                        canBeInput
-                        onDragEnd={onDragEnd}
-                        onDragStart={onDragStart}
-                        node={ServiceNode}
-                        title={srv.name}
-                        nodeProps={{
-                            service: srv,
-                        }}
-                        width={150}
-                        height={115} />
-                ))}
-            </div>
-            <span>Actions</span>
-            <div className={classes.rosComponentList}>
-                {ros2System?.actions.map(act => (
-                    <NodePreview
-                        canBeInput
-                        onDragEnd={onDragEnd}
-                        onDragStart={onDragStart}
-                        node={ActionNode}
-                        title={act.name}
-                        nodeProps={{
-                            action: act,
-                        }}
-                        width={150}
-                        height={115} />
-                ))}
-            </div>
-        </>
-    )
-}
-
-const ConditionalMenu = (props: ComponentMenuProps) => {
-    const { onDragStart, onDragEnd } = props
-    const classes = useStyles()
-
-    return (
-        <>
-            <span>Logic gates</span>
-            <div className={classes.rosComponentList}>
-                <NodePreview title='And' onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={AndNode} width={80} height={60} />
-                <NodePreview title='Or' onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={OrNode} width={80} height={60} />
-            </div>
-            <span>Conditions</span>
-            <div className={classes.rosComponentList}>
-                <NodePreview title='If' onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={IfNode} width={50} height={50} />
-            </div>
-        </>
-    )
-}
-
-const TransformMenu = (props: ComponentMenuProps) => {
-    const { onDragStart, onDragEnd } = props
-    const classes = useStyles()
-
-    return (
-        <>
-            <span>Transformers</span>
-            <div className={classes.rosComponentList}>
-                <NodePreview title='Pick' onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={PickNode} width={120} height={60} />
-                <NodePreview title='Purcentage' onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{}} node={PurcentageNode} width={160} height={60} />
-            </div>
-        </>
-    )
-}
-
-const ComponentsMenu = (props: ComponentMenuProps) => {
-    const { onDragStart, onDragEnd } = props
-    const classes = useStyles()
-
-    return (
-        <>
-            <span>Controls</span>
-            <div className={classes.rosComponentList}>
-                <NodePreview title='Base Controller' canBeInput onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{ preview: true }} node={BaseControllerNode} width={120} height={60} />
-            </div>
-            <span>Vision</span>
-            <div className={classes.rosComponentList}>
-                <NodePreview title='Ros2 Camera' onDragEnd={onDragEnd} onDragStart={onDragStart} nodeProps={{ preview: true }} node={Ros2CameraNode} width={120} height={60} />
-            </div>
-        </>
     )
 }
 

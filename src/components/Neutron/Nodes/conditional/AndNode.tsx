@@ -1,7 +1,5 @@
 import { makeStyles } from "@mui/styles"
-import { useMemo } from "react"
 import { Handle, Position } from "reactflow"
-import { v4 } from "uuid"
 
 const useStyles = makeStyles(() => ({
     andGate: {
@@ -24,9 +22,7 @@ interface AndNodeProps {
 }
 
 const AndNode = (props: AndNodeProps) => {
-    const { } = props
     const classes = useStyles()
-    const nodeUid = useMemo(() => v4(), [])
 
     return (
         <div className={classes.andGate}>

@@ -1,7 +1,5 @@
 import { makeStyles } from "@mui/styles"
-import { useMemo } from "react"
 import { Handle, Position } from "reactflow"
-import { v4 } from "uuid"
 
 const useStyles = makeStyles(() => ({
     orGate: {
