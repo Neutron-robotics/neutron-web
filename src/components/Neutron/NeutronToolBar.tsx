@@ -4,7 +4,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import SaveIcon from '@mui/icons-material/Save';
 import ExtensionIcon from '@mui/icons-material/Extension';
-import { EditText, onSaveProps } from "react-edit-text";
+import { EditText } from "react-edit-text";
 import { useCallback, useState } from "react";
 import { IRos2PartSystem, IRos2System } from "neutron-core";
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
@@ -21,6 +21,8 @@ import RosMenu from "./Menus/RosMenu";
 import ConditionalMenu from "./Menus/ConditionalMenu";
 import TransformMenu from "./Menus/TransformMenu";
 import ComponentsMenu from "./Menus/ComponentsMenu";
+import ButtonDialog from "../controls/ButtonDialog";
+import NeutronOpenDialog from "./Toolbar/NeutronOpenDialog";
 
 const useStyles = makeStyles(() => ({
     toolbar: {
@@ -102,7 +104,8 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                     imgUrl: thumbnailUrl
                 }
                 const graphId = await graphApi.create(createModel)
-                onGraphUpdate({ ...createModel, _id: graphId, part: createModel.partId, robot: createModel.robotId, createdBy: '', modifiedBy: '' })
+                onGraphUpdate({ ...createModel, _id: graphId, part: createModel.partId, robot: createModel.robotId, createdBy: '', modifiedBy: '', modifiedAt: '', createdAt: '' })
+                alert.success("The graph has been created successfuly")
             }
             else {
                 const updateModel: UpdateGraphModel = {
@@ -112,6 +115,8 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                     imgUrl: thumbnailUrl
                 }
                 await graphApi.update(loadedGraph._id, updateModel)
+                onGraphUpdate({ ...loadedGraph, nodes: nodes as INeutronNode[], edges: edges as INeutronEdge[] })
+                alert.success("The graph has been saved successfuly")
             }
         }
         catch (err) {
@@ -128,7 +133,6 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
         !_.isEqual(nodes, loadedGraph?.nodes);
 
     const onNewGraphClick = () => {
-        console.log(updated)
         if (updated) {
             prompt('There are pending changes for your current graph, do you want to discard it ?', (confirm) => {
                 if (confirm) {
@@ -142,6 +146,27 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
         }
     }
 
+    const handleOpenDialog = (openedGraph: INeutronGraph) => {
+        setTitle(openedGraph.title)
+        onGraphUpdate(openedGraph)
+    }
+
+    const handleDeleteClick = () => {
+        if (!loadedGraph?._id)
+            return
+        prompt('Are you sure you want to delete this Graph ?', (confirm) => {
+            if (confirm) {
+                graphApi.deleteGraph(loadedGraph?._id).then(res => {
+                    setTitle('')
+                    onGraphUpdate()
+                    alert.success("The graph has been deleted")
+                }).catch(() => {
+                    alert.error("Impossible to delete the graph")
+                })
+            }
+        })
+    }
+
     return (
         <div className={classes.toolbar}>
             {Dialog}
@@ -150,7 +175,12 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                     <InsertDriveFileIcon />
                 </IconButton>
                 <IconButton color="secondary">
-                    <FolderOpenIcon />
+                    <ButtonDialog
+                        onConfirm={handleOpenDialog}
+                        dialog={NeutronOpenDialog}
+                    >
+                        <FolderOpenIcon />
+                    </ButtonDialog>
                 </IconButton>
                 <IconButton disabled={!updated} onClick={onSave} color="secondary">
                     <SaveIcon />
@@ -158,7 +188,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                 <IconButton disabled onClick={onSave} color="secondary">
                     <PlayCircleIcon />
                 </IconButton>
-                <IconButton onClick={onSave} color="secondary">
+                <IconButton onClick={handleDeleteClick} disabled={loadedGraph?._id === undefined} color="secondary">
                     <DeleteIcon />
                 </IconButton>
                 <div className={classes.separation} />

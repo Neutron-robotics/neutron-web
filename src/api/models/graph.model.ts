@@ -33,10 +33,29 @@ export interface INeutronGraph {
     title: string
     robot: string
     part?: string
+    imgUrl?: string
     createdBy: string
+    createdAt: string
     modifiedBy: string
+    modifiedAt: string
     edges: INeutronEdge[]
     nodes: INeutronNode[]
+}
+
+export interface INeutronGraphWithOrganization extends INeutronGraph {
+  organization: {
+    id: string
+    name: string
+    imgUrl: string
+  }
+}
+
+export interface INeutronGraphWithRobots extends Omit<INeutronGraph, 'robot'> {
+  robot: {
+    _id: string
+    name: string
+    imgUrl: string
+  }
 }
 
 export interface CreateGraphModel {

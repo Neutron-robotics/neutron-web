@@ -1,5 +1,5 @@
 import api from "./api";
-import { CreateGraphModel, INeutronGraph, UpdateGraphModel } from "./models/graph.model";
+import { CreateGraphModel, INeutronGraph, INeutronGraphWithOrganization, INeutronGraphWithRobots, UpdateGraphModel } from "./models/graph.model";
 
 const create = async (model: CreateGraphModel): Promise<string> => {
     const res = await api.post(`graph/create`, model)
@@ -19,11 +19,27 @@ const me = async () => {
 }
 
 const getByOrganization = async (organizationId: string) => {
-    const res = await api.post(`graph/organization/${organizationId}`, create)
+    const res = await api.get(`graph/organization/${organizationId}`)
     if (res.status !== 200) {
         throw new Error("could not get organization graphs")
     }
     return res.data.graphs as INeutronGraph[]
+}
+
+const getAll = async () => {
+    const res = await api.get(`graph/all`)
+    if (res.status !== 200) {
+        throw new Error("could not get graphs")
+    }
+    return res.data.graphs as INeutronGraph[]
+}
+
+const getAllWith = async (robot: boolean, organization: boolean) => {
+    const res = await api.get(`graph/all?includeRobot=${robot}&includeOrganization=${organization}`)
+    if (res.status !== 200) {
+        throw new Error("could not get graphs")
+    }
+    return res.data.graphs as (INeutronGraphWithOrganization & INeutronGraphWithRobots)[]
 }
 
 const update = async (graphId: string, model: UpdateGraphModel): Promise<void> => {
@@ -45,5 +61,7 @@ export {
     me,
     getByOrganization,
     update,
-    deleteGraph
+    deleteGraph,
+    getAll,
+    getAllWith
 }

@@ -62,13 +62,14 @@ const NeutronView = (props: NeutronViewProps) => {
     const menuRef = useRef<HTMLDivElement>(null);
     const [neutronGraph, setNeutronGraph] = useState<INeutronGraph>()
 
-    const handleNeutronGraphUpdate = (graph?: INeutronGraph) => {
+    const handleNeutronGraphUpdate = async (graph?: INeutronGraph) => {
         if (!neutronGraph && graph) {
             const robot = Object.values(availableRobots).reduce((acc, cur) => [...acc, ...cur], []).find(e => e._id === graph.robot)
             if (!robot) {
                 alert.error("The selected robot could not be found")
                 return
             }
+            const ros2System = await getRos2System(robot._id)
             setSelectedRobot(robot)
             if (graph.part) {
                 const part = robot.parts.find(e => e._id === graph.part)
@@ -77,6 +78,11 @@ const NeutronView = (props: NeutronViewProps) => {
                     return
                 }
                 setSelectedPart(part)
+                const partSystem = toPartSystem(part, ros2System)
+                setRos2System(partSystem)
+            }
+            else {
+                setRos2System(ros2System)
             }
             setNodes(graph.nodes as VisualNode[])
             setEdges(graph.edges)
@@ -86,6 +92,7 @@ const NeutronView = (props: NeutronViewProps) => {
             setEdges([])
             setSelectedPart(undefined)
             setSelectedRobot(undefined)
+            setRos2System(undefined)
         }
         setNeutronGraph(graph)
     }
@@ -109,12 +116,6 @@ const NeutronView = (props: NeutronViewProps) => {
                 return
 
             const pane = menuRef.current.getBoundingClientRect();
-            console.log("opening at ", {
-                top: ((event.clientY < pane.height - 200) ? event.clientY : undefined) as number,
-                left: ((event.clientX < pane.width - 200) ? event.clientX : undefined) as number,
-                right: ((event.clientX >= pane.width - 200) ? Math.abs(pane.width - event.clientX) : undefined) as number,
-                bottom: ((event.clientY >= pane.height - 200) ? Math.abs(pane.height - event.clientY) : undefined) as number,
-            })
             setMenu({
                 id: node.id,
                 canBeInput: node.canBeInput,
