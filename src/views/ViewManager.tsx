@@ -48,7 +48,7 @@ const ViewManager = () => {
         <>
             <Header user={user} headerBody={headerBody} headerTabs={Object.values(tabs)} activeTabId={activeTab?.id} />
             {hasMenu && (
-                <Box sx={{ display: 'flex', height: '100%' }}>
+                <Box sx={{ display: 'flex', height: 'calc(100% - 56px)' }}>
                     <CssBaseline />
                     <MenuVerticalTabs onSelectTab={(v) => { setViewType(v) }} isLightUser={isUserLight} />
                     {(viewType === ViewType.Home) && <ConnectionView setHeaderBody={setHeaderBody} />}

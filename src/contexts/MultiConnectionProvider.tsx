@@ -1,4 +1,4 @@
-import { Core, IConnectionContext, makeModule } from "neutron-core";
+import { Core, IConnectionContext } from "neutron-core";
 import { IRobotModule, IRobotModuleDefinition } from "neutron-core/dist/interfaces/RobotConnection";
 import React, { createContext, ReactNode, useContext, useState } from "react";
 import getConnectionType from "../utils/getConnectionType";
@@ -44,21 +44,21 @@ export const MultiConnectionProvider = ({ children }: { children: ReactNode }) =
             return false;
         }
         console.log("modules are", modules)
-        const robotModules = modules.filter(module => module.framePackage).map((module) =>
-            makeModule(module.type, connectionContext, {
-                id: module.id,
-                name: module.name,
-                type: module.type,
-                moduleSpecifics: module.configuration ?? {},
-                framePackage: module.framePackage
-            })
-        )
-        const newConnection = {
-            context: connectionContext,
-            core: connectionCore,
-            modules: robotModules
-        }
-        setConnections({ ...connections, [connectionCore.id]: newConnection })
+        // const robotModules = modules.filter(module => module.framePackage).map((module) =>
+        //     // makeModule(module.type, connectionContext, {
+        //     //     id: module.id,
+        //     //     name: module.name,
+        //     //     type: module.type,
+        //     //     moduleSpecifics: module.configuration ?? {},
+        //     //     framePackage: module.framePackage
+        //     // })
+        // // )
+        // const newConnection = {
+        //     context: connectionContext,
+        //     core: connectionCore,
+        //     modules: robotModules
+        // }
+        // setConnections({ ...connections, [connectionCore.id]: newConnection })
         return success;
     }
 

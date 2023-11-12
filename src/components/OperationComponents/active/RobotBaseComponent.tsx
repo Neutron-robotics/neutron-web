@@ -7,7 +7,6 @@ import TurnLeftIcon from '@mui/icons-material/TurnLeft';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import { IOperationComponentDescriptor, IOperationComponentSpecifics } from "../IOperationComponents";
-import { RobotBase } from "neutron-core";
 import { useConnection } from "../../../contexts/MultiConnectionProvider";
 import { useCallback, useEffect, useState } from "react";
 import React from "react";

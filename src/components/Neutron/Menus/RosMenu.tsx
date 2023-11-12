@@ -23,7 +23,7 @@ const RosMenu = (props: Ros2MenuProps) => {
                         node={PublisherNode}
                         nodeProps={{
                             publisher: pub,
-                            title: pub.name
+                            title: pub.name,
                         }}
                         width={150}
                         height={115} />

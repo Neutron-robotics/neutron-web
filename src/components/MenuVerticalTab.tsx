@@ -100,9 +100,6 @@ const closedMixin = (theme: Theme): CSSObject => ({
     }),
     overflowX: 'hidden',
     width: `calc(${theme.spacing(7)} + 1px)`,
-    [theme.breakpoints.up('sm')]: {
-        width: `calc(${theme.spacing(8)} + 1px)`,
-    },
 });
 
 
@@ -131,53 +128,51 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
     const menuItems = listItems.filter(e => (!isLightUser || e.lightUserVisible))
 
     return (
-        <div>
-            <Drawer variant="permanent" open={open} anchor='left' sx={{
-                '& .MuiDrawer-paper': {
-                    width: drawerWidth,
-                    boxSizing: 'border-box',
-                    top: '55px'
-                },
-            }}>
-                <DrawerHeader>
-                    {open ? (
-                        <IconButton onClick={handleDrawerClose}>
-                            {<ChevronLeftIcon />}
-                        </IconButton>
-                    ) : (
-                        <IconButton onClick={handleDrawerOpen}>
-                            {<ChevronRightIcon />}
-                        </IconButton>
-                    )}
-                </DrawerHeader>
-                <List>
-                    {menuItems.map(e => (
-                        <ListItem key={e.title} disablePadding sx={{ display: 'block' }} onClick={() => handleMenuSelected(e)}>
-                            <ListItemButton
+        <Drawer variant="permanent" open={open} anchor='left' sx={{
+            '& .MuiDrawer-paper': {
+                width: drawerWidth,
+                boxSizing: 'border-box',
+                top: '55px'
+            },
+        }}>
+            <DrawerHeader>
+                {open ? (
+                    <IconButton onClick={handleDrawerClose}>
+                        {<ChevronLeftIcon />}
+                    </IconButton>
+                ) : (
+                    <IconButton onClick={handleDrawerOpen}>
+                        {<ChevronRightIcon />}
+                    </IconButton>
+                )}
+            </DrawerHeader>
+            <List>
+                {menuItems.map(e => (
+                    <ListItem key={e.title} disablePadding sx={{ display: 'block' }} onClick={() => handleMenuSelected(e)}>
+                        <ListItemButton
+                            sx={{
+                                minHeight: 48,
+                                justifyContent: open ? 'initial' : 'center',
+                                px: 2.5,
+                            }}
+                        >
+                            <ListItemIcon
                                 sx={{
-                                    minHeight: 48,
-                                    justifyContent: open ? 'initial' : 'center',
-                                    px: 2.5,
+                                    minWidth: 0,
+                                    mr: open ? 3 : 'auto',
+                                    justifyContent: 'center',
+                                    fontWeight: 'bold',
+                                    color: (e.title === selectedTab?.title) ? 'black' : undefined
                                 }}
                             >
-                                <ListItemIcon
-                                    sx={{
-                                        minWidth: 0,
-                                        mr: open ? 3 : 'auto',
-                                        justifyContent: 'center',
-                                        fontWeight: 'bold',
-                                        color: (e.title === selectedTab?.title) ? 'black' : undefined
-                                    }}
-                                >
-                                    {e.icon}
-                                </ListItemIcon>
-                                <ListItemText primary={e.title} sx={{ opacity: open ? 1 : 0 }} />
-                            </ListItemButton>
-                        </ListItem>
-                    ))}
-                </List>
-            </Drawer>
-        </div >
+                                {e.icon}
+                            </ListItemIcon>
+                            <ListItemText primary={e.title} sx={{ opacity: open ? 1 : 0 }} />
+                        </ListItemButton>
+                    </ListItem>
+                ))}
+            </List>
+        </Drawer>
     );
 };
 

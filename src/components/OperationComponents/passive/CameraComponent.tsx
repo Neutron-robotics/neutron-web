@@ -3,7 +3,7 @@ import { makeStyles } from "@mui/styles"
 import { useEffect, useState } from "react"
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { IOperationComponentDescriptor, IOperationComponentSpecifics } from "../IOperationComponents"
-import { Camera, CameraInfoUpdate, Resolution } from "neutron-core"
+import { CameraInfoUpdate, Resolution } from "neutron-core"
 import { useConnection } from "../../../contexts/MultiConnectionProvider";
 import React from "react";
 
@@ -58,22 +58,22 @@ const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpe
     const classes = useStyles()
     const [isConnected, setIsConnected] = useState(specifics?.isConnected ?? false)
     const connection = useConnection(connectionId ?? "")
-    const camera = connection?.modules.find(m => m.id === moduleId) as Camera | undefined
+    // const camera = connection?.modules.find(m => m.id === moduleId) as Camera | undefined
     const [fps, setFps] = useState(15)
     const [resolution, setResolution] = useState<Resolution | undefined>()
 
-    useEffect(() => {
-        if (!camera)
-            return
-        const handleCameraInfoUpdated = (infos: CameraInfoUpdate) => {
-            setFps(infos.fps)
-            setResolution(infos.resolution)
-        }
-        camera.infoUpdated.on(handleCameraInfoUpdated)
-        return () => {
-            camera.infoUpdated.off(handleCameraInfoUpdated)
-        }
-    }, [camera])
+    // useEffect(() => {
+    //     if (!camera)
+    //         return
+    //     const handleCameraInfoUpdated = (infos: CameraInfoUpdate) => {
+    //         setFps(infos.fps)
+    //         setResolution(infos.resolution)
+    //     }
+    //     camera.infoUpdated.on(handleCameraInfoUpdated)
+    //     return () => {
+    //         camera.infoUpdated.off(handleCameraInfoUpdated)
+    //     }
+    // }, [camera])
 
     useEffect(() => {
         if (!onCommitComponentSpecific) return
@@ -84,42 +84,42 @@ const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpe
     }, [isConnected]);
 
     const handleOnConnect = async () => {
-        if (!camera) return
-        const success = await camera.connect()
-        setIsConnected(success)
+        // if (!camera) return
+        // const success = await camera.connect()
+        // setIsConnected(success)
     }
 
     const handleOnDisconnect = async () => {
-        if (!camera) return
-        await camera.disconnect()
-        setIsConnected(false)
+        // if (!camera) return
+        // await camera.disconnect()
+        // setIsConnected(false)
     }
 
     const handleFPSChange = async (_: any, value: number | number[]) => {
         if (typeof value !== 'number')
             return
         console.log("set FPS ", value)
-        const res = await camera?.setFps(value)
-        console.log("alors ? ", res)
+        // const res = await camera?.setFps(value)
+        // console.log("alors ? ", res)
     }
 
     const handleResolutionChange = async (event: SelectChangeEvent) => {
-        if (!camera)
-            return
-        const newResolution = camera.resolutions.find(e => `${e?.width}x${e?.height}` === event.target.value)
-        if (!newResolution)
-            return
-        const res = await camera.setResolution(newResolution)
-        console.log("res is ", res)
-        if (res)
-            setResolution(newResolution)
+        // if (!camera)
+        //     return
+        // const newResolution = camera.resolutions.find(e => `${e?.width}x${e?.height}` === event.target.value)
+        // if (!newResolution)
+        //     return
+        // const res = await camera.setResolution(newResolution)
+        // console.log("res is ", res)
+        // if (res)
+        //     setResolution(newResolution)
     }
 
     return (
         <div className={classes.root}>
-            {camera && isConnected ? (
+            {/*camera &&*/ isConnected ? (
                 <>
-                    <img className={classes.streamer} src={`${camera.uri}/${new Date().getTime()}/camera.mjpg`} alt="camera" aria-label="camera-img" />
+                    <img className={classes.streamer} src={`${'camera.uri'}/${new Date().getTime()}/camera.mjpg`} alt="camera" aria-label="camera-img" />
                     <Button variant="contained" onClick={handleOnDisconnect} aria-label="disconnect-cmd">
                         Disconnect
                     </Button>
@@ -145,9 +145,9 @@ const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpe
                                 className={classes.selectResolution}
                                 onChange={handleResolutionChange}
                             >
-                                {camera.resolutions.map((res) => (
+                                {/* {camera.resolutions.map((res) => (
                                     <MenuItem value={`${res.width}x${res.height}`}>{res.width}p</MenuItem>
-                                ))}
+                                ))} */}
                             </Select>
                         </div>
 

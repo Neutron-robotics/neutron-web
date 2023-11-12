@@ -12,7 +12,8 @@ import { useAuth } from "../../contexts/AuthContext";
 
 const useStyle = makeStyles((theme: any) => ({
     header: {
-        minHeight: '48px !important',
+        height: '56px !important',
+        minHeight: '56px !important',
         background: theme.palette.primary.main
     },
     accountIcon: {

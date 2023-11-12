@@ -14,12 +14,17 @@ import { useAlert } from "../contexts/AlertContext";
 import { toPartSystem } from "../utils/ros2";
 import NodeContextMenu, { NodeContextMenuProps } from "../components/Neutron/Nodes/NodeContextMenu";
 import { INeutronGraph } from "../api/models/graph.model";
+import ComponentDrawer from "../components/Neutron/Menus/ComponentDrawer";
 
 const useStyles = makeStyles(() => ({
     root: {
         width: '100%',
         height: '100%',
-        marginTop: '4px'
+        marginTop: '4px',
+        display: 'flex'
+    },
+    fullWidth: {
+        width: '100%'
     },
     flowContainer: {
         position: 'relative',
@@ -215,55 +220,58 @@ const NeutronView = (props: NeutronViewProps) => {
 
     return (
         <div className={classes.root}>
-            <ReactFlowProvider>
-                <NeutronToolBar
-                    ros2System={ros2System}
-                    selectedRobotId={selectedRobot?._id}
-                    selectedRobotPartId={selectedPart?._id}
-                    nodes={nodes}
-                    edges={edges}
-                    onGraphUpdate={handleNeutronGraphUpdate}
-                    loadedGraph={neutronGraph}
-                />
-                <div className={classes.flowContainer} ref={reactFlowWrapper}>
-                    <div className={classes.selectContainer}>
-                        <Select sx={{ m: 1, minWidth: 120 }} native size="small" onChange={handleOnRobotChange} className={classes.select} value={selectedRobot?._id ?? 'Select a robot'} label="Robot">
-                            <option disabled value={"Select a robot"}>Select a robot</option>
-                            {Object.keys(availableRobots).map(key => (
-                                <optgroup label={key} key={key}>
-                                    {availableRobots[key].map(robot => (
-                                        <option key={robot._id} value={robot._id}>{robot.name}</option>
-                                    ))}
-                                </optgroup>
-                            ))}
-                        </Select>
-
-                        <Select sx={{ m: 1, minWidth: 120 }} native size="small" disabled={!selectedRobot} onChange={handleOnPartChange} defaultValue="" label="Robot Part">
-                            {selectedRobot?.parts.map(part => (
-                                <option key={part._id} value={part._id}>{part.name}</option>
-                            ))}
-                        </Select>
-                    </div>
-                    <ReactFlow
+            <ComponentDrawer />
+            <div className={classes.fullWidth}>
+                <ReactFlowProvider>
+                    <NeutronToolBar
+                        ros2System={ros2System}
+                        selectedRobotId={selectedRobot?._id}
+                        selectedRobotPartId={selectedPart?._id}
                         nodes={nodes}
                         edges={edges}
-                        onInit={setReactFlowInstance}
-                        onNodesChange={onNodesChange}
-                        onEdgesChange={onEdgesChange}
-                        onConnect={onConnect}
-                        nodeTypes={nodeTypes}
-                        onDragOver={onDragOver}
-                        onPaneClick={onPaneClick}
-                        onDrop={onDrop}
-                        ref={menuRef}
-                        onNodeContextMenu={onNodeContextMenu}
-                    >
-                        <Controls />
-                        <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-                        {menu && <NodeContextMenu onClick={onPaneClick} {...menu} />}
-                    </ReactFlow>
-                </div>
-            </ReactFlowProvider>
+                        onGraphUpdate={handleNeutronGraphUpdate}
+                        loadedGraph={neutronGraph}
+                    />
+                    <div className={classes.flowContainer} ref={reactFlowWrapper}>
+                        <div className={classes.selectContainer}>
+                            <Select sx={{ m: 1, minWidth: 120 }} native size="small" onChange={handleOnRobotChange} className={classes.select} value={selectedRobot?._id ?? 'Select a robot'} label="Robot">
+                                <option disabled value={"Select a robot"}>Select a robot</option>
+                                {Object.keys(availableRobots).map(key => (
+                                    <optgroup label={key} key={key}>
+                                        {availableRobots[key].map(robot => (
+                                            <option key={robot._id} value={robot._id}>{robot.name}</option>
+                                        ))}
+                                    </optgroup>
+                                ))}
+                            </Select>
+
+                            <Select sx={{ m: 1, minWidth: 120 }} native size="small" disabled={!selectedRobot} onChange={handleOnPartChange} defaultValue="" label="Robot Part">
+                                {selectedRobot?.parts.map(part => (
+                                    <option key={part._id} value={part._id}>{part.name}</option>
+                                ))}
+                            </Select>
+                        </div>
+                        <ReactFlow
+                            nodes={nodes}
+                            edges={edges}
+                            onInit={setReactFlowInstance}
+                            onNodesChange={onNodesChange}
+                            onEdgesChange={onEdgesChange}
+                            onConnect={onConnect}
+                            nodeTypes={nodeTypes}
+                            onDragOver={onDragOver}
+                            onPaneClick={onPaneClick}
+                            onDrop={onDrop}
+                            ref={menuRef}
+                            onNodeContextMenu={onNodeContextMenu}
+                        >
+                            <Controls />
+                            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+                            {menu && <NodeContextMenu onClick={onPaneClick} {...menu} />}
+                        </ReactFlow>
+                    </div>
+                </ReactFlowProvider>
+            </div>
         </div>
     )
 }
