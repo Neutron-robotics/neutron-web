@@ -7,14 +7,14 @@ import { v4 } from "uuid";
 import * as organization from "../api/organization";
 import { IRobot, IRobotPart } from "../api/models/robot.model";
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { NodeExtension, VisualNode, nodeTypes } from "../components/Neutron/Nodes";
+import { VisualNode, newNodeType } from "../components/Neutron/Nodes";
 import { IRos2PartSystem, IRos2System } from "neutron-core";
 import { getRos2System } from "../api/ros2";
 import { useAlert } from "../contexts/AlertContext";
 import { toPartSystem } from "../utils/ros2";
 import NodeContextMenu, { NodeContextMenuProps } from "../components/Neutron/Nodes/NodeContextMenu";
 import { INeutronGraph } from "../api/models/graph.model";
-import ComponentDrawer from "../components/Neutron/Menus/ComponentDrawer";
+import ComponentDrawer from "../components/Neutron/ComponentDrawer";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -49,14 +49,11 @@ interface NeutronViewProps {
 
 }
 
-const initialNodes: VisualNode[] = [];
-const initialEdges: Edge[] = [];
-
 const NeutronView = (props: NeutronViewProps) => {
     const classes = useStyles()
     const alert = useAlert()
-    const [nodes, setNodes] = useState<VisualNode[]>(initialNodes);
-    const [edges, setEdges] = useState<Edge[]>(initialEdges);
+    const [nodes, setNodes] = useState<VisualNode[]>([]);
+    const [edges, setEdges] = useState<Edge[]>([]);
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
     const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
     const [availableRobots, setAvailableRobots] = useState<Record<string, IRobot[]>>({})
@@ -123,8 +120,8 @@ const NeutronView = (props: NeutronViewProps) => {
             const pane = menuRef.current.getBoundingClientRect();
             setMenu({
                 id: node.id,
-                canBeInput: node.canBeInput,
-                isInput: node.isInput,
+                // canBeInput: node.canBeInput,
+                // isInput: node.isInput,
                 title: node.title ?? 'Custom Node',
                 top: ((event.clientY < pane.height - 200) ? event.clientY - 100 : undefined) as number,
                 left: ((event.clientX < pane.width - 200) ? event.clientX - 100 : undefined) as number,
@@ -166,7 +163,6 @@ const NeutronView = (props: NeutronViewProps) => {
             const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
             const type = event.dataTransfer.getData('application/reactflow');
             const data = JSON.parse(event.dataTransfer.getData('application/reactflow/data'));
-            const extension = JSON.parse(event.dataTransfer.getData('application/reactflow/extension')) as NodeExtension;
 
             // check if the dropped element is valid
             if (typeof type === 'undefined' || !type) {
@@ -181,9 +177,7 @@ const NeutronView = (props: NeutronViewProps) => {
                 id: v4(),
                 type,
                 position,
-                preview: false,
                 data: data,
-                ...extension
             };
 
             setNodes((nds) => nds.concat(newNode));
@@ -258,7 +252,7 @@ const NeutronView = (props: NeutronViewProps) => {
                             onNodesChange={onNodesChange}
                             onEdgesChange={onEdgesChange}
                             onConnect={onConnect}
-                            nodeTypes={nodeTypes}
+                            nodeTypes={newNodeType}
                             onDragOver={onDragOver}
                             onPaneClick={onPaneClick}
                             onDrop={onDrop}

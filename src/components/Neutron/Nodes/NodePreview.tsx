@@ -1,63 +1,98 @@
-import { makeStyles } from "@mui/styles"
-import { FC } from "react"
-import { CustomNodeProps, NodeExtension, nodeTypes } from "."
-import { v4 } from "uuid"
+import { hexToRGBA } from "../../../utils/color"
+import { HTMLAttributes } from "react"
+import { CSSProperties, makeStyles } from "@mui/styles"
 
 const useStyles = makeStyles(() => ({
-    preview: {
-        position: 'relative'
+    nodeBody: {
+        display: 'flex',
+        fontSize: '12px',
+        justifyContent: 'space-between',
+        marginTop: '10px',
+    },
+    nodeTitle: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '100%'
+    },
+    handle: {
+        pointerEvents: "none",
+        minWidth: "5px",
+        minHeight: '5px',
+        width: '6px',
+        height: '6px',
+        background: '#1a192b',
+        border: '1px solid white',
+        borderRadius: '100%',
     }
 }))
-
-interface NodePreviewProps<T> {
-    title: string
-    node: FC<CustomNodeProps<T>>
-    nodeProps: T,
-    width: number,
-    height: number,
-    canBeInput?: boolean
-    onDragStart: () => void,
-    onDragEnd: () => void,
-    scale?: number
+interface INodePreview {
+    name: string
+    backgroundColor: string
+    inputHandles: number
+    outputHandles: number
 }
 
-const NodePreview = <T,>(props: NodePreviewProps<T>) => {
-    const { node: Node, nodeProps, width, height, canBeInput, onDragEnd, onDragStart, title, scale } = props
+interface NodePreviewProps extends HTMLAttributes<HTMLDivElement> {
+    node: INodePreview
+    style?: CSSProperties
+}
+
+const NodePreview = (props: NodePreviewProps) => {
+    const { node, style, onDragStart, onDragEnd, ...otherProps } = props
     const classes = useStyles()
-    const nodeType = Object.keys(nodeTypes).find(e => nodeTypes[e] === Node) ?? ''
 
-    const defaultProps: CustomNodeProps<T> = {
-        zIndex: 1,
-        data: {
-            ...nodeProps
-        },
-        id: v4(),
-        type: nodeType,
-        isConnectable: false,
-        xPos: 0,
-        yPos: 0,
-        selected: false,
-        dragging: false,
-        preview: true
+    const nodeStyle: CSSProperties = {
+        background: hexToRGBA(node.backgroundColor, 0.4) ?? '',
+        borderRadius: '5px',
+        textAlign: 'center',
+        border: '1px solid black',
+        position: 'relative',
+        minHeight:'30px'
     }
 
-    const nodeExtension: NodeExtension = {
-        canBeInput,
-        title
-    }
-
-    const handleDragStart = (event: React.DragEvent, nodeType: string) => {
+    const handleDragStart = (event: React.DragEvent) => {
         console.log("drag started")
-        event.dataTransfer.setData('application/reactflow', nodeType);
+        event.dataTransfer.setData('application/reactflow', 'flowNode');
+        const nodeProps = {
+            color: node.backgroundColor,
+            name: node.name,
+            inputHandles: node.inputHandles,
+            outputHandles: node.outputHandles
+        }
         event.dataTransfer.setData('application/reactflow/data', JSON.stringify(nodeProps));
-        event.dataTransfer.setData('application/reactflow/extension', JSON.stringify(nodeExtension));
         event.dataTransfer.effectAllowed = 'move';
-        onDragStart()
     };
 
     return (
-        <div className={classes.preview} draggable onDragStart={(event) => handleDragStart(event, nodeType)} onDragEnd={onDragEnd} style={scale ? { transform: `scale(${scale})` } : { width, height }}>
-            <Node {...defaultProps} />
+        <div
+            style={{ ...style, ...nodeStyle }}
+            {...otherProps}
+            onDragStart={handleDragStart}
+            draggable
+        >
+            <div className={classes.nodeTitle}>{node.name}</div>
+            <div className={classes.nodeBody}>
+                <div>
+                    {Array.from({ length: node.inputHandles }, (_, index) => (
+                        <div
+                            key={index}
+                            style={{ position: 'relative', left: '-5px' }}
+                            className={classes.handle}
+                        />
+                    ))}
+                </div>
+                <div>
+                    {Array.from({ length: node.outputHandles }, (_, index) => (
+                        <div
+                            key={index}
+                            style={{ position: 'relative', right: '-5px', marginBottom: '10px' }}
+                            className={classes.handle}
+                        />
+                    ))}
+                </div>
+            </div>
         </div>
     )
 }

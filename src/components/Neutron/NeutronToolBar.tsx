@@ -1,9 +1,8 @@
-import { IconButton, Popover } from "@mui/material"
+import { IconButton } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import SaveIcon from '@mui/icons-material/Save';
-import ExtensionIcon from '@mui/icons-material/Extension';
 import { EditText } from "react-edit-text";
 import { useCallback, useState } from "react";
 import { IRos2PartSystem, IRos2System } from "neutron-core";
@@ -17,10 +16,6 @@ import { uploadFile } from "../../api/file";
 import * as graphApi from "../../api/graph"
 import _ from 'lodash'
 import useConfirmationDialog from "../controls/useConfirmationDialog";
-import RosMenu from "./Menus/RosMenu";
-import ConditionalMenu from "./Menus/ConditionalMenu";
-import TransformMenu from "./Menus/TransformMenu";
-import ComponentsMenu from "./Menus/ComponentsMenu";
 import ButtonDialog from "../controls/ButtonDialog";
 import NeutronOpenDialog from "./Toolbar/NeutronOpenDialog";
 
@@ -66,19 +61,8 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
     const { ros2System, nodes, edges, selectedRobotId, selectedRobotPartId, loadedGraph, onGraphUpdate } = props
     const classes = useStyles()
     const [title, setTitle] = useState('')
-    const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-    const [dragging, setDragging] = useState(false)
     const alert = useAlert()
     const [Dialog, prompt] = useConfirmationDialog();
-
-    const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-        console.log(event.currentTarget.id)
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
 
     const onSave = useCallback(async () => {
         if (title === '') {
@@ -192,39 +176,8 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                     <DeleteIcon />
                 </IconButton>
                 <div className={classes.separation} />
-                <IconButton id="ros" onClick={handleMenuClick} color="secondary" aria-label="ros">
-                    <img src={`${process.env.PUBLIC_URL}/assets/ros.svg`} height={20} alt="robot-icon" />
-                </IconButton>
-                <IconButton id="condition" onClick={handleMenuClick} color="secondary" aria-label="condition">
-                    <img src={`${process.env.PUBLIC_URL}/assets/conditional.svg`} width={30} alt="robot-icon" />
-                </IconButton>
-                <IconButton id="transform" onClick={handleMenuClick} color="secondary" aria-label="transform">
-                    <img src={`${process.env.PUBLIC_URL}/assets/transform.svg`} width={30} alt="robot-icon" />
-                </IconButton>
             </div>
             <EditText className={classes.title} onChange={handleTitleUpdate} value={title !== '' ? title : "Enter title here"} />
-            <div>
-                <IconButton id="components" onClick={handleMenuClick} color="secondary" aria-label="components">
-                    <ExtensionIcon />
-                </IconButton>
-            </div>
-            <Popover
-                open={Boolean(anchorEl)}
-                anchorEl={anchorEl}
-                onClose={handleClose}
-                className={dragging ? classes.popoverRoot : undefined}
-                anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                }}
-            >
-                <div className={classes.popover}>
-                    {anchorEl?.id === "ros" && <RosMenu ros2System={ros2System} onDragEnd={() => setDragging(false)} onDragStart={() => setDragging(true)} components={{}} />}
-                    {anchorEl?.id === "condition" && <ConditionalMenu onDragEnd={() => setDragging(false)} onDragStart={() => setDragging(true)} components={{}} />}
-                    {anchorEl?.id === "transform" && <TransformMenu onDragEnd={() => setDragging(false)} onDragStart={() => setDragging(true)} components={{}} />}
-                    {anchorEl?.id === "components" && <ComponentsMenu onDragEnd={() => setDragging(false)} onDragStart={() => setDragging(true)} components={{}} />}
-                </div>
-            </Popover>
         </div>
     )
 }

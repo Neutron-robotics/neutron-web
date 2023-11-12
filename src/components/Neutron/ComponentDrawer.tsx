@@ -1,12 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { ChangeEvent, useRef, useState } from 'react';
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Collapse, InputAdornment, Slide, TextField, Typography } from '@mui/material'
 import { makeStyles } from '@mui/styles';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
-import nodesData from '../../../data/nodes.json'
+import nodesData from '../../data/nodes.json'
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import NewNodePreview from '../Nodes/NewNodePreview';
+import NewNodePreview from './Nodes/NodePreview';
 
 const useStyles = makeStyles(() => ({
     componentDrawer: {
@@ -40,18 +40,26 @@ const useStyles = makeStyles(() => ({
         height: 'calc(100% - 60px)'
     },
     accordion: {
-        "& *": {
+        "& > *": {
             marginTop: '10px',
             marginBottom: '10px'
         }
     }
 }));
 
+interface INodeData {
+    name: string
+    backgroundColor: string,
+    inputHandles: number,
+    outputHandles: number
+}
+
 const ComponentDrawer = () => {
     const [isHovered, setIsHovered] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(true);
     const classes = useStyles();
     const containerRef = useRef<HTMLDivElement>(null);
+    const [nodesDataFiltered, setNodesDataFiltered] = useState<Record<string, INodeData[]>>(nodesData)
 
     const handleDrawerOpen = () => {
         setIsDrawerOpen(true);
@@ -62,6 +70,18 @@ const ComponentDrawer = () => {
         setIsDrawerOpen(false);
         setIsHovered(false)
     };
+
+    function handleFilterValueChanged(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
+        const filteredData = Object.keys(nodesData).reduce<Record<string, INodeData[]>>((acc, cur) => {
+            const filteredItems = (nodesData as Record<string, INodeData[]>)[cur].filter((e) => e.name.toLowerCase().includes(event.target.value.toLowerCase()));
+            if (filteredItems.length > 0) {
+                acc[cur] = filteredItems;
+            }
+            return acc;
+        }, {});
+
+        setNodesDataFiltered(filteredData)
+    }
 
     return (
         <div
@@ -74,6 +94,7 @@ const ComponentDrawer = () => {
                     <TextField
                         variant="outlined"
                         placeholder="Filter by node"
+                        onChange={handleFilterValueChanged}
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
@@ -83,7 +104,7 @@ const ComponentDrawer = () => {
                         }}
                     />
                     <div className={classes.accordions}>
-                        {Object.entries(nodesData).map(([category, nodes]) => (
+                        {Object.entries(nodesDataFiltered).map(([category, nodes]) => (
                             <Accordion defaultExpanded key={category}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
@@ -92,7 +113,9 @@ const ComponentDrawer = () => {
                                 </AccordionSummary>
                                 <AccordionDetails className={classes.accordion}>
                                     {nodes.map(node => (
-                                        <NewNodePreview node={node} key={node.name} />
+                                        <NewNodePreview
+                                            node={node}
+                                            key={node.name} />
                                     ))}
                                 </AccordionDetails>
                             </Accordion>
