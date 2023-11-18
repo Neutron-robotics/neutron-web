@@ -1,4 +1,6 @@
 import { makeStyles } from "@mui/styles"
+import { ChangeEvent } from "react"
+import { EditText, onSaveProps } from "react-edit-text"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -38,17 +40,21 @@ const useStyles = makeStyles(() => ({
 
 }))
 
+export interface TableData {
+    key: string,
+    value?: string | number
+    readonly?: boolean
+}
+
 interface PanelBottomTableProps {
     title: string,
     icon: string
-    data: {
-        key: string,
-        value?: string | number
-    }[]
+    data: TableData[]
+    onEditData: (data: TableData[]) => void
 }
 
 const PanelBottomTable = (props: PanelBottomTableProps) => {
-    const { data, title, icon } = props
+    const { data, title, icon, onEditData } = props
     const classes = useStyles()
 
     const typeStyleDictionnary = (type: string) => {
@@ -56,6 +62,19 @@ const PanelBottomTable = (props: PanelBottomTableProps) => {
             'string': classes.stringText,
             'number': classes.intText
         }[type] ?? ''
+    }
+
+    function handleValueUpdate(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, rowKey: string, isNew: boolean = false): void {
+        const updatedData =
+            isNew ? [...data, { key: rowKey, value: event.target.value }]
+                : data.map((e) => e.key === rowKey ? { ...e, value: event.target.value } : e)
+        onEditData(updatedData)
+    }
+
+    function handleKeyUpdate(event: onSaveProps, isNew: boolean = false): void {
+        const updatedData = isNew ? [...data, { key: event.value, value: '' }]
+            : data.map((e) => e.key === event.previousValue ? { ...e, key: event.value } : e)
+        onEditData(updatedData)
     }
 
     return (
@@ -66,17 +85,44 @@ const PanelBottomTable = (props: PanelBottomTableProps) => {
             </div>
             <div>
                 {data.map((row) =>
-                    typeof (row.value) === 'string' ? (
-                        <div key={row.key} className={classes.row}>
-                            <div>{row.key}</div>
-                            <div className={typeStyleDictionnary(typeof (row.value))}>{`"${row.value}"`}</div>
-                        </div>
-                    ) : (
-                        <div key={row.key} className={classes.row}>
-                            <div>{row.key}</div>
-                            <div className={typeStyleDictionnary(typeof (row.value))}>{`${row.value}`}</div>
-                        </div>
-                    ))}
+                    <div key={row.key} className={classes.row}>
+                        {/* <div>{row.key}</div> */}
+                        <EditText
+                            onSave={handleKeyUpdate}
+                            // value={`${row.key}`}
+                            defaultValue={row.key}
+                            readonly={row.readonly}
+                        />
+                        {typeof (row.value) === 'string' && (
+                            <EditText
+                                className={typeStyleDictionnary(typeof (row.value))}
+                                onChange={(e) => handleValueUpdate(e, row.key)}
+                                value={`${row.value}`}
+                                formatDisplayText={(e) => `"${e}"`}
+                                readonly={row.readonly}
+                            />
+                        )}
+                        {typeof (row.value) === 'number' &&
+                            (
+                                <EditText
+                                    className={typeStyleDictionnary(typeof (row.value))}
+                                    onChange={(e) => handleValueUpdate(e, row.key)}
+                                    value={`${row.value}`}
+                                    readonly={row.readonly}
+                                />
+                            )}
+                    </div>
+                )}
+                <div key={`newRecord-${data.length}`} className={classes.row}>
+                    <EditText
+                        onSave={(e) => handleKeyUpdate(e, true)}
+                        defaultValue={''}
+                    />
+                    <EditText
+                        onSave={(e) => handleValueUpdate({ target: { value: e.value } } as any, 'my_env', true)}
+                        defaultValue={''}
+                    />
+                </div>
             </div>
         </div >
     )

@@ -17,6 +17,7 @@ import { INeutronGraph } from "../api/models/graph.model";
 import ComponentDrawer from "../components/Neutron/ComponentDrawer";
 import InfoSidePanel from "../components/Neutron/Nodes/panels/InfoSidePanel";
 import { Zoom } from "@mui/material";
+import EnvironmentSidePanel from "../components/Neutron/Nodes/panels/EnvironmentSidePanel";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -76,6 +77,7 @@ const NeutronView = (props: NeutronViewProps) => {
     const [neutronGraph, setNeutronGraph] = useState<INeutronGraph>()
     const [sidePanels, setSidePanels] = useState<NeutronSidePanel[]>([])
     const [title, setTitle] = useState('')
+    const [environmentVariables, setEnvironmentVariable] = useState<Record<string, number | string | undefined>>({ toto: 1, foo: 'haha' })
 
     const handleNeutronGraphUpdate = async (graph?: INeutronGraph) => {
         if (!neutronGraph && graph) {
@@ -110,10 +112,6 @@ const NeutronView = (props: NeutronViewProps) => {
             setRos2System(undefined)
         }
         setNeutronGraph(graph)
-    }
-
-    const containsPanel = (panel: NeutronSidePanel) => {
-        return sidePanels.includes(panel)
     }
 
     const addSidePanel = (panel: NeutronSidePanel) => {
@@ -294,7 +292,12 @@ const NeutronView = (props: NeutronViewProps) => {
                             {menu && <NodeContextMenu onClick={onPaneClick} {...menu} />}
                         </ReactFlow>
                         <div className={classes.neutronSidePanelContainer}>
-                            <Zoom in={sidePanels.includes(NeutronSidePanel.Info)}><InfoSidePanel title={title ?? 'New graph'} nodes={nodes} /></Zoom>
+                            <Zoom style={{ display: sidePanels.includes(NeutronSidePanel.Info) ? 'block' : 'none' }} in={sidePanels.includes(NeutronSidePanel.Info)}>
+                                <InfoSidePanel onEnvironmentVariableUpdate={setEnvironmentVariable} title={title ?? 'New graph'} nodes={nodes} />
+                            </Zoom>
+                            <Zoom style={{ display: sidePanels.includes(NeutronSidePanel.Environment) ? 'block' : 'none' }} in={sidePanels.includes(NeutronSidePanel.Environment)}>
+                                <EnvironmentSidePanel onEnvironmentVariableUpdate={setEnvironmentVariable} environmentVariables={environmentVariables} />
+                            </Zoom>
                         </div>
                     </div>
                 </ReactFlowProvider>

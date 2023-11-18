@@ -4,7 +4,7 @@ import { ForwardedRef, HTMLAttributes, forwardRef, useState } from "react"
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { VisualNode } from "..";
-import PanelBottomTable from "./PanelBottomTable";
+import PanelBottomTable, { TableData } from "./PanelBottomTable";
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -27,10 +27,11 @@ const useStyles = makeStyles(() => ({
 interface InfoSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     nodes: VisualNode[],
     title: string,
+    onEnvironmentVariableUpdate: (env: Record<string, string | number | undefined>) => void
 }
 
 const InfoSidePanel = (props: InfoSidePanelProps, ref: ForwardedRef<any>) => {
-    const { nodes, title } = props
+    const { nodes, title, onEnvironmentVariableUpdate } = props
     const classes = useStyles()
     const [collapseOpen, setCollapseOpen] = useState(false)
     const [selectedNode, setSelectedNode] = useState<VisualNode>()
@@ -42,6 +43,11 @@ const InfoSidePanel = (props: InfoSidePanelProps, ref: ForwardedRef<any>) => {
 
     function handleNodeClick(node: VisualNode): void {
         setSelectedNode((prev) => node.id === prev?.id ? undefined : node)
+    }
+
+    const handleEnvironmentVariableUpdate = (data: TableData[]) => {
+        const formatedData = data.reduce((acc, cur) => ({ ...acc, [cur.key]: cur.value }), {})
+        onEnvironmentVariableUpdate(formatedData)
     }
 
     return (
@@ -83,6 +89,7 @@ const InfoSidePanel = (props: InfoSidePanelProps, ref: ForwardedRef<any>) => {
                             { key: 'nodeCount', value: nodes.length }
                         ]
                     }
+                    onEditData={handleEnvironmentVariableUpdate}
                 />
             </div>
         </Paper>
