@@ -18,3 +18,10 @@ export type VisualNode<
   T = any,
   U extends string | undefined = string | undefined
 > = Node<T, U> & NodeExtension;
+
+export enum NeutronSidePanel {
+  Info,
+  Environment,
+  Documentation,
+  Debug
+}

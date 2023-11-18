@@ -6,7 +6,7 @@ import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import nodesData from '../../data/nodes.json'
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import NewNodePreview from './Nodes/NodePreview';
+import NodePreview from './Nodes/NodePreview';
 
 const useStyles = makeStyles(() => ({
     componentDrawer: {
@@ -52,6 +52,7 @@ interface INodeData {
     backgroundColor: string,
     inputHandles: number,
     outputHandles: number
+    icon: string
 }
 
 const ComponentDrawer = () => {
@@ -113,7 +114,7 @@ const ComponentDrawer = () => {
                                 </AccordionSummary>
                                 <AccordionDetails className={classes.accordion}>
                                     {nodes.map(node => (
-                                        <NewNodePreview
+                                        <NodePreview
                                             node={node}
                                             key={node.name} />
                                     ))}

@@ -1,5 +1,5 @@
 import { hexToRGBA } from "../../../utils/color"
-import { HTMLAttributes } from "react"
+import { HTMLAttributes, useMemo } from "react"
 import { CSSProperties, makeStyles } from "@mui/styles"
 
 const useStyles = makeStyles(() => ({
@@ -10,11 +10,21 @@ const useStyles = makeStyles(() => ({
         marginTop: '10px',
     },
     nodeTitle: {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
+        position: 'relative',
+        textAlign: 'center',
         width: '100%'
+    },
+    nodeIcon: {
+        width: '30px',
+        position: 'relative',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        "& img": {
+            width: '20px',
+            filter: 'invert(1)'
+        }
     },
     handle: {
         pointerEvents: "none",
@@ -25,6 +35,13 @@ const useStyles = makeStyles(() => ({
         background: '#1a192b',
         border: '1px solid white',
         borderRadius: '100%',
+    },
+    containerNode: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center'
     }
 }))
 interface INodePreview {
@@ -32,6 +49,7 @@ interface INodePreview {
     backgroundColor: string
     inputHandles: number
     outputHandles: number
+    icon: string
 }
 
 interface NodePreviewProps extends HTMLAttributes<HTMLDivElement> {
@@ -49,7 +67,7 @@ const NodePreview = (props: NodePreviewProps) => {
         textAlign: 'center',
         border: '1px solid black',
         position: 'relative',
-        minHeight:'30px'
+        minHeight: '30px'
     }
 
     const handleDragStart = (event: React.DragEvent) => {
@@ -59,11 +77,22 @@ const NodePreview = (props: NodePreviewProps) => {
             color: node.backgroundColor,
             name: node.name,
             inputHandles: node.inputHandles,
-            outputHandles: node.outputHandles
+            outputHandles: node.outputHandles,
+            icon: node.icon
         }
         event.dataTransfer.setData('application/reactflow/data', JSON.stringify(nodeProps));
         event.dataTransfer.effectAllowed = 'move';
     };
+
+    const iconSide = useMemo(() => {
+        if (node.inputHandles > 0 && node.outputHandles > 0) {
+            return 'left';
+        } else if (node.outputHandles > 0) {
+            return 'left';
+        } else {
+            return 'right';
+        }
+    }, [node])
 
     return (
         <div
@@ -72,7 +101,13 @@ const NodePreview = (props: NodePreviewProps) => {
             onDragStart={handleDragStart}
             draggable
         >
-            <div className={classes.nodeTitle}>{node.name}</div>
+            <div className={classes.containerNode} style={{ flexDirection: iconSide === 'left' ? 'row' : 'row-reverse' }}>
+                <div className={classes.nodeIcon}
+                    style={{ left: 0, background: node.backgroundColor, borderRadius: iconSide === 'left' ? '5px 0px 0px 5px' : '0px 5px 5px 0px' }}>
+                    <img alt="node-icon" src={`${process.env.PUBLIC_URL}/assets/nodes/${node.icon}`} />
+                </div>
+                <div className={classes.nodeTitle}>{node.name}</div>
+            </div>
             <div className={classes.nodeBody}>
                 <div>
                     {Array.from({ length: node.inputHandles }, (_, index) => (

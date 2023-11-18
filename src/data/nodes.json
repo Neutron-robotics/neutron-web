@@ -4,31 +4,36 @@
             "name": "inject",
             "backgroundColor": "#B2B2B2",
             "inputHandles": 0,
-            "outputHandles": 1
+            "outputHandles": 1,
+            "icon": "inject.svg"
         },
         {
             "name": "debug",
             "backgroundColor": "#018D20",
             "inputHandles": 1,
-            "outputHandles": 0
+            "outputHandles": 0,
+            "icon": "info.svg"
         },
         {
             "name": "info",
             "backgroundColor": "#00C9D6",
             "inputHandles": 1,
-            "outputHandles": 0
+            "outputHandles": 0,
+            "icon": "info.svg"
         },
         {
             "name": "warning",
             "backgroundColor": "#E3B50F",
             "inputHandles": 1,
-            "outputHandles": 0
+            "outputHandles": 0,
+            "icon": "warning.svg"
         },
         {
             "name": "error",
             "backgroundColor": "#C51919",
             "inputHandles": 1,
-            "outputHandles": 0
+            "outputHandles": 0,
+            "icon": "error.svg"
         }
     ],
     "Functions": [
@@ -36,37 +41,43 @@
             "name": "function",
             "backgroundColor": "#FF7A00",
             "inputHandles": 1,
-            "outputHandles": 1
+            "outputHandles": 1,
+            "icon": "function.svg"
         },
         {
             "name": "switch",
             "backgroundColor": "#FFE500",
             "inputHandles": 1,
-            "outputHandles": 1
+            "outputHandles": 1,
+            "icon": "switch.svg"
         },
         {
             "name": "change",
             "backgroundColor": "#FFE500",
             "inputHandles": 1,
-            "outputHandles": 1
+            "outputHandles": 1,
+            "icon": "change.svg"
         },
         {
             "name": "range",
             "backgroundColor": "#FFE500",
             "inputHandles": 1,
-            "outputHandles": 1
+            "outputHandles": 1,
+            "icon": "range.svg"
         },
         {
             "name": "template",
             "backgroundColor": "#FF7A00",
             "inputHandles": 1,
-            "outputHandles": 1
+            "outputHandles": 1,
+            "icon": "templates.svg"
         },
         {
             "name": "delay",
             "backgroundColor": "#EE83FF",
             "inputHandles": 1,
-            "outputHandles": 1
+            "outputHandles": 1,
+            "icon": "delay.svg"
         }
     ],
     "ROS2": [
@@ -74,39 +85,45 @@
             "name": "publish",
             "backgroundColor": "#FF0000",
             "inputHandles": 1,
-            "outputHandles": 0
+            "outputHandles": 0,
+            "icon": "ros.svg"
         },
         {
             "name": "subscribe",
             "backgroundColor": "#FF0000",
             "inputHandles": 0,
-            "outputHandles": 1
+            "outputHandles": 1,
+            "icon": "ros.svg"
         },
         {
             "name": "call service",
             "backgroundColor": "#FF0000",
             "inputHandles": 1,
-            "outputHandles": 1
+            "outputHandles": 1,
+            "icon": "ros.svg"
         },
         {
             "name": "call action",
             "backgroundColor": "#FF0000",
             "inputHandles": 1,
-            "outputHandles": 2
+            "outputHandles": 2,
+            "icon": "ros.svg"
         }
     ],
     "Controllers": [
         {
             "name": "base controller",
             "backgroundColor": "#BD00FF",
-            "inputHandles": 1,
-            "outputHandles": 0
+            "inputHandles": 0,
+            "outputHandles": 1,
+            "icon": "component.svg"
         },
         {
             "name": "RTC camera",
             "backgroundColor": "#BD00FF",
             "inputHandles": 1,
-            "outputHandles": 0
+            "outputHandles": 0,
+            "icon": "component.svg"
         }
     ]
 }

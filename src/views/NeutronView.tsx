@@ -7,7 +7,7 @@ import { v4 } from "uuid";
 import * as organization from "../api/organization";
 import { IRobot, IRobotPart } from "../api/models/robot.model";
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { VisualNode, newNodeType } from "../components/Neutron/Nodes";
+import { NeutronSidePanel, VisualNode, newNodeType } from "../components/Neutron/Nodes";
 import { IRos2PartSystem, IRos2System } from "neutron-core";
 import { getRos2System } from "../api/ros2";
 import { useAlert } from "../contexts/AlertContext";
@@ -15,6 +15,8 @@ import { toPartSystem } from "../utils/ros2";
 import NodeContextMenu, { NodeContextMenuProps } from "../components/Neutron/Nodes/NodeContextMenu";
 import { INeutronGraph } from "../api/models/graph.model";
 import ComponentDrawer from "../components/Neutron/ComponentDrawer";
+import InfoSidePanel from "../components/Neutron/Nodes/panels/InfoSidePanel";
+import { Zoom } from "@mui/material";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -29,7 +31,7 @@ const useStyles = makeStyles(() => ({
     flowContainer: {
         position: 'relative',
         marginTop: '2px',
-        height: 'calc(100% - 90px)',
+        height: 'calc(100% - 30px)',
         '& .react-flow__attribution': {
             visibility: 'hidden',
         },
@@ -40,6 +42,15 @@ const useStyles = makeStyles(() => ({
         left: '20px',
         zIndex: 1400,
         background: 'white',
+    },
+    neutronSidePanelContainer: {
+        position: 'absolute',
+        width: '20%',
+        minWidth: '300px',
+        height: '65%',
+        right: '20px',
+        top: '50%',
+        transform: 'translate(0%, -50%)'
     },
     select: {
     }
@@ -63,6 +74,8 @@ const NeutronView = (props: NeutronViewProps) => {
     const [menu, setMenu] = useState<NodeContextMenuProps>();
     const menuRef = useRef<HTMLDivElement>(null);
     const [neutronGraph, setNeutronGraph] = useState<INeutronGraph>()
+    const [sidePanels, setSidePanels] = useState<NeutronSidePanel[]>([])
+    const [title, setTitle] = useState('')
 
     const handleNeutronGraphUpdate = async (graph?: INeutronGraph) => {
         if (!neutronGraph && graph) {
@@ -99,6 +112,18 @@ const NeutronView = (props: NeutronViewProps) => {
         setNeutronGraph(graph)
     }
 
+    const containsPanel = (panel: NeutronSidePanel) => {
+        return sidePanels.includes(panel)
+    }
+
+    const addSidePanel = (panel: NeutronSidePanel) => {
+        setSidePanels((prev) => [...prev, panel])
+    }
+
+    const removePanel = (panel: NeutronSidePanel) => {
+        setSidePanels((prev) => prev.filter(e => e !== panel))
+    }
+
     useEffect(() => {
         const fetchOrganizations = async () => {
             const organizations = await organization.me()
@@ -120,8 +145,6 @@ const NeutronView = (props: NeutronViewProps) => {
             const pane = menuRef.current.getBoundingClientRect();
             setMenu({
                 id: node.id,
-                // canBeInput: node.canBeInput,
-                // isInput: node.isInput,
                 title: node.title ?? 'Custom Node',
                 top: ((event.clientY < pane.height - 200) ? event.clientY - 100 : undefined) as number,
                 left: ((event.clientX < pane.width - 200) ? event.clientX - 100 : undefined) as number,
@@ -223,8 +246,15 @@ const NeutronView = (props: NeutronViewProps) => {
                         selectedRobotPartId={selectedPart?._id}
                         nodes={nodes}
                         edges={edges}
+                        title={title}
+                        onTitleUpdate={setTitle}
                         onGraphUpdate={handleNeutronGraphUpdate}
                         loadedGraph={neutronGraph}
+                        panels={{
+                            addSidePanel,
+                            removePanel,
+                            panels: sidePanels
+                        }}
                     />
                     <div className={classes.flowContainer} ref={reactFlowWrapper}>
                         <div className={classes.selectContainer}>
@@ -263,6 +293,9 @@ const NeutronView = (props: NeutronViewProps) => {
                             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
                             {menu && <NodeContextMenu onClick={onPaneClick} {...menu} />}
                         </ReactFlow>
+                        <div className={classes.neutronSidePanelContainer}>
+                            <Zoom in={sidePanels.includes(NeutronSidePanel.Info)}><InfoSidePanel title={title ?? 'New graph'} nodes={nodes} /></Zoom>
+                        </div>
                     </div>
                 </ReactFlowProvider>
             </div>

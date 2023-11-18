@@ -32,6 +32,26 @@ const useStyles = makeStyles(() => ({
         width: '100%',
         textAlign: 'center'
     },
+    nodeIcon: {
+        width: '30px',
+        position: 'relative',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: '5px',
+        "& img": {
+            width: '20px',
+            filter: 'invert(1)'
+        }
+    },
+    containerNode: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center'
+    }
 }))
 
 interface FlowNodeProps {
@@ -39,21 +59,38 @@ interface FlowNodeProps {
     inputHandles: number
     outputHandles: number
     name: string
+    icon: string
 }
 
 const FlowNode = (props: NodeProps<FlowNodeProps>) => {
     const { data } = props
-    const { color, inputHandles, outputHandles, name } = data
+    const { color, inputHandles, outputHandles, name, icon } = data
     const classes = useStyles()
-
 
     const maxHandleCount = useMemo(() => 30 + (Math.max(inputHandles, outputHandles) * 10), [inputHandles, outputHandles])
     const nodeStyle: CSSProperties = {
         background: color
     }
+
+    const iconSide = useMemo(() => {
+        if (inputHandles > 0 && outputHandles > 0) {
+            return 'left';
+        } else if (outputHandles > 0) {
+            return 'left';
+        } else {
+            return 'right';
+        }
+    }, [inputHandles, outputHandles])
+
     return (
         <div style={{ ...nodeStyle, minHeight: maxHandleCount }} className={classes.nodeRoot}>
-            <div className={classes.nodeTitle}>{name}</div>
+            {/* <div className={classes.nodeTitle}>{name}</div> */}
+            <div className={classes.containerNode} style={{ flexDirection: iconSide === 'left' ? 'row' : 'row-reverse' }}>
+                <div className={classes.nodeIcon} style={{ left: 0 }}>
+                    <img alt="node-icon" src={`${process.env.PUBLIC_URL}/assets/nodes/${icon}`} />
+                </div>
+                <div className={classes.nodeTitle}>{name}</div>
+            </div>
             <div className={classes.nodeBody}>
                 <div>
                     {Array.from({ length: inputHandles }, (_, index) => (

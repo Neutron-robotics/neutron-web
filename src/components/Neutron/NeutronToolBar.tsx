@@ -1,4 +1,4 @@
-import { IconButton } from "@mui/material"
+import { IconButton, ToggleButton, ToggleButtonGroup } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
@@ -18,6 +18,10 @@ import _ from 'lodash'
 import useConfirmationDialog from "../controls/useConfirmationDialog";
 import ButtonDialog from "../controls/ButtonDialog";
 import NeutronOpenDialog from "./Toolbar/NeutronOpenDialog";
+import InfoIcon from '@mui/icons-material/Info';
+import StorageIcon from '@mui/icons-material/Storage';
+import BookIcon from '@mui/icons-material/Book';
+import { NeutronSidePanel } from "./Nodes";
 
 const useStyles = makeStyles(() => ({
     toolbar: {
@@ -53,14 +57,20 @@ interface NeutronToolBarProps {
     selectedRobotPartId?: string,
     nodes: Node[],
     edges: Edge[],
+    title: string,
     loadedGraph?: INeutronGraph
     onGraphUpdate: (graph?: INeutronGraph) => void
+    onTitleUpdate: (title: string) => void
+    panels: {
+        addSidePanel: (panel: NeutronSidePanel) => void;
+        removePanel: (panel: NeutronSidePanel) => void;
+        panels: NeutronSidePanel[]
+    }
 }
 
 const NeutronToolBar = (props: NeutronToolBarProps) => {
-    const { ros2System, nodes, edges, selectedRobotId, selectedRobotPartId, loadedGraph, onGraphUpdate } = props
+    const { ros2System, nodes, edges, selectedRobotId, selectedRobotPartId, loadedGraph, onGraphUpdate, panels, title, onTitleUpdate } = props
     const classes = useStyles()
-    const [title, setTitle] = useState('')
     const alert = useAlert()
     const [Dialog, prompt] = useConfirmationDialog();
 
@@ -109,7 +119,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
     }, [alert, edges, loadedGraph, nodes, onGraphUpdate, selectedRobotId, selectedRobotPartId, title]);
 
     const handleTitleUpdate = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        setTitle(e.target.value)
+        onTitleUpdate(e.target.value)
     }
 
     const updated = title !== loadedGraph?.title ||
@@ -120,18 +130,18 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
         if (updated) {
             prompt('There are pending changes for your current graph, do you want to discard it ?', (confirm) => {
                 if (confirm) {
-                    setTitle('')
+                    onTitleUpdate('')
                     onGraphUpdate()
                 }
             })
         } else {
-            setTitle('')
+            onTitleUpdate('')
             onGraphUpdate()
         }
     }
 
     const handleOpenDialog = (openedGraph: INeutronGraph) => {
-        setTitle(openedGraph.title)
+        onTitleUpdate(openedGraph.title)
         onGraphUpdate(openedGraph)
     }
 
@@ -141,7 +151,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
         prompt('Are you sure you want to delete this Graph ?', (confirm) => {
             if (confirm) {
                 graphApi.deleteGraph(loadedGraph?._id).then(res => {
-                    setTitle('')
+                    onTitleUpdate('')
                     onGraphUpdate()
                     alert.success("The graph has been deleted")
                 }).catch(() => {
@@ -149,6 +159,13 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                 })
             }
         })
+    }
+
+    function handlePanelBtnClick(sidePanelType: NeutronSidePanel): void {
+        if (!panels.panels.includes(sidePanelType))
+            panels.addSidePanel(sidePanelType)
+        else
+            panels.removePanel(sidePanelType)
     }
 
     return (
@@ -178,6 +195,20 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                 <div className={classes.separation} />
             </div>
             <EditText className={classes.title} onChange={handleTitleUpdate} value={title !== '' ? title : "Enter title here"} />
+            <ToggleButtonGroup
+                value={panels.panels}
+                aria-label="text alignment"
+            >
+                <ToggleButton value={NeutronSidePanel.Info} onClick={() => handlePanelBtnClick(NeutronSidePanel.Info)} color="secondary" aria-label="components">
+                    <InfoIcon />
+                </ToggleButton>
+                <ToggleButton value={NeutronSidePanel.Environment} onClick={() => handlePanelBtnClick(NeutronSidePanel.Environment)} color="secondary" aria-label="components">
+                    <StorageIcon />
+                </ToggleButton>
+                <ToggleButton value={NeutronSidePanel.Documentation} onClick={() => handlePanelBtnClick(NeutronSidePanel.Documentation)} color="secondary" aria-label="components">
+                    <BookIcon />
+                </ToggleButton>
+            </ToggleButtonGroup>
         </div>
     )
 }
