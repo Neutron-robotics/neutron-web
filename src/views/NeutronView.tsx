@@ -7,7 +7,7 @@ import { v4 } from "uuid";
 import * as organization from "../api/organization";
 import { IRobot, IRobotPart } from "../api/models/robot.model";
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { NeutronSidePanel, VisualNode, newNodeType } from "../components/Neutron/Nodes";
+import { VisualNode, newNodeType } from "../components/Neutron/Nodes";
 import { IRos2PartSystem, IRos2System } from "neutron-core";
 import { getRos2System } from "../api/ros2";
 import { useAlert } from "../contexts/AlertContext";
@@ -15,9 +15,7 @@ import { toPartSystem } from "../utils/ros2";
 import NodeContextMenu, { NodeContextMenuProps } from "../components/Neutron/Nodes/NodeContextMenu";
 import { INeutronGraph } from "../api/models/graph.model";
 import ComponentDrawer from "../components/Neutron/ComponentDrawer";
-import InfoSidePanel from "../components/Neutron/Nodes/panels/InfoSidePanel";
-import { Zoom } from "@mui/material";
-import EnvironmentSidePanel from "../components/Neutron/Nodes/panels/EnvironmentSidePanel";
+import NeutronNodePanel, { NeutronSidePanel } from "../components/Neutron/Nodes/panels";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -43,15 +41,6 @@ const useStyles = makeStyles(() => ({
         left: '20px',
         zIndex: 1400,
         background: 'white',
-    },
-    neutronSidePanelContainer: {
-        position: 'absolute',
-        width: '20%',
-        minWidth: '300px',
-        height: '65%',
-        right: '20px',
-        top: '50%',
-        transform: 'translate(0%, -50%)'
     },
     select: {
     }
@@ -233,6 +222,11 @@ const NeutronView = (props: NeutronViewProps) => {
         setRos2System(partSystem)
     }
 
+    function handleOnNodeDoubleClick(event: any, node: VisualNode<any, string | undefined>): void {
+        console.log("Clicked ", node)
+        setSidePanels((prev) => [node.data.name])
+    }
+
     return (
         <div className={classes.root}>
             <ComponentDrawer />
@@ -280,6 +274,7 @@ const NeutronView = (props: NeutronViewProps) => {
                             onNodesChange={onNodesChange}
                             onEdgesChange={onEdgesChange}
                             onConnect={onConnect}
+                            onNodeDoubleClick={handleOnNodeDoubleClick}
                             nodeTypes={newNodeType}
                             onDragOver={onDragOver}
                             onPaneClick={onPaneClick}
@@ -291,14 +286,13 @@ const NeutronView = (props: NeutronViewProps) => {
                             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
                             {menu && <NodeContextMenu onClick={onPaneClick} {...menu} />}
                         </ReactFlow>
-                        <div className={classes.neutronSidePanelContainer}>
-                            <Zoom style={{ display: sidePanels.includes(NeutronSidePanel.Info) ? 'block' : 'none' }} in={sidePanels.includes(NeutronSidePanel.Info)}>
-                                <InfoSidePanel onEnvironmentVariableUpdate={setEnvironmentVariable} title={title ?? 'New graph'} nodes={nodes} />
-                            </Zoom>
-                            <Zoom style={{ display: sidePanels.includes(NeutronSidePanel.Environment) ? 'block' : 'none' }} in={sidePanels.includes(NeutronSidePanel.Environment)}>
-                                <EnvironmentSidePanel onEnvironmentVariableUpdate={setEnvironmentVariable} environmentVariables={environmentVariables} />
-                            </Zoom>
-                        </div>
+                        <NeutronNodePanel
+                            onEnvironmentVariableUpdate={setEnvironmentVariable}
+                            title={title ?? 'New graph'}
+                            nodes={nodes}
+                            sidePanels={sidePanels}
+                            environmentVariables={environmentVariables}
+                        />
                     </div>
                 </ReactFlowProvider>
             </div>

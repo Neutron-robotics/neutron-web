@@ -27,17 +27,16 @@ interface EnvironmentSidePanelProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const EnvironmentSidePanel = (props: EnvironmentSidePanelProps, ref: ForwardedRef<any>) => {
-    const { environmentVariables, onEnvironmentVariableUpdate } = props
+    const { environmentVariables, onEnvironmentVariableUpdate, ...otherProps } = props
     const classes = useStyles()
 
     const handleEnvironmentVariableUpdate = (data: TableData[]) => {
         const formatedData = data.reduce((acc, cur) => ({ ...acc, [cur.key]: cur.value }), {})
-        console.log('set', formatedData)
         onEnvironmentVariableUpdate(formatedData)
     }
 
     return (
-        <Paper elevation={3} ref={ref} {...props} className={classes.panelRoot} >
+        <Paper elevation={3} ref={ref} {...otherProps} className={classes.panelRoot} >
             <h3 className={classes.title}>Environment</h3>
             <div className={classes.panelBody}>
                 <PanelBottomTable

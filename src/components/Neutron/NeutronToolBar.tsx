@@ -21,7 +21,7 @@ import NeutronOpenDialog from "./Toolbar/NeutronOpenDialog";
 import InfoIcon from '@mui/icons-material/Info';
 import StorageIcon from '@mui/icons-material/Storage';
 import BookIcon from '@mui/icons-material/Book';
-import { NeutronSidePanel } from "./Nodes";
+import { NeutronSidePanel } from "./Nodes/panels";
 
 const useStyles = makeStyles(() => ({
     toolbar: {

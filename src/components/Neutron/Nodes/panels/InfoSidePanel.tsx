@@ -31,7 +31,7 @@ interface InfoSidePanelProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const InfoSidePanel = (props: InfoSidePanelProps, ref: ForwardedRef<any>) => {
-    const { nodes, title, onEnvironmentVariableUpdate } = props
+    const { nodes, title, onEnvironmentVariableUpdate, ...otherProps } = props
     const classes = useStyles()
     const [collapseOpen, setCollapseOpen] = useState(false)
     const [selectedNode, setSelectedNode] = useState<VisualNode>()
@@ -51,7 +51,7 @@ const InfoSidePanel = (props: InfoSidePanelProps, ref: ForwardedRef<any>) => {
     }
 
     return (
-        <Paper elevation={3} ref={ref} {...props} className={classes.panelRoot}>
+        <Paper elevation={3} ref={ref} {...otherProps} className={classes.panelRoot}>
             <h3 className={classes.title}>Infos</h3>
             <div className={classes.panelBody}>
                 <List
