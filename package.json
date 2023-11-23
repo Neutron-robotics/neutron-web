@@ -19,6 +19,7 @@
     "@types/react-edit-text": "^5.0.1",
     "@types/react-resizable": "^3.0.3",
     "axios": "^1.4.0",
+    "cronstrue": "^2.44.0",
     "hotkeys-inputs-js": "^1.1.21",
     "html-to-image": "^1.11.11",
     "js-cookie": "^3.0.5",

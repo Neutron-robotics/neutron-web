@@ -67,6 +67,7 @@ const NeutronView = (props: NeutronViewProps) => {
     const [sidePanels, setSidePanels] = useState<NeutronSidePanel[]>([])
     const [title, setTitle] = useState('')
     const [environmentVariables, setEnvironmentVariable] = useState<Record<string, number | string | undefined>>({ toto: 1, foo: 'haha' })
+    const [selectedNode, setSelectedNode] = useState<VisualNode>()
 
     const handleNeutronGraphUpdate = async (graph?: INeutronGraph) => {
         if (!neutronGraph && graph) {
@@ -223,8 +224,8 @@ const NeutronView = (props: NeutronViewProps) => {
     }
 
     function handleOnNodeDoubleClick(event: any, node: VisualNode<any, string | undefined>): void {
-        console.log("Clicked ", node)
         setSidePanels((prev) => [node.data.name])
+        setSelectedNode(node)
     }
 
     return (
@@ -290,7 +291,12 @@ const NeutronView = (props: NeutronViewProps) => {
                             onEnvironmentVariableUpdate={setEnvironmentVariable}
                             title={title ?? 'New graph'}
                             nodes={nodes}
-                            sidePanels={sidePanels}
+                            panels={{
+                                addSidePanel,
+                                removePanel,
+                                panels: sidePanels
+                            }}
+                            selectedNode={selectedNode}
                             environmentVariables={environmentVariables}
                         />
                     </div>

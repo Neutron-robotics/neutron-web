@@ -5,12 +5,13 @@ import InfoSidePanel from "./InfoSidePanel"
 import { VisualNode } from ".."
 import { TransitionGroup } from "react-transition-group"
 import EnvironmentSidePanel from "./EnvironmentSidePanel"
+import InjectSidePanel from "./InjectSidePanel"
+import { useReactFlow } from "reactflow"
 
 const useStyles = makeStyles(() => ({
     neutronSidePanelContainer: {
         position: 'absolute',
         width: '20%',
-        minWidth: '300px',
         height: '80%',
         right: '20px',
         top: '50%',
@@ -27,29 +28,54 @@ export enum NeutronSidePanel {
 }
 
 interface INeutronNodePanel {
-    sidePanels: NeutronSidePanel[]
+    panels: {
+        addSidePanel: (panel: NeutronSidePanel) => void;
+        removePanel: (panel: NeutronSidePanel) => void;
+        panels: NeutronSidePanel[]
+    }
     nodes: VisualNode[],
     title: string,
     environmentVariables: Record<string, string | number | undefined>
+    selectedNode?: VisualNode
     onEnvironmentVariableUpdate: (env: Record<string, string | number | undefined>) => void
-
 }
 
 const NeutronNodePanel = (props: INeutronNodePanel) => {
-    const { sidePanels, nodes, title, environmentVariables, onEnvironmentVariableUpdate } = props
+    const { panels, nodes, title, selectedNode, environmentVariables, onEnvironmentVariableUpdate } = props
     const classes = useStyles()
+    const { setNodes } = useReactFlow();
+
+    const commitNode = (id: string, panel: NeutronSidePanel, data: any) => {
+        panels.removePanel(panel)
+        const updatedNodes = nodes.filter((e) => e.id === id ? { ...e, specifics: data } : e)
+        console.log("Update nodes!", updatedNodes)
+        setNodes(updatedNodes)
+    }
+
 
     const neutronPanels = {
         [NeutronSidePanel.Info]: <InfoSidePanel onEnvironmentVariableUpdate={onEnvironmentVariableUpdate} title={title ?? 'New graph'} nodes={nodes} />,
         [NeutronSidePanel.Environment]: <EnvironmentSidePanel onEnvironmentVariableUpdate={onEnvironmentVariableUpdate} environmentVariables={environmentVariables} />,
         [NeutronSidePanel.Documentation]: <DocumentationSidePanel />,
         [NeutronSidePanel.Debug]: <div></div>,
-        [NeutronSidePanel.Inject]: <DocumentationSidePanel />
+        [NeutronSidePanel.Inject]: <InjectSidePanel node={selectedNode as any} onSave={commitNode} onCancel={() => panels.removePanel(NeutronSidePanel.Inject)} />
+    }
+
+    const minWidth = (panel: NeutronSidePanel) => {
+        const small =
+            [NeutronSidePanel.Info,
+            NeutronSidePanel.Debug,
+            NeutronSidePanel.Documentation,
+            NeutronSidePanel.Environment
+            ].includes(panel)
+        if (small)
+            return 300
+        return 500
     }
 
     return (
-        <TransitionGroup className={classes.neutronSidePanelContainer}>
-            {sidePanels.map((panel) => (
+        <TransitionGroup className={classes.neutronSidePanelContainer} style={{ minWidth: `${minWidth(panels.panels[0])}px`, visibility: panels.panels.length > 0 ? 'visible' : 'hidden' }}>
+            {panels.panels.map((panel) => (
                 <Zoom key={panel}>
                     {neutronPanels[panel]}
                 </Zoom>
