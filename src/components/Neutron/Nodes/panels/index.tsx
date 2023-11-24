@@ -6,7 +6,6 @@ import { VisualNode } from ".."
 import { TransitionGroup } from "react-transition-group"
 import EnvironmentSidePanel from "./EnvironmentSidePanel"
 import InjectSidePanel from "./InjectSidePanel"
-import { useReactFlow } from "reactflow"
 
 const useStyles = makeStyles(() => ({
     neutronSidePanelContainer: {
@@ -43,22 +42,13 @@ interface INeutronNodePanel {
 const NeutronNodePanel = (props: INeutronNodePanel) => {
     const { panels, nodes, title, selectedNode, environmentVariables, onEnvironmentVariableUpdate } = props
     const classes = useStyles()
-    const { setNodes } = useReactFlow();
-
-    const commitNode = (id: string, panel: NeutronSidePanel, data: any) => {
-        panels.removePanel(panel)
-        const updatedNodes = nodes.filter((e) => e.id === id ? { ...e, specifics: data } : e)
-        console.log("Update nodes!", updatedNodes)
-        setNodes(updatedNodes)
-    }
-
 
     const neutronPanels = {
         [NeutronSidePanel.Info]: <InfoSidePanel onEnvironmentVariableUpdate={onEnvironmentVariableUpdate} title={title ?? 'New graph'} nodes={nodes} />,
         [NeutronSidePanel.Environment]: <EnvironmentSidePanel onEnvironmentVariableUpdate={onEnvironmentVariableUpdate} environmentVariables={environmentVariables} />,
         [NeutronSidePanel.Documentation]: <DocumentationSidePanel />,
         [NeutronSidePanel.Debug]: <div></div>,
-        [NeutronSidePanel.Inject]: <InjectSidePanel node={selectedNode as any} onSave={commitNode} onCancel={() => panels.removePanel(NeutronSidePanel.Inject)} />
+        [NeutronSidePanel.Inject]: <InjectSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Inject)} />
     }
 
     const minWidth = (panel: NeutronSidePanel) => {

@@ -6,6 +6,8 @@ const useStyles = makeStyles(() => ({
     input: {
         paddingLeft: '0px',
         "& input": {
+            fontSize: '12px',
+            height: '25px'
         },
         '& > div:first-child': {
             paddingLeft: '0px',
@@ -58,10 +60,8 @@ const ValueField = (props: ValueFieldProps) => {
     function handleSelectChange(event: SelectChangeEvent<string>): void {
         const icon = iconOptions.find(e => e.value === event.target.value)
         if (icon && onValueChanged !== undefined)
-            onValueChanged({ type: icon.value })
+            onValueChanged({ type: icon.value, value: value.value })
     }
-
-    console.log('value is', `${value.value}`, icon)
 
     function handleChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
         if (onValueChanged !== undefined)
@@ -73,8 +73,8 @@ const ValueField = (props: ValueFieldProps) => {
             variant="outlined"
             value={value.value}
             type={
-                value.value === 'number' ? 'number' :
-                    value.value === 'bool' ? 'checkbox' :
+                value.type === 'number' ? 'number' :
+                    value.type === 'bool' ? 'checkbox' :
                         'text'
             }
             className={classes.input}
@@ -87,11 +87,14 @@ const ValueField = (props: ValueFieldProps) => {
                             value={icon.value}
                             className={classes.select}
                             renderValue={() => (
-                                <img
-                                    src={`${process.env.PUBLIC_URL}/assets/types/${icon.icon}`}
-                                    alt={'select-icon'}
-                                    height={20}
-                                    width={20} />
+                                icon.icon === undefined ?
+                                    <div>{icon.label}</div>
+                                    :
+                                    <img
+                                        src={`${process.env.PUBLIC_URL}/assets/types/${icon.icon}`}
+                                        alt={'select-icon'}
+                                        height={20}
+                                        width={20} />
                             )}
                         >
                             {iconOptions.map((option) => (

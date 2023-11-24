@@ -1,15 +1,15 @@
 import { Button, Checkbox, IconButton, MenuItem, Paper, Select, SelectChangeEvent, TextField } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import { ChangeEvent, ForwardedRef, HTMLAttributes, forwardRef, useState } from "react"
-import { NeutronSidePanel } from "."
 import { VisualNode } from ".."
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import MessageField from "./MessageField"
-import ValueField, { NeutronPrimitiveType } from "./ValueField"
+import ValueField, { IValueField, NeutronPrimitiveType } from "./ValueField"
 import ClearIcon from '@mui/icons-material/Clear';
 import { v4 } from "uuid"
 import cronstrue from 'cronstrue';
+import useNodeSpecifics from "../../../../utils/useNodeSpecifics"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -89,50 +89,53 @@ interface InjectNodeSpecifics {
     repeatOptions?: IRepeatCron | IRepeatInterval
 }
 
+const defaultSpecifics: InjectNodeSpecifics = {
+    properties: [],
+    inject: true,
+    injectDelay: 0,
+    repeat: 'interval'
+}
+
 interface InjectSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     node: VisualNode
-    onCancel: () => void
-    onSave: (id: string, panel: NeutronSidePanel, data: InjectNodeSpecifics) => void
+    onComplete: () => void
 }
 
 const InjectSidePanel = (props: InjectSidePanelProps, ref: ForwardedRef<any>) => {
-    const { onCancel, onSave, node, ...otherProps } = props
+    const { onComplete, node, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useState<InjectNodeSpecifics>(node.data?.specifics ?? {
-        properties: [],
-        inject: true,
-        injectDelay: 0,
-        repeat: 'interval'
-    })
+    const [specifics, setSpecifics] = useNodeSpecifics<InjectNodeSpecifics>(node.id, defaultSpecifics)
+    const [specificsLocal, setLocalSpecifics] = useState<InjectNodeSpecifics>(specifics)
     const [cronInText, setCronInText] = useState('')
 
     const handleSaveClick = () => {
-        onSave(node.id, NeutronSidePanel.Inject, specifics)
+        setSpecifics(specificsLocal)
+        onComplete()
     }
 
     function handleAddProperty(): void {
-        setSpecifics((prev) => ({ ...prev, properties: [...prev.properties, { type: 'string', name: 'property', value: '', id: v4() }] }))
+        setLocalSpecifics((prev) => ({ ...prev, properties: [...prev.properties, { type: 'string', name: 'property', value: '', id: v4() }] }))
     }
 
     function handleInject(): void {
-        setSpecifics((prev) => ({ ...prev, inject: !prev.inject }))
+        setLocalSpecifics((prev) => ({ ...prev, inject: !prev.inject }))
     }
 
     function handleDelayChanged(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void {
-        setSpecifics((prev) => ({ ...prev, injectDelay: +event.target.value }))
+        setLocalSpecifics((prev) => ({ ...prev, injectDelay: +event.target.value }))
     }
 
     function handleRepeatMethod(event: SelectChangeEvent): void {
-        setSpecifics((prev) => ({ ...prev, repeat: event.target.value as any, repeatOptions: undefined }))
+        setLocalSpecifics((prev) => ({ ...prev, repeat: event.target.value as any, repeatOptions: undefined }))
         setCronInText('')
     }
 
     function handleRepeatIntervalChanged(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void {
-        setSpecifics((prev) => ({ ...prev, repeatOptions: { delay: +event.target.value } }))
+        setLocalSpecifics((prev) => ({ ...prev, repeatOptions: { delay: +event.target.value } }))
     }
 
     function handleRepeatCronChanged(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void {
-        setSpecifics((prev) => ({ ...prev, repeatOptions: { expression: event.target.value } }))
+        setLocalSpecifics((prev) => ({ ...prev, repeatOptions: { expression: event.target.value } }))
         try {
             const cronFormatted = cronstrue.toString(event.target.value)
             setCronInText(cronFormatted)
@@ -143,7 +146,15 @@ const InjectSidePanel = (props: InjectSidePanelProps, ref: ForwardedRef<any>) =>
     }
 
     function handleRemoveInjectedField(id: string): void {
-        setSpecifics((prev) => ({ ...prev, properties: prev.properties.filter(e => e.id !== id) }))
+        setLocalSpecifics((prev) => ({ ...prev, properties: prev.properties.filter(e => e.id !== id) }))
+    }
+
+    function handleMessageFieldValueChanged(id: string, event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void {
+        setLocalSpecifics(prev => ({ ...prev, properties: prev.properties.map((e => e.id === id ? ({ ...e, name: event.target.value }) : e)) }))
+    }
+
+    function handleValueFieldValueChanged(id: string, value: IValueField): void {
+        setLocalSpecifics(prev => ({ ...prev, properties: prev.properties.map((e => e.id === id ? ({ ...e, value: value.value, type: value.type }) : e)) }))
     }
 
     return (
@@ -152,11 +163,11 @@ const InjectSidePanel = (props: InjectSidePanelProps, ref: ForwardedRef<any>) =>
             <div className={classes.panelBody}>
                 <div>
                     <div className={classes.injectedFields}>
-                        {specifics.properties.map((injectedField) => (
+                        {specificsLocal.properties.map((injectedField) => (
                             <div key={injectedField.id} className={classes.injectedField}>
-                                <MessageField style={{ width: '35%' }} size='small' />
+                                <MessageField onChange={(e) => handleMessageFieldValueChanged(injectedField.id, e)} style={{ width: '35%' }} size='small' />
                                 <div style={{ paddingRight: '5px', paddingLeft: '5px' }}>=</div>
-                                <ValueField value={injectedField} size="small" />
+                                <ValueField value={injectedField} onValueChanged={(value) => handleValueFieldValueChanged(injectedField.id, value)} size="small" />
                                 <IconButton onClick={() => handleRemoveInjectedField(injectedField.id)} aria-label="delete">
                                     <ClearIcon />
                                 </IconButton>
@@ -167,11 +178,11 @@ const InjectSidePanel = (props: InjectSidePanelProps, ref: ForwardedRef<any>) =>
                         <AddIcon />
                     </IconButton>
                     <div className={classes.injectForm}>
-                        <Checkbox onClick={handleInject} value={specifics.inject} />
+                        <Checkbox onClick={handleInject} checked={specificsLocal.inject} />
                         <span>Inject once after</span>
                         <TextField
                             onChange={handleDelayChanged}
-                            value={specifics.injectDelay ?? 0}
+                            value={specificsLocal.injectDelay ?? 0}
                             size="small"
                             style={{ width: '60px', marginLeft: '5px', marginRight: '5px' }}
                             type="number"
@@ -186,7 +197,7 @@ const InjectSidePanel = (props: InjectSidePanelProps, ref: ForwardedRef<any>) =>
                         <span>Repeat</span>
                         <Select
                             size='small'
-                            value={specifics.repeat}
+                            value={specificsLocal.repeat}
                             style={{ marginLeft: '20px', width: '120px' }}
                             onChange={handleRepeatMethod}
                         >
@@ -195,12 +206,12 @@ const InjectSidePanel = (props: InjectSidePanelProps, ref: ForwardedRef<any>) =>
                             <MenuItem value={"no"}>no</MenuItem>
                         </Select>
                     </div>
-                    {specifics.repeat === 'interval' && (
+                    {specificsLocal.repeat === 'interval' && (
                         <div className={classes.repeatIntervalSettings}>
                             <span>Every</span>
                             <TextField
                                 onChange={handleRepeatIntervalChanged}
-                                value={(specifics.repeatOptions as IRepeatInterval)?.delay ?? 0}
+                                value={(specificsLocal.repeatOptions as IRepeatInterval)?.delay ?? 0}
                                 size="small"
                                 style={{ width: '100px', marginLeft: '5px', marginRight: '5px' }}
                                 type="number"
@@ -211,12 +222,12 @@ const InjectSidePanel = (props: InjectSidePanelProps, ref: ForwardedRef<any>) =>
                             <span>Seconds</span>
                         </div>
                     )}
-                    {specifics.repeat === 'cron' && (
+                    {specificsLocal.repeat === 'cron' && (
                         <div className={classes.repeatCronSettings}>
                             <TextField
                                 placeholder="Cron expression"
                                 onChange={handleRepeatCronChanged}
-                                value={(specifics.repeatOptions as IRepeatCron)?.expression ?? ''}
+                                value={(specificsLocal.repeatOptions as IRepeatCron)?.expression ?? ''}
                                 size="small"
                                 style={{ width: '250px', marginLeft: '5px', marginRight: '5px' }}
                                 InputLabelProps={{
@@ -232,7 +243,7 @@ const InjectSidePanel = (props: InjectSidePanelProps, ref: ForwardedRef<any>) =>
                     <Button
                         variant="contained"
                         color="error"
-                        onClick={onCancel}
+                        onClick={onComplete}
                     >
                         Cancel
                     </Button>

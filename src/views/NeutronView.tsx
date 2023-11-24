@@ -169,8 +169,6 @@ const NeutronView = (props: NeutronViewProps) => {
             if (!reactFlowWrapper?.current)
                 return
 
-            console.log("Dropping... ", event)
-
             const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
             const type = event.dataTransfer.getData('application/reactflow');
             const data = JSON.parse(event.dataTransfer.getData('application/reactflow/data'));

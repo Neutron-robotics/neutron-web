@@ -71,7 +71,6 @@ const NodePreview = (props: NodePreviewProps) => {
     }
 
     const handleDragStart = (event: React.DragEvent) => {
-        console.log("drag started")
         event.dataTransfer.setData('application/reactflow', 'flowNode');
         const nodeProps = {
             color: node.backgroundColor,
