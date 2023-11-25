@@ -33,25 +33,25 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-interface DebugSidePanelProps extends HTMLAttributes<HTMLDivElement> {
+interface SuccessSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     node: VisualNode
     onComplete: () => void
 }
 
-interface DebugNodeSpecifics {
+interface SuccessNodeSpecifics {
     output: 'full' | 'property',
     propertyName?: string
 }
 
-const defaultSpecifics: DebugNodeSpecifics = {
+const defaultSpecifics: SuccessNodeSpecifics = {
     output: 'full'
 }
 
-const DebugSidePanel = (props: DebugSidePanelProps, ref: ForwardedRef<any>) => {
+const SuccessSidePanel = (props: SuccessSidePanelProps, ref: ForwardedRef<any>) => {
     const { node, onComplete, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<DebugNodeSpecifics>(node.id, defaultSpecifics)
-    const [specificsLocal, setLocalSpecifics] = useState<DebugNodeSpecifics>(specifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<SuccessNodeSpecifics>(node.id, defaultSpecifics)
+    const [specificsLocal, setLocalSpecifics] = useState<SuccessNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {
         setSpecifics(specificsLocal)
@@ -68,7 +68,7 @@ const DebugSidePanel = (props: DebugSidePanelProps, ref: ForwardedRef<any>) => {
 
     return (
         <Paper elevation={3} ref={ref} {...otherProps} className={classes.panelRoot}>
-            <h3 className={classes.title}>Debug</h3>
+            <h3 className={classes.title}>Success</h3>
             <div className={classes.panelBody}>
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', margin: '20px' }}>
@@ -115,4 +115,4 @@ const DebugSidePanel = (props: DebugSidePanelProps, ref: ForwardedRef<any>) => {
     )
 }
 
-export default forwardRef(DebugSidePanel)
+export default forwardRef(SuccessSidePanel)

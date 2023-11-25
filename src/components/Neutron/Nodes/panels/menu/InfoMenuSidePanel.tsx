@@ -24,13 +24,13 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-interface InfoSidePanelProps extends HTMLAttributes<HTMLDivElement> {
+interface InfoMenuSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     nodes: VisualNode[],
     title: string,
     onEnvironmentVariableUpdate: (env: Record<string, string | number | undefined>) => void
 }
 
-const InfoSidePanel = (props: InfoSidePanelProps, ref: ForwardedRef<any>) => {
+const InfoMenuSidePanel = (props: InfoMenuSidePanelProps, ref: ForwardedRef<any>) => {
     const { nodes, title, onEnvironmentVariableUpdate, ...otherProps } = props
     const classes = useStyles()
     const [collapseOpen, setCollapseOpen] = useState(false)
@@ -96,4 +96,4 @@ const InfoSidePanel = (props: InfoSidePanelProps, ref: ForwardedRef<any>) => {
     )
 }
 
-export default forwardRef(InfoSidePanel)
+export default forwardRef(InfoMenuSidePanel)

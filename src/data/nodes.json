@@ -22,6 +22,13 @@
             "icon": "info.svg"
         },
         {
+            "name": "success",
+            "backgroundColor": "#00bd2a",
+            "inputHandles": 1,
+            "outputHandles": 0,
+            "icon": "success.svg"
+        },
+        {
             "name": "warning",
             "backgroundColor": "#E3B50F",
             "inputHandles": 1,
