@@ -11,6 +11,7 @@ import SuccessSidePanel from "./general/SuccessSidePanel"
 import InfoSidePanel from "./general/InfoSidePanel"
 import WarningSidePanel from "./general/WarningSidePanel"
 import ErrorSidePanel from "./general/ErrorSidePanel"
+import FunctionSidePanel from "./functions/FunctionSidePanel"
 
 const useStyles = makeStyles(() => ({
     neutronSidePanelContainer: {
@@ -35,7 +36,8 @@ export enum NeutronSidePanel {
     Success = "success",
     Info = 'info',
     Warning = 'warning',
-    Error = 'error'
+    Error = 'error',
+    Function = 'function'
 }
 
 interface INeutronNodePanel {
@@ -65,7 +67,8 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
         [NeutronSidePanel.Success]: <SuccessSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Success)} />,
         [NeutronSidePanel.Info]: <InfoSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Info)} />,
         [NeutronSidePanel.Warning]: <WarningSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Warning)} />,
-        [NeutronSidePanel.Error]: <ErrorSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Error)} />
+        [NeutronSidePanel.Error]: <ErrorSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Error)} />,
+        [NeutronSidePanel.Function]: <FunctionSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Function)} />,
     }
 
     const minWidth = (panel: NeutronSidePanel) => {
