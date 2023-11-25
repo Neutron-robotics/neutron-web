@@ -33,7 +33,7 @@ const useStyles = makeStyles(() => ({
         margin: '20px'
     },
     injectedFields: {
-        minHeight: '200px',
+        height: '200px',
         border: '1px solid black',
         borderRadius: '5px',
         overflowY: 'scroll',
