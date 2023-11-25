@@ -1,6 +1,6 @@
 import { Paper } from "@mui/material"
 import { makeStyles } from "@mui/styles"
-import PanelBottomTable, { TableData } from "./PanelBottomTable"
+import PanelBottomTable, { TableData } from "../PanelBottomTable"
 import { ForwardedRef, HTMLAttributes, forwardRef } from "react"
 
 const useStyles = makeStyles(() => ({

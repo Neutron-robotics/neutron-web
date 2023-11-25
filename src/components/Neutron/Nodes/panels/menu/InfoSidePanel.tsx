@@ -1,10 +1,10 @@
-import { Collapse, List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Paper } from "@mui/material"
+import { Collapse, List, ListItemButton, ListItemIcon, ListItemText, Paper } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import { ForwardedRef, HTMLAttributes, forwardRef, useState } from "react"
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { VisualNode } from "..";
-import PanelBottomTable, { TableData } from "./PanelBottomTable";
+import { VisualNode } from "../..";
+import PanelBottomTable, { TableData } from "../PanelBottomTable";
 
 const useStyles = makeStyles(() => ({
     panelRoot: {

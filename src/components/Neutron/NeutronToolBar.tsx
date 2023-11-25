@@ -4,7 +4,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import SaveIcon from '@mui/icons-material/Save';
 import { EditText } from "react-edit-text";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { IRos2PartSystem, IRos2System } from "neutron-core";
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -199,13 +199,13 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                 value={panels.panels}
                 aria-label="text alignment"
             >
-                <ToggleButton value={NeutronSidePanel.Info} onClick={() => handlePanelBtnClick(NeutronSidePanel.Info)} color="secondary" aria-label="components">
+                <ToggleButton value={NeutronSidePanel.InfoMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.InfoMenu)} color="secondary" aria-label="components">
                     <InfoIcon />
                 </ToggleButton>
-                <ToggleButton value={NeutronSidePanel.Environment} onClick={() => handlePanelBtnClick(NeutronSidePanel.Environment)} color="secondary" aria-label="components">
+                <ToggleButton value={NeutronSidePanel.EnvironmentMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.EnvironmentMenu)} color="secondary" aria-label="components">
                     <StorageIcon />
                 </ToggleButton>
-                <ToggleButton value={NeutronSidePanel.Documentation} onClick={() => handlePanelBtnClick(NeutronSidePanel.Documentation)} color="secondary" aria-label="components">
+                <ToggleButton value={NeutronSidePanel.DocumentationMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.DocumentationMenu)} color="secondary" aria-label="components">
                     <BookIcon />
                 </ToggleButton>
             </ToggleButtonGroup>

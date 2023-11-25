@@ -1,15 +1,15 @@
 import { Button, Checkbox, IconButton, MenuItem, Paper, Select, SelectChangeEvent, TextField } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import { ChangeEvent, ForwardedRef, HTMLAttributes, forwardRef, useState } from "react"
-import { VisualNode } from ".."
+import { VisualNode } from "../.."
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import MessageField from "./MessageField"
-import ValueField, { IValueField, NeutronPrimitiveType } from "./ValueField"
+import MessageField from "../MessageField"
+import ValueField, { IValueField, NeutronPrimitiveType } from "../ValueField"
 import ClearIcon from '@mui/icons-material/Clear';
 import { v4 } from "uuid"
 import cronstrue from 'cronstrue';
-import useNodeSpecifics from "../../../../utils/useNodeSpecifics"
+import useNodeSpecifics from "../../../../../utils/useNodeSpecifics"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -114,7 +114,7 @@ const InjectSidePanel = (props: InjectSidePanelProps, ref: ForwardedRef<any>) =>
     }
 
     function handleAddProperty(): void {
-        setLocalSpecifics((prev) => ({ ...prev, properties: [...prev.properties, { type: 'string', name: 'property', value: '', id: v4() }] }))
+        setLocalSpecifics((prev) => ({ ...prev, properties: [...prev.properties, { type: 'string', name: 'propertyName', value: '', id: v4() }] }))
     }
 
     function handleInject(): void {
@@ -165,7 +165,7 @@ const InjectSidePanel = (props: InjectSidePanelProps, ref: ForwardedRef<any>) =>
                     <div className={classes.injectedFields}>
                         {specificsLocal.properties.map((injectedField) => (
                             <div key={injectedField.id} className={classes.injectedField}>
-                                <MessageField onChange={(e) => handleMessageFieldValueChanged(injectedField.id, e)} style={{ width: '35%' }} size='small' />
+                                <MessageField value={injectedField.name ?? ''} onChange={(e) => handleMessageFieldValueChanged(injectedField.id, e)} style={{ width: '35%' }} size='small' />
                                 <div style={{ paddingRight: '5px', paddingLeft: '5px' }}>=</div>
                                 <ValueField value={injectedField} onValueChanged={(value) => handleValueFieldValueChanged(injectedField.id, value)} size="small" />
                                 <IconButton onClick={() => handleRemoveInjectedField(injectedField.id)} aria-label="delete">

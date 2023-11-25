@@ -1,11 +1,12 @@
 import { Zoom } from "@mui/material"
 import { makeStyles } from "@mui/styles"
-import DocumentationSidePanel from "./DocumentationSidePanel"
-import InfoSidePanel from "./InfoSidePanel"
+import DocumentationSidePanel from "./menu/DocumentationSidePanel"
+import InfoSidePanel from "./menu/InfoSidePanel"
 import { VisualNode } from ".."
 import { TransitionGroup } from "react-transition-group"
-import EnvironmentSidePanel from "./EnvironmentSidePanel"
-import InjectSidePanel from "./InjectSidePanel"
+import EnvironmentSidePanel from "./menu/EnvironmentSidePanel"
+import InjectSidePanel from "./general/InjectSidePanel"
+import DebugSidePanel from "./general/DebugSidePanel"
 
 const useStyles = makeStyles(() => ({
     neutronSidePanelContainer: {
@@ -19,11 +20,17 @@ const useStyles = makeStyles(() => ({
 }))
 
 export enum NeutronSidePanel {
-    Info,
-    Environment,
-    Documentation,
-    Debug,
+    // Menues
+    InfoMenu,
+    EnvironmentMenu,
+    DocumentationMenu,
+    DebugMenu,
+    // Nodes
     Inject = "inject",
+    Debug = "debug",
+    Info = 'info',
+    Warning = 'warning',
+    Error = 'error'
 }
 
 interface INeutronNodePanel {
@@ -44,19 +51,23 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
     const classes = useStyles()
 
     const neutronPanels = {
-        [NeutronSidePanel.Info]: <InfoSidePanel onEnvironmentVariableUpdate={onEnvironmentVariableUpdate} title={title ?? 'New graph'} nodes={nodes} />,
-        [NeutronSidePanel.Environment]: <EnvironmentSidePanel onEnvironmentVariableUpdate={onEnvironmentVariableUpdate} environmentVariables={environmentVariables} />,
-        [NeutronSidePanel.Documentation]: <DocumentationSidePanel />,
-        [NeutronSidePanel.Debug]: <div></div>,
-        [NeutronSidePanel.Inject]: <InjectSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Inject)} />
+        [NeutronSidePanel.InfoMenu]: <InfoSidePanel onEnvironmentVariableUpdate={onEnvironmentVariableUpdate} title={title ?? 'New graph'} nodes={nodes} />,
+        [NeutronSidePanel.EnvironmentMenu]: <EnvironmentSidePanel onEnvironmentVariableUpdate={onEnvironmentVariableUpdate} environmentVariables={environmentVariables} />,
+        [NeutronSidePanel.DocumentationMenu]: <DocumentationSidePanel />,
+        [NeutronSidePanel.DebugMenu]: <div></div>,
+        [NeutronSidePanel.Inject]: <InjectSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Inject)} />,
+        [NeutronSidePanel.Debug]: <DebugSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Debug)} />,
+        [NeutronSidePanel.Info]: <DebugSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Info)} />,
+        [NeutronSidePanel.Warning]: <DebugSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Warning)} />,
+        [NeutronSidePanel.Error]: <DebugSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Error)} />
     }
 
     const minWidth = (panel: NeutronSidePanel) => {
         const small =
-            [NeutronSidePanel.Info,
-            NeutronSidePanel.Debug,
-            NeutronSidePanel.Documentation,
-            NeutronSidePanel.Environment
+            [NeutronSidePanel.InfoMenu,
+            NeutronSidePanel.DebugMenu,
+            NeutronSidePanel.DocumentationMenu,
+            NeutronSidePanel.EnvironmentMenu
             ].includes(panel)
         if (small)
             return 300

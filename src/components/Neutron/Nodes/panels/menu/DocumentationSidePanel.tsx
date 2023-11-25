@@ -3,7 +3,7 @@ import { makeStyles } from "@mui/styles";
 import { ForwardedRef, HTMLAttributes, forwardRef, useMemo, useState } from "react";
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import nodesData from '../../../../data/nodes.json'
+import nodesData from '../../../../../data/nodes.json'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
