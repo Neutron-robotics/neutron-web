@@ -14,6 +14,8 @@ import ErrorSidePanel from "./general/ErrorSidePanel"
 import FunctionSidePanel from "./functions/FunctionSidePanel"
 import SwitchSidePanel from "./functions/SwitchSidePanel"
 import ChangeSidePanel from "./functions/ChangeSidePanel"
+import RangeSidePanel from "./functions/RangeSidePanel"
+import TemplateSidePanel from "./functions/TemplateSidePanel"
 
 const useStyles = makeStyles(() => ({
     neutronSidePanelContainer: {
@@ -41,7 +43,9 @@ export enum NeutronSidePanel {
     Error = 'error',
     Function = 'function',
     Switch = 'switch',
-    Change = 'change'
+    Change = 'change',
+    Range = 'range',
+    Template = 'template'
 }
 
 interface INeutronNodePanel {
@@ -75,6 +79,8 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
         [NeutronSidePanel.Function]: <FunctionSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Function)} />,
         [NeutronSidePanel.Switch]: <SwitchSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Switch)} />,
         [NeutronSidePanel.Change]: <ChangeSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Change)} />,
+        [NeutronSidePanel.Range]: <RangeSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Range)} />,
+        [NeutronSidePanel.Template]: <TemplateSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Template)} />,
     }
 
     const minWidth = (panel: NeutronSidePanel) => {

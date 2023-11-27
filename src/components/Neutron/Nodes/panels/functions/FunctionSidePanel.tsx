@@ -3,7 +3,6 @@ import { makeStyles } from "@mui/styles"
 import { ForwardedRef, HTMLAttributes, Suspense, forwardRef, lazy, useState } from "react"
 import { VisualNode } from "../.."
 import useNodeSpecifics from "../../../../../utils/useNodeSpecifics"
-// import Editor from '@monaco-editor/react';
 const Editor = lazy(() => import('@monaco-editor/react'));
 
 const useStyles = makeStyles(() => ({
