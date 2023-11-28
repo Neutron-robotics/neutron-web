@@ -68,7 +68,6 @@ const FunctionSidePanel = (props: FunctionSidePanelProps, ref: ForwardedRef<any>
     }
 
     function handleEditorChange(value: string | undefined): void {
-        console.log("value change", value)
         setLocalSpecifics({ code: value ?? '' })
     }
 

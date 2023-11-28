@@ -16,6 +16,8 @@ import SwitchSidePanel from "./functions/SwitchSidePanel"
 import ChangeSidePanel from "./functions/ChangeSidePanel"
 import RangeSidePanel from "./functions/RangeSidePanel"
 import TemplateSidePanel from "./functions/TemplateSidePanel"
+import DelaySidePanel from "./functions/DelaySidePanel"
+import FilterSidePanel from "./functions/FilterSidePanel"
 
 const useStyles = makeStyles(() => ({
     neutronSidePanelContainer: {
@@ -45,7 +47,9 @@ export enum NeutronSidePanel {
     Switch = 'switch',
     Change = 'change',
     Range = 'range',
-    Template = 'template'
+    Template = 'template',
+    Delay = 'delay',
+    Filter = 'filter'
 }
 
 interface INeutronNodePanel {
@@ -81,6 +85,8 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
         [NeutronSidePanel.Change]: <ChangeSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Change)} />,
         [NeutronSidePanel.Range]: <RangeSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Range)} />,
         [NeutronSidePanel.Template]: <TemplateSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Template)} />,
+        [NeutronSidePanel.Delay]: <DelaySidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Delay)} />,
+        [NeutronSidePanel.Filter]: <FilterSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Filter)} />,
     }
 
     const minWidth = (panel: NeutronSidePanel) => {

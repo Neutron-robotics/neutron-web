@@ -85,6 +85,13 @@
             "inputHandles": 1,
             "outputHandles": 1,
             "icon": "delay.svg"
+        },
+        {
+            "name": "filter",
+            "backgroundColor": "#FFE500",
+            "inputHandles": 1,
+            "outputHandles": 1,
+            "icon": "filter.svg"
         }
     ],
     "ROS2": [
