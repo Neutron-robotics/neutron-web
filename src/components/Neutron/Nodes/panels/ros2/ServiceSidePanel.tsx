@@ -26,7 +26,7 @@ const useStyles = makeStyles(() => ({
         justifyContent: 'space-between',
         margin: '20px'
     },
-    ServiceForm: {
+    serviceForm: {
         display: 'flex',
         gap: '10px',
         alignItems: 'center',
@@ -72,7 +72,7 @@ const ServiceSidePanel = (props: ServiceSidePanelProps, ref: ForwardedRef<any>) 
             <h3 className={classes.title}>Service</h3>
             <div className={classes.panelBody}>
                 <div>
-                    <div className={classes.ServiceForm}>
+                    <div className={classes.serviceForm}>
                         <span style={{ width: '70px' }}>Service</span>
                         <Select
                             size='small'

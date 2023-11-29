@@ -104,8 +104,12 @@ const NeutronView = (props: NeutronViewProps) => {
         setNeutronGraph(graph)
     }
 
-    const addSidePanel = (panel: NeutronSidePanel) => {
-        setSidePanels((prev) => [...prev, panel])
+    const addSidePanel = (panel: NeutronSidePanel, clearOther?: boolean) => {
+        if (clearOther) {
+            setSidePanels([panel])
+        }
+        else
+            setSidePanels((prev) => [...prev, panel])
     }
 
     const removePanel = (panel: NeutronSidePanel) => {
@@ -222,7 +226,7 @@ const NeutronView = (props: NeutronViewProps) => {
     }
 
     function handleOnNodeDoubleClick(event: any, node: VisualNode<any, string | undefined>): void {
-        setSidePanels((prev) => [node.data.name])
+        setSidePanels([node.data.name])
         setSelectedNode(node)
     }
 

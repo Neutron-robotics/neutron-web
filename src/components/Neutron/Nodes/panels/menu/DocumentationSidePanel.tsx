@@ -1,11 +1,12 @@
 import { Collapse, List, ListItemButton, ListItemIcon, ListItemText, Paper } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { ForwardedRef, HTMLAttributes, forwardRef, useMemo, useState } from "react";
+import { ForwardedRef, HTMLAttributes, SyntheticEvent, forwardRef, useMemo, useState } from "react";
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import nodesData from '../../../../../data/nodes.json'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { Resizable, ResizeCallbackData } from "react-resizable";
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -24,13 +25,24 @@ const useStyles = makeStyles(() => ({
         height: 'calc(100% - 30px)'
     },
     markdownContainer: {
-        maxHeight: '300px',
         overflowY: 'scroll',
         padding: '10px',
+        position: 'relative',
         borderTop: '2px solid #CDCDCD',
+        minHeight: '100px',
+        maxHeight: '500px',
         "& > *": {
             whiteSpace: 'normal'
         }
+    },
+    resizeHandle: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        height: '5px',
+        width: '100%',
+        background: '#CDCDCD',
+        cursor: 'ns-resize'
     }
 }))
 
@@ -41,7 +53,9 @@ const DocumentationSidePanel = (props: DocumentationSidePanelProps, ref: Forward
     const classes = useStyles()
     const [collapseOpen, setCollapseOpen] = useState(false)
     const [selectedNode, setSelectedNode] = useState<string>()
-    const [markdownContent, setMarkdownContent] = useState('## toto');
+    const [markdownContent, setMarkdownContent] = useState('');
+    const [documentationHeight, setDocumentationHeight] = useState(100)
+    const [scrollPosition, setScrollPosition] = useState(0);
 
     function handleCollapseButtonClick(): void {
         setCollapseOpen((prev) => !prev)
@@ -61,6 +75,14 @@ const DocumentationSidePanel = (props: DocumentationSidePanelProps, ref: Forward
     }
 
     const nodes = useMemo(() => Object.values(nodesData).reduce((acc, cur) => [...acc, ...cur]), [])
+
+    function handleResize(e: SyntheticEvent<Element, Event>, data: ResizeCallbackData) {
+        setDocumentationHeight(data.size.height)
+    }
+
+    function handleScroll(e: React.UIEvent<HTMLDivElement>): void {
+        setScrollPosition(e.currentTarget.scrollTop);
+    }
 
     return (
         <Paper elevation={3} ref={ref} {...props} className={classes.panelRoot}>
@@ -90,13 +112,26 @@ const DocumentationSidePanel = (props: DocumentationSidePanelProps, ref: Forward
                         </List>
                     </Collapse>
                 </List>
-                <div className={classes.markdownContainer}>
-                    <Markdown remarkPlugins={[remarkGfm]}>
-                        {markdownContent}
-                    </Markdown>
+                <div>
+                    <Resizable
+                        height={documentationHeight}
+                        width={200}
+                        minConstraints={[0, 100]}
+                        maxConstraints={[0, 500]}
+                        handle={<div className={classes.resizeHandle} style={{ top: `${scrollPosition}px` }} />}
+                        resizeHandles={['n']}
+                        axis="y"
+                        onResize={handleResize}
+                    >
+                        <div onScroll={handleScroll} style={{ height: `${documentationHeight}px` }} className={classes.markdownContainer}>
+                            <Markdown remarkPlugins={[remarkGfm]}>
+                                {markdownContent}
+                            </Markdown>
+                        </div>
+                    </Resizable>
                 </div>
-            </div>
-        </Paper>
+            </div >
+        </Paper >
     )
 }
 

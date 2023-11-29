@@ -62,7 +62,7 @@ interface NeutronToolBarProps {
     onGraphUpdate: (graph?: INeutronGraph) => void
     onTitleUpdate: (title: string) => void
     panels: {
-        addSidePanel: (panel: NeutronSidePanel) => void;
+        addSidePanel: (panel: NeutronSidePanel, clearOther?: boolean) => void;
         removePanel: (panel: NeutronSidePanel) => void;
         panels: NeutronSidePanel[]
     }
@@ -163,7 +163,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
 
     function handlePanelBtnClick(sidePanelType: NeutronSidePanel): void {
         if (!panels.panels.includes(sidePanelType))
-            panels.addSidePanel(sidePanelType)
+            panels.addSidePanel(sidePanelType, true)
         else
             panels.removePanel(sidePanelType)
     }
