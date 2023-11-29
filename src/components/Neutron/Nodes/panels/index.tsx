@@ -18,6 +18,11 @@ import RangeSidePanel from "./functions/RangeSidePanel"
 import TemplateSidePanel from "./functions/TemplateSidePanel"
 import DelaySidePanel from "./functions/DelaySidePanel"
 import FilterSidePanel from "./functions/FilterSidePanel"
+import PublisherSidePanel from "./ros2/PublisherSidePanel"
+import { IRos2PartSystem, IRos2System } from "neutron-core"
+import SubscriberSidePanel from "./ros2/SubscriberSidePanel"
+import ServiceSidePanel from "./ros2/ServiceSidePanel"
+import ActionSidePanel from "./ros2/ActionSidePanel"
 
 const useStyles = makeStyles(() => ({
     neutronSidePanelContainer: {
@@ -49,7 +54,11 @@ export enum NeutronSidePanel {
     Range = 'range',
     Template = 'template',
     Delay = 'delay',
-    Filter = 'filter'
+    Filter = 'filter',
+    Publisher = 'publish',
+    Subscriber = 'subscribe',
+    Service = 'call service',
+    Action = 'call action'
 }
 
 interface INeutronNodePanel {
@@ -60,13 +69,14 @@ interface INeutronNodePanel {
     }
     nodes: VisualNode[],
     title: string,
+    ros2System?: IRos2System | IRos2PartSystem
     environmentVariables: Record<string, string | number | undefined>
     selectedNode?: VisualNode
     onEnvironmentVariableUpdate: (env: Record<string, string | number | undefined>) => void
 }
 
 const NeutronNodePanel = (props: INeutronNodePanel) => {
-    const { panels, nodes, title, selectedNode, environmentVariables, onEnvironmentVariableUpdate } = props
+    const { panels, nodes, ros2System, title, selectedNode, environmentVariables, onEnvironmentVariableUpdate } = props
     const classes = useStyles()
 
     const neutronPanels = {
@@ -87,6 +97,10 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
         [NeutronSidePanel.Template]: <TemplateSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Template)} />,
         [NeutronSidePanel.Delay]: <DelaySidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Delay)} />,
         [NeutronSidePanel.Filter]: <FilterSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Filter)} />,
+        [NeutronSidePanel.Publisher]: <PublisherSidePanel topics={ros2System?.topics ?? []} node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Publisher)} />,
+        [NeutronSidePanel.Subscriber]: <SubscriberSidePanel topics={ros2System?.topics ?? []} node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Subscriber)} />,
+        [NeutronSidePanel.Service]: <ServiceSidePanel services={ros2System?.services ?? []} node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Service)} />,
+        [NeutronSidePanel.Action]: <ActionSidePanel actions={ros2System?.actions ?? []} node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Action)} />,
     }
 
     const minWidth = (panel: NeutronSidePanel) => {

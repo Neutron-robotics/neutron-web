@@ -289,6 +289,7 @@ const NeutronView = (props: NeutronViewProps) => {
                             onEnvironmentVariableUpdate={setEnvironmentVariable}
                             title={title ?? 'New graph'}
                             nodes={nodes}
+                            ros2System={ros2System}
                             panels={{
                                 addSidePanel,
                                 removePanel,
