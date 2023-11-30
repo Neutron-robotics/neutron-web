@@ -5,6 +5,8 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { VisualNode } from "../..";
 import PanelBottomTable, { TableData } from "../PanelBottomTable";
+import { INeutronGraph } from "../../../../../api/models/graph.model";
+import { NeutronGraphType } from "neutron-core";
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -27,11 +29,13 @@ const useStyles = makeStyles(() => ({
 interface InfoMenuSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     nodes: VisualNode[],
     title: string,
-    onEnvironmentVariableUpdate: (env: Record<string, string | number | undefined>) => void
+    graphType: NeutronGraphType,
+    onVariableUpdate: (env: Record<string, string | number | undefined>) => void
+    handleGraphTypeUpdate: (graphType: NeutronGraphType) => void
 }
 
 const InfoMenuSidePanel = (props: InfoMenuSidePanelProps, ref: ForwardedRef<any>) => {
-    const { nodes, title, onEnvironmentVariableUpdate, ...otherProps } = props
+    const { nodes, graphType, title, handleGraphTypeUpdate, onVariableUpdate, ...otherProps } = props
     const classes = useStyles()
     const [collapseOpen, setCollapseOpen] = useState(false)
     const [selectedNode, setSelectedNode] = useState<VisualNode>()
@@ -45,9 +49,13 @@ const InfoMenuSidePanel = (props: InfoMenuSidePanelProps, ref: ForwardedRef<any>
         setSelectedNode((prev) => node.id === prev?.id ? undefined : node)
     }
 
-    const handleEnvironmentVariableUpdate = (data: TableData[]) => {
+    const handleInfoVariableUpdate = (data: TableData[]) => {
         const formatedData = data.reduce((acc, cur) => ({ ...acc, [cur.key]: cur.value }), {})
-        onEnvironmentVariableUpdate(formatedData)
+        onVariableUpdate(formatedData)
+
+        const graphTypeTableData = data.find(e => e.key === 'Graph Type')
+        if (graphTypeTableData?.value && graphTypeTableData?.value !== graphType)
+            handleGraphTypeUpdate(graphTypeTableData.value as NeutronGraphType)
     }
 
     return (
@@ -83,13 +91,16 @@ const InfoMenuSidePanel = (props: InfoMenuSidePanelProps, ref: ForwardedRef<any>
                     icon={selectedNode?.data.icon ? `nodes/${selectedNode.data.icon}` : 'node.svg'}
                     data={selectedNode?.data ?
                         [
-                            { key: 'id', value: selectedNode.id }, { key: 'type', value: selectedNode.type }]
+                            { key: 'id', value: selectedNode.id, readonly: true },
+                            { key: 'type', value: selectedNode.type, readonly: true }
+                        ]
                         :
                         [
-                            { key: 'nodeCount', value: nodes.length }
+                            { key: 'Graph Type', value: graphType, range: ["Flow", "Connector", "Component"], readonly: true },
+                            { key: 'Node count', value: nodes.length, readonly: true }
                         ]
                     }
-                    onEditData={handleEnvironmentVariableUpdate}
+                    onEditData={handleInfoVariableUpdate}
                 />
             </div>
         </Paper>

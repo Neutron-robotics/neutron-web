@@ -92,6 +92,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                 const createModel: CreateGraphModel = {
                     title,
                     robotId: selectedRobotId,
+                    type: 'Component',
                     partId: selectedRobotPartId,
                     nodes: nodes as INeutronNode[],
                     edges: edges as INeutronEdge[],

@@ -19,10 +19,11 @@ import TemplateSidePanel from "./functions/TemplateSidePanel"
 import DelaySidePanel from "./functions/DelaySidePanel"
 import FilterSidePanel from "./functions/FilterSidePanel"
 import PublisherSidePanel from "./ros2/PublisherSidePanel"
-import { IRos2PartSystem, IRos2System } from "neutron-core"
+import { IRos2PartSystem, IRos2System, NeutronGraphType } from "neutron-core"
 import SubscriberSidePanel from "./ros2/SubscriberSidePanel"
 import ServiceSidePanel from "./ros2/ServiceSidePanel"
 import ActionSidePanel from "./ros2/ActionSidePanel"
+import { INeutronGraph } from "../../../../api/models/graph.model"
 
 const useStyles = makeStyles(() => ({
     neutronSidePanelContainer: {
@@ -69,18 +70,20 @@ interface INeutronNodePanel {
     }
     nodes: VisualNode[],
     title: string,
+    graphType: NeutronGraphType
     ros2System?: IRos2System | IRos2PartSystem
     environmentVariables: Record<string, string | number | undefined>
     selectedNode?: VisualNode
     onEnvironmentVariableUpdate: (env: Record<string, string | number | undefined>) => void
+    handleGraphTypeUpdate: (graphType: NeutronGraphType) => void
 }
 
 const NeutronNodePanel = (props: INeutronNodePanel) => {
-    const { panels, nodes, ros2System, title, selectedNode, environmentVariables, onEnvironmentVariableUpdate } = props
+    const { handleGraphTypeUpdate, graphType, panels, nodes, ros2System, title, selectedNode, environmentVariables, onEnvironmentVariableUpdate } = props
     const classes = useStyles()
 
     const neutronPanels = {
-        [NeutronSidePanel.InfoMenu]: <InfoMenuSidePanel onEnvironmentVariableUpdate={onEnvironmentVariableUpdate} title={title ?? 'New graph'} nodes={nodes} />,
+        [NeutronSidePanel.InfoMenu]: <InfoMenuSidePanel graphType={graphType} handleGraphTypeUpdate={handleGraphTypeUpdate} onVariableUpdate={onEnvironmentVariableUpdate} title={title ?? 'New graph'} nodes={nodes} />,
         [NeutronSidePanel.EnvironmentMenu]: <EnvironmentSidePanel onEnvironmentVariableUpdate={onEnvironmentVariableUpdate} environmentVariables={environmentVariables} />,
         [NeutronSidePanel.DocumentationMenu]: <DocumentationSidePanel />,
         [NeutronSidePanel.DebugMenu]: <div></div>,

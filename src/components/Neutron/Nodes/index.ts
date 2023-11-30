@@ -2,7 +2,7 @@ import { NodeProps } from "reactflow";
 import { Node } from "reactflow";
 import FlowNode from "./FlowNode";
 
-export const newNodeType: Record<string, (props: any) => JSX.Element> = {
+export const nodeType: Record<string, (props: any) => JSX.Element> = {
   'flowNode': FlowNode
 }
 

@@ -1,3 +1,4 @@
+import { MenuItem, Select, SelectChangeEvent } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import { ChangeEvent } from "react"
 import { EditText, onSaveProps } from "react-edit-text"
@@ -44,6 +45,7 @@ export interface TableData {
     key: string,
     value?: string | number
     readonly?: boolean
+    range?: string[]
 }
 
 interface PanelBottomTableProps {
@@ -77,6 +79,11 @@ const PanelBottomTable = (props: PanelBottomTableProps) => {
         onEditData(updatedData)
     }
 
+    function handleSelectChange(event: SelectChangeEvent<string | number>, rowKey: string): void {
+        const updatedData = data.map((e) => e.key === rowKey ? { ...e, value: event.target.value } : e)
+        onEditData(updatedData)
+    }
+
     return (
         <div className={classes.panelRoot}>
             <div className={classes.title}>
@@ -86,14 +93,23 @@ const PanelBottomTable = (props: PanelBottomTableProps) => {
             <div>
                 {data.map((row) =>
                     <div key={row.key} className={classes.row}>
-                        {/* <div>{row.key}</div> */}
                         <EditText
                             onSave={handleKeyUpdate}
-                            // value={`${row.key}`}
                             defaultValue={row.key}
                             readonly={row.readonly}
                         />
-                        {typeof (row.value) === 'string' && (
+                        {row.range && (
+                            <Select
+                                size='small'
+                                value={row.value}
+                                onChange={(e) => handleSelectChange(e, row.key)}
+                            >
+                                {row.range.map(e => (
+                                    <MenuItem key={e} value={e}>{e}</MenuItem>
+                                ))}
+                            </Select>
+                        )}
+                        {typeof (row.value) === 'string' && !row.range && (
                             <EditText
                                 className={typeStyleDictionnary(typeof (row.value))}
                                 onChange={(e) => handleValueUpdate(e, row.key)}
@@ -102,7 +118,7 @@ const PanelBottomTable = (props: PanelBottomTableProps) => {
                                 readonly={row.readonly}
                             />
                         )}
-                        {typeof (row.value) === 'number' &&
+                        {typeof (row.value) === 'number' && !row.range &&
                             (
                                 <EditText
                                     className={typeStyleDictionnary(typeof (row.value))}

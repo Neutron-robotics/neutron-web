@@ -7,8 +7,8 @@ import { v4 } from "uuid";
 import * as organization from "../api/organization";
 import { IRobot, IRobotPart } from "../api/models/robot.model";
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { VisualNode, newNodeType } from "../components/Neutron/Nodes";
-import { IRos2PartSystem, IRos2System } from "neutron-core";
+import { VisualNode, nodeType } from "../components/Neutron/Nodes";
+import { IRos2PartSystem, IRos2System, NeutronGraphType } from "neutron-core";
 import { getRos2System } from "../api/ros2";
 import { useAlert } from "../contexts/AlertContext";
 import { toPartSystem } from "../utils/ros2";
@@ -66,10 +66,12 @@ const NeutronView = (props: NeutronViewProps) => {
     const [neutronGraph, setNeutronGraph] = useState<INeutronGraph>()
     const [sidePanels, setSidePanels] = useState<NeutronSidePanel[]>([])
     const [title, setTitle] = useState('')
+    const [graphType, setGraphType] = useState<NeutronGraphType>('Flow')
     const [environmentVariables, setEnvironmentVariable] = useState<Record<string, number | string | undefined>>({ toto: 1, foo: 'haha' })
     const [selectedNode, setSelectedNode] = useState<VisualNode>()
 
     const handleNeutronGraphUpdate = async (graph?: INeutronGraph) => {
+        // Click Open
         if (!neutronGraph && graph) {
             const robot = Object.values(availableRobots).reduce((acc, cur) => [...acc, ...cur], []).find(e => e._id === graph.robot)
             if (!robot) {
@@ -94,6 +96,8 @@ const NeutronView = (props: NeutronViewProps) => {
             setNodes(graph.nodes as VisualNode[])
             setEdges(graph.edges)
         }
+
+        // Click new
         if (!graph) {
             setNodes([])
             setEdges([])
@@ -232,7 +236,7 @@ const NeutronView = (props: NeutronViewProps) => {
 
     return (
         <div className={classes.root}>
-            <ComponentDrawer />
+            <ComponentDrawer graphType={graphType} />
             <div className={classes.fullWidth}>
                 <ReactFlowProvider>
                     <NeutronToolBar
@@ -278,7 +282,7 @@ const NeutronView = (props: NeutronViewProps) => {
                             onEdgesChange={onEdgesChange}
                             onConnect={onConnect}
                             onNodeDoubleClick={handleOnNodeDoubleClick}
-                            nodeTypes={newNodeType}
+                            nodeTypes={nodeType}
                             onDragOver={onDragOver}
                             onPaneClick={onPaneClick}
                             onDrop={onDrop}
@@ -293,6 +297,8 @@ const NeutronView = (props: NeutronViewProps) => {
                             onEnvironmentVariableUpdate={setEnvironmentVariable}
                             title={title ?? 'New graph'}
                             nodes={nodes}
+                            graphType={graphType}
+                            handleGraphTypeUpdate={setGraphType}
                             ros2System={ros2System}
                             panels={{
                                 addSidePanel,

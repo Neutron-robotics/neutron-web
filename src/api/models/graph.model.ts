@@ -1,3 +1,5 @@
+import { NeutronGraphType } from "neutron-core";
+
 export interface INeutronNode {
   width: number;
   height: number;
@@ -31,6 +33,7 @@ export interface INeutronEdge {
 export interface INeutronGraph {
     _id: string
     title: string
+    type: NeutronGraphType
     robot: string
     part?: string
     imgUrl?: string
@@ -62,6 +65,7 @@ export interface CreateGraphModel {
     title: string,
     robotId: string,
     partId?: string,
+    type: NeutronGraphType
     nodes: INeutronNode[]
     edges: INeutronEdge[]
     imgUrl?: string

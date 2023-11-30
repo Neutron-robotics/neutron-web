@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useRef, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Collapse, InputAdornment, Slide, TextField, Typography } from '@mui/material'
 import { makeStyles } from '@mui/styles';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -7,6 +7,7 @@ import nodesData from '../../data/nodes.json'
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import NodePreview from './Nodes/NodePreview';
+import { NeutronGraphType } from 'neutron-core';
 
 const useStyles = makeStyles(() => ({
     componentDrawer: {
@@ -53,14 +54,33 @@ interface INodeData {
     inputHandles: number,
     outputHandles: number
     icon: string
+    supportedGraphTypes: NeutronGraphType[]
 }
 
-const ComponentDrawer = () => {
+interface ComponentDrawerProps {
+    graphType: NeutronGraphType
+}
+
+const ComponentDrawer = (props: ComponentDrawerProps) => {
+    const { graphType } = props
     const [isHovered, setIsHovered] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(true);
     const classes = useStyles();
     const containerRef = useRef<HTMLDivElement>(null);
-    const [nodesDataFiltered, setNodesDataFiltered] = useState<Record<string, INodeData[]>>(nodesData)
+    const [nodesDataFiltered, setNodesDataFiltered] = useState<Record<string, INodeData[]>>(nodesData as any)
+    const [nodeFilter, setNodeFilter] = useState('')
+
+    useEffect(() => {
+        const filteredData = Object.keys(nodesData).reduce<Record<string, INodeData[]>>((acc, cur) => {
+            const filteredItems = (nodesData as Record<string, INodeData[]>)[cur].filter((e) => e.supportedGraphTypes.includes(graphType) && e.name.toLowerCase().includes(nodeFilter.toLowerCase()));
+            if (filteredItems.length > 0) {
+                acc[cur] = filteredItems;
+            }
+            return acc;
+        }, {});
+
+        setNodesDataFiltered(filteredData)
+    }, [graphType, nodeFilter])
 
     const handleDrawerOpen = () => {
         setIsDrawerOpen(true);
@@ -73,15 +93,7 @@ const ComponentDrawer = () => {
     };
 
     function handleFilterValueChanged(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
-        const filteredData = Object.keys(nodesData).reduce<Record<string, INodeData[]>>((acc, cur) => {
-            const filteredItems = (nodesData as Record<string, INodeData[]>)[cur].filter((e) => e.name.toLowerCase().includes(event.target.value.toLowerCase()));
-            if (filteredItems.length > 0) {
-                acc[cur] = filteredItems;
-            }
-            return acc;
-        }, {});
-
-        setNodesDataFiltered(filteredData)
+        setNodeFilter(event.target.value)
     }
 
     return (

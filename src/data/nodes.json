@@ -5,42 +5,70 @@
             "backgroundColor": "#B2B2B2",
             "inputHandles": 0,
             "outputHandles": 1,
-            "icon": "inject.svg"
+            "icon": "inject.svg",
+            "supportedGraphTypes": [
+                "Flow"
+            ]
         },
         {
             "name": "debug",
             "backgroundColor": "#018D20",
             "inputHandles": 1,
             "outputHandles": 0,
-            "icon": "info.svg"
+            "icon": "info.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         },
         {
             "name": "info",
             "backgroundColor": "#00C9D6",
             "inputHandles": 1,
             "outputHandles": 0,
-            "icon": "info.svg"
+            "icon": "info.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         },
         {
             "name": "success",
             "backgroundColor": "#00bd2a",
             "inputHandles": 1,
             "outputHandles": 0,
-            "icon": "success.svg"
+            "icon": "success.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         },
         {
             "name": "warning",
             "backgroundColor": "#E3B50F",
             "inputHandles": 1,
             "outputHandles": 0,
-            "icon": "warning.svg"
+            "icon": "warning.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         },
         {
             "name": "error",
             "backgroundColor": "#C51919",
             "inputHandles": 1,
             "outputHandles": 0,
-            "icon": "error.svg"
+            "icon": "error.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         }
     ],
     "Functions": [
@@ -49,49 +77,84 @@
             "backgroundColor": "#FF7A00",
             "inputHandles": 1,
             "outputHandles": 1,
-            "icon": "function.svg"
+            "icon": "function.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         },
         {
             "name": "switch",
             "backgroundColor": "#FFE500",
             "inputHandles": 1,
             "outputHandles": 1,
-            "icon": "switch.svg"
+            "icon": "switch.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         },
         {
             "name": "change",
             "backgroundColor": "#FFE500",
             "inputHandles": 1,
             "outputHandles": 1,
-            "icon": "change.svg"
+            "icon": "change.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         },
         {
             "name": "range",
             "backgroundColor": "#FFE500",
             "inputHandles": 1,
             "outputHandles": 1,
-            "icon": "range.svg"
+            "icon": "range.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         },
         {
             "name": "template",
             "backgroundColor": "#FF7A00",
             "inputHandles": 1,
             "outputHandles": 1,
-            "icon": "templates.svg"
+            "icon": "templates.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         },
         {
             "name": "delay",
             "backgroundColor": "#EE83FF",
             "inputHandles": 1,
             "outputHandles": 1,
-            "icon": "delay.svg"
+            "icon": "delay.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         },
         {
             "name": "filter",
             "backgroundColor": "#FFE500",
             "inputHandles": 1,
             "outputHandles": 1,
-            "icon": "filter.svg"
+            "icon": "filter.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         }
     ],
     "ROS2": [
@@ -100,28 +163,48 @@
             "backgroundColor": "#FF0000",
             "inputHandles": 1,
             "outputHandles": 0,
-            "icon": "ros.svg"
+            "icon": "ros.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         },
         {
             "name": "subscribe",
             "backgroundColor": "#FF0000",
             "inputHandles": 0,
             "outputHandles": 1,
-            "icon": "ros.svg"
+            "icon": "ros.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         },
         {
             "name": "call service",
             "backgroundColor": "#FF0000",
             "inputHandles": 1,
             "outputHandles": 1,
-            "icon": "ros.svg"
+            "icon": "ros.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         },
         {
             "name": "call action",
             "backgroundColor": "#FF0000",
             "inputHandles": 1,
             "outputHandles": 2,
-            "icon": "ros.svg"
+            "icon": "ros.svg",
+            "supportedGraphTypes": [
+                "Flow",
+                "Connector",
+                "Component"
+            ]
         }
     ],
     "Controllers": [
@@ -130,14 +213,20 @@
             "backgroundColor": "#BD00FF",
             "inputHandles": 0,
             "outputHandles": 1,
-            "icon": "component.svg"
+            "icon": "component.svg",
+            "supportedGraphTypes": [
+                "Component"
+            ]
         },
         {
             "name": "RTC camera",
             "backgroundColor": "#BD00FF",
             "inputHandles": 1,
             "outputHandles": 0,
-            "icon": "component.svg"
+            "icon": "component.svg",
+            "supportedGraphTypes": [
+                "Component"
+            ]
         }
     ]
 }
