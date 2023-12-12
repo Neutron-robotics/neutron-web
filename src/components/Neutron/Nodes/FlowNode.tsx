@@ -1,10 +1,10 @@
 import { CSSProperties, makeStyles } from "@mui/styles"
 import { useMemo } from "react"
 import { Handle, NodeProps, Position } from "reactflow"
+import neutronMuiThemeDefault from "../../../contexts/MuiTheme"
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme: any) => ({
     nodeRoot: {
-        border: '1px solid black',
         minWidth: '150px',
         minHeight: '30px',
         paddingLeft: '5px',
@@ -45,12 +45,35 @@ const useStyles = makeStyles(() => ({
             filter: 'invert(1)'
         }
     },
+    handleContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-around',
+        position: 'absolute',
+        height: '100%',
+        alignItems: 'center',
+        top: 0
+    },
     containerNode: {
         position: 'absolute',
         width: '100%',
         height: '100%',
         display: 'flex',
         alignItems: 'center'
+    },
+    handle: {
+        width: '10px',
+        height: '10px',
+        position: 'relative',
+        borderRadius: '3px',
+        background: '#F4F4F4',
+        border: '1px solid #CDCDCD',
+        pointerEvents: 'auto',
+        '&:hover': {
+            background: theme.palette.primary.light
+        },
+        top: 'unset',
+        transform: 'unset'
     }
 }))
 
@@ -69,7 +92,8 @@ const FlowNode = (props: NodeProps<FlowNodeProps>) => {
 
     const maxHandleCount = useMemo(() => 30 + (Math.max(inputHandles, outputHandles) * 10), [inputHandles, outputHandles])
     const nodeStyle: CSSProperties = {
-        background: color
+        background: color,
+        border: props.selected ? `1px solid ${neutronMuiThemeDefault.palette.primary.main}` : '1px solid #CDCDCD'
     }
 
     const iconSide = useMemo(() => {
@@ -84,7 +108,6 @@ const FlowNode = (props: NodeProps<FlowNodeProps>) => {
 
     return (
         <div style={{ ...nodeStyle, minHeight: maxHandleCount }} className={classes.nodeRoot}>
-            {/* <div className={classes.nodeTitle}>{name}</div> */}
             <div className={classes.containerNode} style={{ flexDirection: iconSide === 'left' ? 'row' : 'row-reverse' }}>
                 <div className={classes.nodeIcon} style={{ left: 0 }}>
                     <img alt="node-icon" src={`${process.env.PUBLIC_URL}/assets/nodes/${icon}`} />
@@ -92,22 +115,22 @@ const FlowNode = (props: NodeProps<FlowNodeProps>) => {
                 <div className={classes.nodeTitle}>{name}</div>
             </div>
             <div className={classes.nodeBody}>
-                <div>
+                <div className={classes.handleContainer} style={{ left: 0 }}>
                     {Array.from({ length: inputHandles }, (_, index) => (
                         <Handle key={index} id={`input-${index}`}
                             type="target"
-                            style={{ position: 'relative', left: '-10px' }}
                             position={Position.Left}
+                            className={classes.handle}
                             isConnectableStart={false}
                             isConnectableEnd={true} />
                     )
                     )}
                 </div>
-                <div>
+                <div className={classes.handleContainer} style={{ right: 0 }}>
                     {Array.from({ length: outputHandles }, (_, index) => (
                         <Handle key={index} id={`output-${index}`}
                             type="source"
-                            style={{ position: 'relative', right: '-10px', marginBottom: '10px' }}
+                            className={classes.handle}
                             position={Position.Right}
                             isConnectableStart={true}
                             isConnectableEnd={false} />

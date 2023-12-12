@@ -2,7 +2,14 @@ import { hexToRGBA } from "../../../utils/color"
 import { HTMLAttributes, useMemo } from "react"
 import { CSSProperties, makeStyles } from "@mui/styles"
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme: any) => ({
+    nodePreview: {
+        cursor: 'move',
+        '&:hover': {
+            boxShadow: `0 0 0 2px ${theme.palette.primary.light}`,
+            borderColor: 'rgba(0,0,0,0)'
+        }
+    },
     nodeBody: {
         display: 'flex',
         fontSize: '12px',
@@ -15,7 +22,7 @@ const useStyles = makeStyles(() => ({
         width: '100%'
     },
     nodeIcon: {
-        width: '30px',
+        width: '50px',
         position: 'relative',
         height: '100%',
         display: 'flex',
@@ -26,15 +33,22 @@ const useStyles = makeStyles(() => ({
             filter: 'invert(1)'
         }
     },
+    handleContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-around',
+        position: 'absolute',
+        height: '100%',
+        alignItems: 'center',
+        top: 0
+    },
     handle: {
         pointerEvents: "none",
-        minWidth: "5px",
-        minHeight: '5px',
-        width: '6px',
-        height: '6px',
-        background: '#1a192b',
-        border: '1px solid white',
-        borderRadius: '100%',
+        width: '10px',
+        height: '10px',
+        background: '#F4F4F4',
+        border: '1px solid #CDCDCD',
+        borderRadius: '3px',
     },
     containerNode: {
         position: 'absolute',
@@ -65,9 +79,9 @@ const NodePreview = (props: NodePreviewProps) => {
         background: hexToRGBA(node.backgroundColor, 0.4) ?? '',
         borderRadius: '5px',
         textAlign: 'center',
-        border: '1px solid black',
+        border: '1px solid #CDCDCD',
         position: 'relative',
-        minHeight: '30px'
+        minHeight: '30px',
     }
 
     const handleDragStart = (event: React.DragEvent) => {
@@ -99,6 +113,7 @@ const NodePreview = (props: NodePreviewProps) => {
             {...otherProps}
             onDragStart={handleDragStart}
             draggable
+            className={classes.nodePreview}
         >
             <div className={classes.containerNode} style={{ flexDirection: iconSide === 'left' ? 'row' : 'row-reverse' }}>
                 <div className={classes.nodeIcon}
@@ -108,7 +123,7 @@ const NodePreview = (props: NodePreviewProps) => {
                 <div className={classes.nodeTitle}>{node.name}</div>
             </div>
             <div className={classes.nodeBody}>
-                <div>
+                <div className={classes.handleContainer} style={{ left: 0 }}>
                     {Array.from({ length: node.inputHandles }, (_, index) => (
                         <div
                             key={index}
@@ -117,11 +132,11 @@ const NodePreview = (props: NodePreviewProps) => {
                         />
                     ))}
                 </div>
-                <div>
+                <div className={classes.handleContainer} style={{ right: 0 }}>
                     {Array.from({ length: node.outputHandles }, (_, index) => (
                         <div
                             key={index}
-                            style={{ position: 'relative', right: '-5px', marginBottom: '10px' }}
+                            style={{ position: 'relative', right: '-5px' }}
                             className={classes.handle}
                         />
                     ))}

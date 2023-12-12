@@ -10,6 +10,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ClearIcon from '@mui/icons-material/Clear';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import MessageField from "../MessageField"
+import { useReactFlow } from "reactflow"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -101,10 +102,29 @@ const SwitchSidePanel = (props: SwitchSidePanelProps, ref: ForwardedRef<any>) =>
     const classes = useStyles()
     const [specifics, setSpecifics] = useNodeSpecifics<SwitchNodeSpecifics>(node.id, defaultSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<SwitchNodeSpecifics>(specifics)
+    const { setNodes, getNodes } = useReactFlow();
 
     function handleSaveClick(): void {
         setSpecifics(specificsLocal)
+        handleOutputNodeCountUpdate(specificsLocal.switchFields.length)
         onComplete()
+    }
+
+    function handleOutputNodeCountUpdate(count: number) {
+        const nodes = getNodes()
+        const updatedNodes = nodes.map(e => {
+            if (e.id === node.id) {
+                return {
+                    ...e,
+                    data: {
+                        ...e.data,
+                        outputHandles: count
+                    }
+                }
+            }
+            return e
+        })
+        setNodes(updatedNodes)
     }
 
     function handleAddSwitchField(): void {
