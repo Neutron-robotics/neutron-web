@@ -8,7 +8,8 @@
             "icon": "inject.svg",
             "supportedGraphTypes": [
                 "Flow"
-            ]
+            ],
+            "description": "Inject a message in a graph manually or periodically with timeout or cron job. The payload can include different data types, including string, number, array or json object."
         },
         {
             "name": "debug",
@@ -20,7 +21,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "Display properties of the input message in the debug console."
         },
         {
             "name": "info",
@@ -32,7 +34,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "Display properties of the input message in the info console and trigger an info alert to the user."
         },
         {
             "name": "success",
@@ -44,7 +47,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "Display properties of the input message in the success console and trigger an success alert to the user."
         },
         {
             "name": "warning",
@@ -56,7 +60,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "Display properties of the input message in the warning console and trigger an warning alert to the user. By default the warning will close automaticaly and won't need an acknowledgment from the user."
         },
         {
             "name": "error",
@@ -68,7 +73,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "Display properties of the input message in the error console and trigger an error alert to the user. By default the error will close automaticaly and won't need an acknowledgment from the user."
         }
     ],
     "Functions": [
@@ -82,7 +88,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "A javascript method to execute on messages received by the node. The function is supposted to return an object containing the payload to send to the next node. The function node can access and store environment variable."
         },
         {
             "name": "switch",
@@ -94,7 +101,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "Forward messages depending of the value of a property or their position in a sequence. When a message arrive the node will evaluate each of the defined rules in order to forward the message to corresponding output. Optionaly, the node can be configured to stop evaluating rules if one matches the condition. Rules can be evaluated in regard to a property of the received message, or using environment variable."
         },
         {
             "name": "change",
@@ -106,7 +114,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "Define, modify, remove, or move the property from the payload. The node can specify multiple rules that will be applied depending of the order of definition."
         },
         {
             "name": "range",
@@ -118,7 +127,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "Lineary scale the provided value in regard of the defined scale. The input number MUST be a number."
         },
         {
             "name": "template",
@@ -130,7 +140,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "Define a property based on the provided model. It output the defined model updated with provided property"
         },
         {
             "name": "delay",
@@ -142,7 +153,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "Define a delay in to apply to the message. The delay can be randomly be defined."
         },
         {
             "name": "filter",
@@ -154,7 +166,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "Cache received data, and emit on the next node only if one value of the payload has changed since the previously received message. If the node trigger, it will forward the input of the previous node."
         }
     ],
     "ROS2": [
@@ -168,7 +181,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "Triggers an event when a message is received on the defined ROS2 topic."
         },
         {
             "name": "subscribe",
@@ -180,7 +194,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "Publish a payload in the specified ROS2 topic."
         },
         {
             "name": "call service",
@@ -192,7 +207,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "Send the payload in the specified ROS2 service, and await for a response to be forwarded in the output."
         },
         {
             "name": "call action",
@@ -204,7 +220,8 @@
                 "Flow",
                 "Connector",
                 "Component"
-            ]
+            ],
+            "description": "Send the request in the specified action. The node has two output, one for the progress and another one for the result."
         }
     ],
     "Controllers": [
@@ -216,7 +233,8 @@
             "icon": "component.svg",
             "supportedGraphTypes": [
                 "Component"
-            ]
+            ],
+            "description": "This node implements the IBaseController interface that describes the event that will be triggered when a UI component that implements this connector is getting interacted by the user."
         },
         {
             "name": "RTC camera",
@@ -226,7 +244,8 @@
             "icon": "component.svg",
             "supportedGraphTypes": [
                 "Component"
-            ]
+            ],
+            "description": "This node implements the IRTCCameraComponent interface that will render an image each time the connector is updated with a new image."
         }
     ]
 }

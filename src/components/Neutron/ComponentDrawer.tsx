@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Collapse, InputAdornment, Slide, TextField, Typography } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Collapse, InputAdornment, Slide, TextField, Tooltip, Typography } from '@mui/material'
 import { makeStyles } from '@mui/styles';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
@@ -50,8 +50,9 @@ const useStyles = makeStyles(() => ({
 
 interface INodeData {
     name: string
-    backgroundColor: string,
-    inputHandles: number,
+    description: string
+    backgroundColor: string
+    inputHandles: number
     outputHandles: number
     icon: string
     supportedGraphTypes: NeutronGraphType[]
@@ -107,6 +108,7 @@ const ComponentDrawer = (props: ComponentDrawerProps) => {
                     <TextField
                         variant="outlined"
                         placeholder="Filter by node"
+                        size="small"
                         onChange={handleFilterValueChanged}
                         InputProps={{
                             startAdornment: (
@@ -126,9 +128,13 @@ const ComponentDrawer = (props: ComponentDrawerProps) => {
                                 </AccordionSummary>
                                 <AccordionDetails className={classes.accordion}>
                                     {nodes.map(node => (
-                                        <NodePreview
-                                            node={node}
-                                            key={node.name} />
+                                        <Tooltip title={node.description} key={node.name} arrow placement="right">
+                                            <div>
+                                                <NodePreview
+                                                    node={node}
+                                                />
+                                            </div>
+                                        </Tooltip>
                                     ))}
                                 </AccordionDetails>
                             </Accordion>

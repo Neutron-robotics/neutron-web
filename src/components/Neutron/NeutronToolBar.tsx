@@ -1,4 +1,4 @@
-import { IconButton, ToggleButton, ToggleButtonGroup } from "@mui/material"
+import { IconButton, ToggleButton, ToggleButtonGroup, Tooltip } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
@@ -173,26 +173,36 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
         <div className={classes.toolbar}>
             {Dialog}
             <div className={classes.leftTools}>
-                <IconButton onClick={onNewGraphClick} color="secondary">
-                    <InsertDriveFileIcon />
-                </IconButton>
-                <IconButton color="secondary">
-                    <ButtonDialog
-                        onConfirm={handleOpenDialog}
-                        dialog={NeutronOpenDialog}
-                    >
-                        <FolderOpenIcon />
-                    </ButtonDialog>
-                </IconButton>
-                <IconButton disabled={!updated} onClick={onSave} color="secondary">
-                    <SaveIcon />
-                </IconButton>
-                <IconButton disabled onClick={onSave} color="secondary">
-                    <PlayCircleIcon />
-                </IconButton>
-                <IconButton onClick={handleDeleteClick} disabled={loadedGraph?._id === undefined} color="secondary">
-                    <DeleteIcon />
-                </IconButton>
+                <Tooltip arrow title="Create new graph">
+                    <IconButton onClick={onNewGraphClick} color="secondary">
+                        <InsertDriveFileIcon />
+                    </IconButton>
+                </Tooltip>
+                <Tooltip arrow title="Open existing graph">
+                    <IconButton color="secondary">
+                        <ButtonDialog
+                            onConfirm={handleOpenDialog}
+                            dialog={NeutronOpenDialog}
+                        >
+                            <FolderOpenIcon />
+                        </ButtonDialog>
+                    </IconButton>
+                </Tooltip>
+                <Tooltip arrow title="Save graph">
+                    <IconButton disabled={!updated} onClick={onSave} color="secondary">
+                        <SaveIcon />
+                    </IconButton>
+                </Tooltip>
+                <Tooltip arrow title="Run graph in development mode">
+                    <IconButton disabled onClick={onSave} color="secondary">
+                        <PlayCircleIcon />
+                    </IconButton>
+                </Tooltip>
+                <Tooltip arrow title="Delete graph">
+                    <IconButton onClick={handleDeleteClick} disabled={loadedGraph?._id === undefined} color="secondary">
+                        <DeleteIcon />
+                    </IconButton>
+                </Tooltip>
                 <div className={classes.separation} />
             </div>
             <EditText className={classes.title} onChange={handleTitleUpdate} value={title !== '' ? title : "Enter title here"} />
@@ -200,15 +210,21 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                 value={panels.panels}
                 aria-label="text alignment"
             >
-                <ToggleButton value={NeutronSidePanel.InfoMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.InfoMenu)} color="secondary" aria-label="components">
-                    <InfoIcon />
-                </ToggleButton>
-                <ToggleButton value={NeutronSidePanel.EnvironmentMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.EnvironmentMenu)} color="secondary" aria-label="components">
-                    <StorageIcon />
-                </ToggleButton>
-                <ToggleButton value={NeutronSidePanel.DocumentationMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.DocumentationMenu)} color="secondary" aria-label="components">
-                    <BookIcon />
-                </ToggleButton>
+                <Tooltip arrow title="Open the info menu">
+                    <ToggleButton value={NeutronSidePanel.InfoMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.InfoMenu)} color="secondary" aria-label="components">
+                        <InfoIcon />
+                    </ToggleButton>
+                </Tooltip>
+                <Tooltip arrow title="Open the environement menu">
+                    <ToggleButton value={NeutronSidePanel.EnvironmentMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.EnvironmentMenu)} color="secondary" aria-label="components">
+                        <StorageIcon />
+                    </ToggleButton>
+                </Tooltip>
+                <Tooltip arrow title="Open the documentation menu">
+                    <ToggleButton value={NeutronSidePanel.DocumentationMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.DocumentationMenu)} color="secondary" aria-label="components">
+                        <BookIcon />
+                    </ToggleButton>
+                </Tooltip>
             </ToggleButtonGroup>
         </div>
     )
