@@ -81,7 +81,7 @@ interface SwitchField<T> {
 interface SwitchNodeSpecifics {
     propertyName: string
     switchFields: SwitchField<any>[]
-    switchMode: 'and' | 'or'
+    switchMode: 'and' | 'or' // todo change or by stop
 }
 
 const makeDefaultSwitchField = (): SwitchField<string> => ({

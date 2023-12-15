@@ -67,9 +67,13 @@ const DocumentationSidePanel = (props: DocumentationSidePanelProps, ref: Forward
         try {
             const response = await fetch(`${process.env.PUBLIC_URL}/assets/documentation/${node}.md`);
             const text = await response.text();
-            setMarkdownContent(text);
+            if (text.includes('DOCTYPE')) // invalid
+                setMarkdownContent('')
+            else
+                setMarkdownContent(text);
         } catch (error) {
             console.error('Erreur lors du chargement du fichier Markdown :', error);
+            setMarkdownContent('')
         }
 
     }

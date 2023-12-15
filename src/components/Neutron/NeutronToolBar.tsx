@@ -208,23 +208,22 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
             <EditText className={classes.title} onChange={handleTitleUpdate} value={title !== '' ? title : "Enter title here"} />
             <ToggleButtonGroup
                 value={panels.panels}
-                aria-label="text alignment"
             >
-                <Tooltip arrow title="Open the info menu">
-                    <ToggleButton value={NeutronSidePanel.InfoMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.InfoMenu)} color="secondary" aria-label="components">
+                <ToggleButton value={NeutronSidePanel.InfoMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.InfoMenu)} color="secondary">
+                    <Tooltip arrow title="Open the info menu">
                         <InfoIcon />
-                    </ToggleButton>
-                </Tooltip>
-                <Tooltip arrow title="Open the environement menu">
-                    <ToggleButton value={NeutronSidePanel.EnvironmentMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.EnvironmentMenu)} color="secondary" aria-label="components">
+                    </Tooltip>
+                </ToggleButton>
+                <ToggleButton value={NeutronSidePanel.EnvironmentMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.EnvironmentMenu)} color="secondary">
+                    <Tooltip arrow title="Open the environement menu">
                         <StorageIcon />
-                    </ToggleButton>
-                </Tooltip>
-                <Tooltip arrow title="Open the documentation menu">
-                    <ToggleButton value={NeutronSidePanel.DocumentationMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.DocumentationMenu)} color="secondary" aria-label="components">
+                    </Tooltip>
+                </ToggleButton>
+                <ToggleButton value={NeutronSidePanel.DocumentationMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.DocumentationMenu)} color="secondary">
+                    <Tooltip arrow title="Open the documentation menu">
                         <BookIcon />
-                    </ToggleButton>
-                </Tooltip>
+                    </Tooltip>
+                </ToggleButton>
             </ToggleButtonGroup>
         </div>
     )
