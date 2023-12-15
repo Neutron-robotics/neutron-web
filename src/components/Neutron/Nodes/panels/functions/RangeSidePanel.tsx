@@ -8,6 +8,7 @@ import MessageField from "../MessageField"
 import SettingsIcon from '@mui/icons-material/Settings';
 import InputIcon from '@mui/icons-material/Input';
 import OutputIcon from '@mui/icons-material/Output';
+import { RangeNodeSpecifics } from "neutron-core"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -49,19 +50,6 @@ const useStyles = makeStyles(() => ({
 interface RangeSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     node: VisualNode
     onComplete: () => void
-}
-
-interface IScale {
-    from: number
-    to: number
-}
-
-interface RangeNodeSpecifics {
-    propertyName: string
-    mode: 'scale' | 'scaleAndLimit' | 'scaleAndDeleteOverflow'
-    inputScale: IScale
-    outputScale: IScale
-    round: boolean
 }
 
 const defaultSpecifics: RangeNodeSpecifics = {

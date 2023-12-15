@@ -5,6 +5,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { VisualNode } from "../..";
 import useNodeSpecifics from "../../../../../utils/useNodeSpecifics";
 import MessageField from "../MessageField";
+import { InfoNodeSpecifics } from "neutron-core";
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -38,13 +39,10 @@ interface InfoSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     onComplete: () => void
 }
 
-interface InfoNodeSpecifics {
-    output: 'full' | 'property',
-    propertyName?: string
-}
-
 const defaultSpecifics: InfoNodeSpecifics = {
-    output: 'full'
+    output: 'full',
+    closeAuto: false,
+    ack: false,
 }
 
 const InfoSidePanel = (props: InfoSidePanelProps, ref: ForwardedRef<any>) => {
@@ -59,7 +57,7 @@ const InfoSidePanel = (props: InfoSidePanelProps, ref: ForwardedRef<any>) => {
     }
 
     function handleSelectChange(event: SelectChangeEvent<any>): void {
-        setLocalSpecifics({ output: event.target.value })
+        setLocalSpecifics({ output: event.target.value, closeAuto: true, ack: false })
     }
 
     function handleMessageFieldValueChanged(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {

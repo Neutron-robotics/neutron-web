@@ -5,6 +5,7 @@ import { VisualNode } from "../.."
 import useNodeSpecifics from "../../../../../utils/useNodeSpecifics"
 import SettingsIcon from '@mui/icons-material/Settings';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import { DelayNodeSpecifics, IRandomDelayInterval } from "neutron-core"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -39,17 +40,6 @@ const useStyles = makeStyles(() => ({
 interface DelaySidePanelProps extends HTMLAttributes<HTMLDivElement> {
     node: VisualNode
     onComplete: () => void
-}
-
-interface IRandomDelayInterval {
-    min: number,
-    max: number
-}
-
-interface DelayNodeSpecifics {
-    mode: 'fixed' | 'random'
-    delay: number | IRandomDelayInterval
-    unit: 'millisecond' | 'second' | 'minute' | 'hour'
 }
 
 const defaultSpecifics: DelayNodeSpecifics = {

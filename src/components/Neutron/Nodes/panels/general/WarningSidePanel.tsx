@@ -5,6 +5,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { VisualNode } from "../..";
 import useNodeSpecifics from "../../../../../utils/useNodeSpecifics";
 import MessageField from "../MessageField";
+import { WarningNodeSpecifics } from "neutron-core";
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -41,13 +42,6 @@ const useStyles = makeStyles(() => ({
 interface WarningSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     node: VisualNode
     onComplete: () => void
-}
-
-interface WarningNodeSpecifics {
-    output: 'full' | 'property',
-    propertyName?: string
-    closeAuto: boolean
-    ack: boolean
 }
 
 const defaultSpecifics: WarningNodeSpecifics = {

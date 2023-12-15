@@ -7,6 +7,7 @@ import { v4 } from "uuid"
 import MessageField from "../MessageField"
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
+import { ChangeField, ChangeNodeSpecifics } from "neutron-core"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -54,17 +55,6 @@ const useStyles = makeStyles(() => ({
 interface ChangeSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     node: VisualNode
     onComplete: () => void
-}
-
-interface ChangeField {
-    id: string
-    mode: 'define' | 'remove' | 'move'
-    inputField: string
-    targetField?: string
-}
-
-interface ChangeNodeSpecifics {
-    fields: ChangeField[]
 }
 
 const makeDefaultChangeField = (): ChangeField => ({

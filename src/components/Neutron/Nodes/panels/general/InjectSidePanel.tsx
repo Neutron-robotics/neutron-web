@@ -5,11 +5,12 @@ import { VisualNode } from "../.."
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import MessageField from "../MessageField"
-import ValueField, { IValueField, NeutronPrimitiveType } from "../ValueField"
+import ValueField, { IValueField } from "../ValueField"
 import ClearIcon from '@mui/icons-material/Clear';
 import { v4 } from "uuid"
 import cronstrue from 'cronstrue';
 import useNodeSpecifics from "../../../../../utils/useNodeSpecifics"
+import { IRepeatCron, IRepeatInterval, InjectNodeSpecifics } from "neutron-core";
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -65,29 +66,6 @@ const useStyles = makeStyles(() => ({
         paddingLeft: '115px'
     }
 }))
-
-interface InjectedField<T> {
-    value: T,
-    type: NeutronPrimitiveType
-    name: string
-    id: string
-}
-
-interface IRepeatInterval {
-    delay: number
-}
-
-interface IRepeatCron {
-    expression: string
-}
-
-interface InjectNodeSpecifics {
-    properties: InjectedField<any>[]
-    inject: boolean
-    injectDelay?: number
-    repeat: 'interval' | 'cron' | 'no'
-    repeatOptions?: IRepeatCron | IRepeatInterval
-}
 
 const defaultSpecifics: InjectNodeSpecifics = {
     properties: [],

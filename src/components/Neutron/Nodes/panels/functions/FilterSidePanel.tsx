@@ -6,6 +6,7 @@ import useNodeSpecifics from "../../../../../utils/useNodeSpecifics"
 import SettingsIcon from '@mui/icons-material/Settings';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import MessageField from "../MessageField"
+import { FilterNodeSpecifics, IFilterNodeChange } from "neutron-core"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -40,17 +41,6 @@ const useStyles = makeStyles(() => ({
 interface FilterSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     node: VisualNode
     onComplete: () => void
-}
-
-interface IFilterNodeChange {
-    type: 'latest' | 'latestValid'
-    value: number
-}
-
-interface FilterNodeSpecifics {
-    mode: 'block' | 'blockUnlessGreater' | 'blockUnlessLower'
-    value?: IFilterNodeChange
-    propertyName: string
 }
 
 const defaultSpecifics: FilterNodeSpecifics = {

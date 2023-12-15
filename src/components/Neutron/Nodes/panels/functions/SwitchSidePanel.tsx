@@ -4,13 +4,14 @@ import { ChangeEvent, ForwardedRef, HTMLAttributes, forwardRef, useState } from 
 import { VisualNode } from "../.."
 import useNodeSpecifics from "../../../../../utils/useNodeSpecifics"
 import AddIcon from '@mui/icons-material/Add';
-import ValueField, { IValueField, NeutronPrimitiveType } from "../ValueField"
+import ValueField, { IValueField } from "../ValueField"
 import { v4 } from "uuid"
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ClearIcon from '@mui/icons-material/Clear';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import MessageField from "../MessageField"
 import { useReactFlow } from "reactflow"
+import { SwitchField, SwitchNodeSpecifics, comparisonOperators } from "neutron-core"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -68,22 +69,6 @@ interface SwitchSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     onComplete: () => void
 }
 
-const comparisonOperators = ["==", "!=", "<", "<=", ">", ">="] as const;
-type ComparisonOperator = typeof comparisonOperators[number];
-
-interface SwitchField<T> {
-    type: NeutronPrimitiveType
-    value: T,
-    operator: ComparisonOperator
-    id: string
-}
-
-interface SwitchNodeSpecifics {
-    propertyName: string
-    switchFields: SwitchField<any>[]
-    switchMode: 'and' | 'or' // todo change or by stop
-}
-
 const makeDefaultSwitchField = (): SwitchField<string> => ({
     type: 'string',
     value: '',
@@ -94,7 +79,7 @@ const makeDefaultSwitchField = (): SwitchField<string> => ({
 const defaultSpecifics: SwitchNodeSpecifics = {
     propertyName: '',
     switchFields: [makeDefaultSwitchField()],
-    switchMode: 'and'
+    switchMode: 'continue'
 }
 
 const SwitchSidePanel = (props: SwitchSidePanelProps, ref: ForwardedRef<any>) => {

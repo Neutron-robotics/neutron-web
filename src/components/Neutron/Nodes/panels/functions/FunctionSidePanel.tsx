@@ -3,6 +3,7 @@ import { makeStyles } from "@mui/styles"
 import { ForwardedRef, HTMLAttributes, Suspense, forwardRef, lazy, useState } from "react"
 import { VisualNode } from "../.."
 import useNodeSpecifics from "../../../../../utils/useNodeSpecifics"
+import { FunctionNodeSpecifics } from "neutron-core"
 const Editor = lazy(() => import('@monaco-editor/react'));
 
 const useStyles = makeStyles(() => ({
@@ -41,10 +42,6 @@ const useStyles = makeStyles(() => ({
 interface FunctionSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     node: VisualNode
     onComplete: () => void
-}
-
-interface FunctionNodeSpecifics {
-    code: string
 }
 
 const defaultSpecifics: FunctionNodeSpecifics = {

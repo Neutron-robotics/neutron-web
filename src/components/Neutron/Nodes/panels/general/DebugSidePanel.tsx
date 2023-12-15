@@ -5,6 +5,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { VisualNode } from "../..";
 import useNodeSpecifics from "../../../../../utils/useNodeSpecifics";
 import MessageField from "../MessageField";
+import { DebugNodeSpecifics } from "neutron-core";
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -36,11 +37,6 @@ const useStyles = makeStyles(() => ({
 interface DebugSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     node: VisualNode
     onComplete: () => void
-}
-
-interface DebugNodeSpecifics {
-    output: 'full' | 'property',
-    propertyName?: string
 }
 
 const defaultSpecifics: DebugNodeSpecifics = {
