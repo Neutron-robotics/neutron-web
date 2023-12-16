@@ -87,29 +87,30 @@ const SwitchSidePanel = (props: SwitchSidePanelProps, ref: ForwardedRef<any>) =>
     const classes = useStyles()
     const [specifics, setSpecifics] = useNodeSpecifics<SwitchNodeSpecifics>(node.id, defaultSwitchSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<SwitchNodeSpecifics>(specifics)
-    const { setNodes, getNodes } = useReactFlow();
+    const { setNodes } = useReactFlow();
 
     function handleSaveClick(): void {
-        setSpecifics(specificsLocal)
         handleOutputNodeCountUpdate(specificsLocal.switchFields.length)
+        setSpecifics(specificsLocal)
         onComplete()
     }
 
     function handleOutputNodeCountUpdate(count: number) {
-        const nodes = getNodes()
-        const updatedNodes = nodes.map(e => {
-            if (e.id === node.id) {
-                return {
-                    ...e,
-                    data: {
-                        ...e.data,
-                        outputHandles: count
+        setNodes((nodes) => {
+            const updatedNodes = nodes.map(e => {
+                if (e.id === node.id) {
+                    return {
+                        ...e,
+                        data: {
+                            ...e.data,
+                            outputHandles: count
+                        }
                     }
                 }
-            }
-            return e
+                return e
+            })
+            return updatedNodes
         })
-        setNodes(updatedNodes)
     }
 
     function handleAddSwitchField(): void {
@@ -180,11 +181,11 @@ const SwitchSidePanel = (props: SwitchSidePanelProps, ref: ForwardedRef<any>) =>
                             className={classes.selectMode}
                             value={specificsLocal.switchMode}
                         >
-                            <MenuItem value={'and'}>
+                            <MenuItem value={'continue'}>
                                 Verify all the rules
                             </MenuItem>
-                            <MenuItem value={'or'}>
-                                Require one to be true
+                            <MenuItem value={'stop'}>
+                                Stop when one matches
                             </MenuItem>
                         </Select>
                     </div>
