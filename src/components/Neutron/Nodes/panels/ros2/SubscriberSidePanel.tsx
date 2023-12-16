@@ -45,13 +45,13 @@ interface SubscriberNodeSpecifics {
     topic?: IRos2Topic
 }
 
-const defaultSpecifics: SubscriberNodeSpecifics = {
+export const defaultSubscriberSpecifics: SubscriberNodeSpecifics = {
 }
 
 const SubscriberSidePanel = (props: SubscriberSidePanelProps, ref: ForwardedRef<any>) => {
     const { topics, onComplete, node, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<SubscriberNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<SubscriberNodeSpecifics>(node.id, defaultSubscriberSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<SubscriberNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {

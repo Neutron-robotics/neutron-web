@@ -42,7 +42,7 @@ interface DelaySidePanelProps extends HTMLAttributes<HTMLDivElement> {
     onComplete: () => void
 }
 
-const defaultSpecifics: DelayNodeSpecifics = {
+export const defaultDelaySpecifics: DelayNodeSpecifics = {
     mode: 'fixed',
     delay: 0,
     unit: 'second'
@@ -51,7 +51,7 @@ const defaultSpecifics: DelayNodeSpecifics = {
 const DelaySidePanel = (props: DelaySidePanelProps, ref: ForwardedRef<any>) => {
     const { onComplete, node, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<DelayNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<DelayNodeSpecifics>(node.id, defaultDelaySpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<DelayNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {

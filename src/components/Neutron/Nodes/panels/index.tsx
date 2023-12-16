@@ -5,25 +5,24 @@ import InfoMenuSidePanel from "./menu/InfoMenuSidePanel"
 import { VisualNode } from ".."
 import { TransitionGroup } from "react-transition-group"
 import EnvironmentSidePanel from "./menu/EnvironmentSidePanel"
-import InjectSidePanel from "./general/InjectSidePanel"
-import DebugSidePanel from "./general/DebugSidePanel"
-import SuccessSidePanel from "./general/SuccessSidePanel"
-import InfoSidePanel from "./general/InfoSidePanel"
-import WarningSidePanel from "./general/WarningSidePanel"
-import ErrorSidePanel from "./general/ErrorSidePanel"
-import FunctionSidePanel from "./functions/FunctionSidePanel"
-import SwitchSidePanel from "./functions/SwitchSidePanel"
-import ChangeSidePanel from "./functions/ChangeSidePanel"
-import RangeSidePanel from "./functions/RangeSidePanel"
-import TemplateSidePanel from "./functions/TemplateSidePanel"
-import DelaySidePanel from "./functions/DelaySidePanel"
-import FilterSidePanel from "./functions/FilterSidePanel"
-import PublisherSidePanel from "./ros2/PublisherSidePanel"
+import InjectSidePanel, { defaultInjectSpecifics } from "./general/InjectSidePanel"
+import DebugSidePanel, { defaultDebugSpecifics } from "./general/DebugSidePanel"
+import SuccessSidePanel, { defaultSuccessSpecifics } from "./general/SuccessSidePanel"
+import InfoSidePanel, { defaultInfoSpecifics } from "./general/InfoSidePanel"
+import WarningSidePanel, { defaultWarningSpecifics } from "./general/WarningSidePanel"
+import ErrorSidePanel, { defaultErrorSpecifics } from "./general/ErrorSidePanel"
+import FunctionSidePanel, { defaultFunctionSpecifics } from "./functions/FunctionSidePanel"
+import SwitchSidePanel, { defaultSwitchSpecifics } from "./functions/SwitchSidePanel"
+import ChangeSidePanel, { defaultChangeSpecifics } from "./functions/ChangeSidePanel"
+import RangeSidePanel, { defaultRangeSpecifics } from "./functions/RangeSidePanel"
+import TemplateSidePanel, { defaultTemplateSpecifics } from "./functions/TemplateSidePanel"
+import DelaySidePanel, { defaultDelaySpecifics } from "./functions/DelaySidePanel"
+import FilterSidePanel, { defaultFilterSpecifics } from "./functions/FilterSidePanel"
+import PublisherSidePanel, { defaultPublisherSpecifics } from "./ros2/PublisherSidePanel"
 import { IRos2PartSystem, IRos2System, NeutronGraphType } from "neutron-core"
-import SubscriberSidePanel from "./ros2/SubscriberSidePanel"
-import ServiceSidePanel from "./ros2/ServiceSidePanel"
-import ActionSidePanel from "./ros2/ActionSidePanel"
-import { INeutronGraph } from "../../../../api/models/graph.model"
+import SubscriberSidePanel, { defaultSubscriberSpecifics } from "./ros2/SubscriberSidePanel"
+import ServiceSidePanel, { defaultServiceSpecifics } from "./ros2/ServiceSidePanel"
+import ActionSidePanel, { defaultActionSpecifics } from "./ros2/ActionSidePanel"
 
 const useStyles = makeStyles(() => ({
     neutronSidePanelContainer: {
@@ -60,6 +59,30 @@ export enum NeutronSidePanel {
     Subscriber = 'subscribe',
     Service = 'call service',
     Action = 'call action'
+}
+
+export const defaultSpecificsValues: Record<NeutronSidePanel, any> = {
+    [NeutronSidePanel.InfoMenu]: undefined,
+    [NeutronSidePanel.EnvironmentMenu]: undefined,
+    [NeutronSidePanel.DocumentationMenu]: undefined,
+    [NeutronSidePanel.DebugMenu]: undefined,
+    [NeutronSidePanel.Change]: defaultChangeSpecifics,
+    [NeutronSidePanel.Inject]: defaultInjectSpecifics,
+    [NeutronSidePanel.Debug]: defaultDebugSpecifics,
+    [NeutronSidePanel.Success]: defaultSuccessSpecifics,
+    [NeutronSidePanel.Info]: defaultInfoSpecifics,
+    [NeutronSidePanel.Warning]: defaultWarningSpecifics,
+    [NeutronSidePanel.Error]: defaultErrorSpecifics,
+    [NeutronSidePanel.Function]: defaultFunctionSpecifics,
+    [NeutronSidePanel.Switch]: defaultSwitchSpecifics,
+    [NeutronSidePanel.Range]: defaultRangeSpecifics,
+    [NeutronSidePanel.Template]: defaultTemplateSpecifics,
+    [NeutronSidePanel.Delay]: defaultDelaySpecifics,
+    [NeutronSidePanel.Filter]: defaultFilterSpecifics,
+    [NeutronSidePanel.Publisher]: defaultPublisherSpecifics,
+    [NeutronSidePanel.Subscriber]: defaultSubscriberSpecifics,
+    [NeutronSidePanel.Service]: defaultServiceSpecifics,
+    [NeutronSidePanel.Action]: defaultActionSpecifics
 }
 
 interface INeutronNodePanel {

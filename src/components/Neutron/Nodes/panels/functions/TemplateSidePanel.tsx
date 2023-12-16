@@ -58,7 +58,7 @@ interface TemplateSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     onComplete: () => void
 }
 
-const defaultSpecifics: TemplateNodeSpecifics = {
+export const defaultTemplateSpecifics: TemplateNodeSpecifics = {
     propertyName: 'payload',
     template: 'This is the payload: {{payload}}'
 }
@@ -75,7 +75,7 @@ const editorOptions: any = {
 const TemplateSidePanel = (props: TemplateSidePanelProps, ref: ForwardedRef<any>) => {
     const { onComplete, node, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<TemplateNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<TemplateNodeSpecifics>(node.id, defaultTemplateSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<TemplateNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {

@@ -52,7 +52,7 @@ interface RangeSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     onComplete: () => void
 }
 
-const defaultSpecifics: RangeNodeSpecifics = {
+export const defaultRangeSpecifics: RangeNodeSpecifics = {
     propertyName: '',
     mode: 'scale',
     inputScale: {
@@ -69,7 +69,7 @@ const defaultSpecifics: RangeNodeSpecifics = {
 const RangeSidePanel = (props: RangeSidePanelProps, ref: ForwardedRef<any>) => {
     const { onComplete, node, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<RangeNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<RangeNodeSpecifics>(node.id, defaultRangeSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<RangeNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {

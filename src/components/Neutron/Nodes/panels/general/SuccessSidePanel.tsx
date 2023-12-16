@@ -39,7 +39,7 @@ interface SuccessSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     onComplete: () => void
 }
 
-const defaultSpecifics: SuccessNodeSpecifics = {
+export const defaultSuccessSpecifics: SuccessNodeSpecifics = {
     output: 'full',
     closeAuto: true,
     ack: false
@@ -48,7 +48,7 @@ const defaultSpecifics: SuccessNodeSpecifics = {
 const SuccessSidePanel = (props: SuccessSidePanelProps, ref: ForwardedRef<any>) => {
     const { node, onComplete, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<SuccessNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<SuccessNodeSpecifics>(node.id, defaultSuccessSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<SuccessNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {

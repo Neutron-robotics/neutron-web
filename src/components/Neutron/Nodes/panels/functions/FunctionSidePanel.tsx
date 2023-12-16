@@ -44,7 +44,7 @@ interface FunctionSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     onComplete: () => void
 }
 
-const defaultSpecifics: FunctionNodeSpecifics = {
+export const defaultFunctionSpecifics: FunctionNodeSpecifics = {
     code: `// Write there your own Typescript function to execute custom code.
 // You can access the \`req\` object that contains this node input.
 // The output of this node will be empty by default, but it is possible
@@ -56,7 +56,7 @@ const defaultSpecifics: FunctionNodeSpecifics = {
 const FunctionSidePanel = (props: FunctionSidePanelProps, ref: ForwardedRef<any>) => {
     const { node, onComplete, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<FunctionNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<FunctionNodeSpecifics>(node.id, defaultFunctionSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<FunctionNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {

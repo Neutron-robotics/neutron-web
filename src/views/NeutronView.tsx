@@ -12,10 +12,9 @@ import { IRos2PartSystem, IRos2System, NeutronGraphType } from "neutron-core";
 import { getRos2System } from "../api/ros2";
 import { useAlert } from "../contexts/AlertContext";
 import { toPartSystem } from "../utils/ros2";
-import NodeContextMenu, { NodeContextMenuProps } from "../components/Neutron/Nodes/NodeContextMenu";
 import { INeutronGraph } from "../api/models/graph.model";
 import ComponentDrawer from "../components/Neutron/ComponentDrawer";
-import NeutronNodePanel, { NeutronSidePanel } from "../components/Neutron/Nodes/panels";
+import NeutronNodePanel, { NeutronSidePanel, defaultSpecificsValues } from "../components/Neutron/Nodes/panels";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -61,7 +60,6 @@ const NeutronView = (props: NeutronViewProps) => {
     const [selectedRobot, setSelectedRobot] = useState<IRobot>()
     const [ros2System, setRos2System] = useState<IRos2System | IRos2PartSystem>()
     const [selectedPart, setSelectedPart] = useState<IRobotPart>()
-    const [menu, setMenu] = useState<NodeContextMenuProps>();
     const menuRef = useRef<HTMLDivElement>(null);
     const [neutronGraph, setNeutronGraph] = useState<INeutronGraph>()
     const [sidePanels, setSidePanels] = useState<NeutronSidePanel[]>([])
@@ -132,27 +130,6 @@ const NeutronView = (props: NeutronViewProps) => {
         fetchOrganizations()
     }, [])
 
-    const onNodeContextMenu = useCallback(
-        (event: React.MouseEvent<Element, MouseEvent>, node: VisualNode) => {
-            event.preventDefault();
-            if (!menuRef.current)
-                return
-
-            const pane = menuRef.current.getBoundingClientRect();
-            setMenu({
-                id: node.id,
-                title: node.title ?? 'Custom Node',
-                top: ((event.clientY < pane.height - 200) ? event.clientY - 100 : undefined) as number,
-                left: ((event.clientX < pane.width - 200) ? event.clientX - 100 : undefined) as number,
-                right: ((event.clientX >= pane.width - 200) ? Math.abs(pane.width - event.clientX) : undefined) as number,
-                bottom: ((event.clientY >= pane.height - 200) ? Math.abs(pane.height - event.clientY) : undefined) as number,
-            });
-        },
-        [setMenu]
-    );
-
-    const onPaneClick = useCallback(() => setMenu(undefined), [setMenu]);
-
     const onNodesChange = useCallback(
         (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
         [setNodes]
@@ -194,7 +171,10 @@ const NeutronView = (props: NeutronViewProps) => {
                 id: v4(),
                 type,
                 position,
-                data: data,
+                data: {
+                    ...data,
+                    specifics: defaultSpecificsValues[(data.name as NeutronSidePanel)]
+                },
             };
 
             setNodes((nds) => nds.concat(newNode));
@@ -284,14 +264,11 @@ const NeutronView = (props: NeutronViewProps) => {
                             onNodeDoubleClick={handleOnNodeDoubleClick}
                             nodeTypes={nodeType}
                             onDragOver={onDragOver}
-                            onPaneClick={onPaneClick}
                             onDrop={onDrop}
                             ref={menuRef}
-                            onNodeContextMenu={onNodeContextMenu}
                         >
                             <Controls />
                             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-                            {menu && <NodeContextMenu onClick={onPaneClick} {...menu} />}
                         </ReactFlow>
                         <NeutronNodePanel
                             onEnvironmentVariableUpdate={setEnvironmentVariable}

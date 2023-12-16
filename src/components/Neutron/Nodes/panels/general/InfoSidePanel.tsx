@@ -39,7 +39,7 @@ interface InfoSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     onComplete: () => void
 }
 
-const defaultSpecifics: InfoNodeSpecifics = {
+export const defaultInfoSpecifics: InfoNodeSpecifics = {
     output: 'full',
     closeAuto: false,
     ack: false,
@@ -48,7 +48,7 @@ const defaultSpecifics: InfoNodeSpecifics = {
 const InfoSidePanel = (props: InfoSidePanelProps, ref: ForwardedRef<any>) => {
     const { node, onComplete, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<InfoNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<InfoNodeSpecifics>(node.id, defaultInfoSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<InfoNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {

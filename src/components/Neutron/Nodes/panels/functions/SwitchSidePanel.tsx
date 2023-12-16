@@ -76,7 +76,7 @@ const makeDefaultSwitchField = (): SwitchField<string> => ({
     id: v4()
 })
 
-const defaultSpecifics: SwitchNodeSpecifics = {
+export const defaultSwitchSpecifics: SwitchNodeSpecifics = {
     propertyName: '',
     switchFields: [makeDefaultSwitchField()],
     switchMode: 'continue'
@@ -85,7 +85,7 @@ const defaultSpecifics: SwitchNodeSpecifics = {
 const SwitchSidePanel = (props: SwitchSidePanelProps, ref: ForwardedRef<any>) => {
     const { onComplete, node, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<SwitchNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<SwitchNodeSpecifics>(node.id, defaultSwitchSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<SwitchNodeSpecifics>(specifics)
     const { setNodes, getNodes } = useReactFlow();
 

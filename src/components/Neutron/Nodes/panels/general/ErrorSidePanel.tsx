@@ -44,7 +44,7 @@ interface ErrorSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     onComplete: () => void
 }
 
-const defaultSpecifics: ErrorNodeSpecifics = {
+export const defaultErrorSpecifics: ErrorNodeSpecifics = {
     output: 'full',
     closeAuto: true,
     ack: false
@@ -53,7 +53,7 @@ const defaultSpecifics: ErrorNodeSpecifics = {
 const ErrorSidePanel = (props: ErrorSidePanelProps, ref: ForwardedRef<any>) => {
     const { node, onComplete, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<ErrorNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<ErrorNodeSpecifics>(node.id, defaultErrorSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<ErrorNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {

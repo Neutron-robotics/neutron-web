@@ -39,14 +39,14 @@ interface DebugSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     onComplete: () => void
 }
 
-const defaultSpecifics: DebugNodeSpecifics = {
+export const defaultDebugSpecifics: DebugNodeSpecifics = {
     output: 'full'
 }
 
 const DebugSidePanel = (props: DebugSidePanelProps, ref: ForwardedRef<any>) => {
     const { node, onComplete, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<DebugNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<DebugNodeSpecifics>(node.id, defaultDebugSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<DebugNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {

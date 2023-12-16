@@ -43,7 +43,7 @@ interface FilterSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     onComplete: () => void
 }
 
-const defaultSpecifics: FilterNodeSpecifics = {
+export const defaultFilterSpecifics: FilterNodeSpecifics = {
     mode: 'block',
     propertyName: ''
 }
@@ -51,7 +51,7 @@ const defaultSpecifics: FilterNodeSpecifics = {
 const FilterSidePanel = (props: FilterSidePanelProps, ref: ForwardedRef<any>) => {
     const { onComplete, node, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<FilterNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<FilterNodeSpecifics>(node.id, defaultFilterSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<FilterNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {

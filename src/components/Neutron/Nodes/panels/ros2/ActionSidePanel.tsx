@@ -45,14 +45,14 @@ interface ActionNodeSpecifics {
     action?: IRos2Action
 }
 
-const defaultSpecifics: ActionNodeSpecifics = {
+export const defaultActionSpecifics: ActionNodeSpecifics = {
 
 }
 
 const ActionSidePanel = (props: ActionSidePanelProps, ref: ForwardedRef<any>) => {
     const { actions, onComplete, node, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<ActionNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<ActionNodeSpecifics>(node.id, defaultActionSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<ActionNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {

@@ -44,7 +44,7 @@ interface WarningSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     onComplete: () => void
 }
 
-const defaultSpecifics: WarningNodeSpecifics = {
+export const defaultWarningSpecifics: WarningNodeSpecifics = {
     output: 'full',
     closeAuto: true,
     ack: false
@@ -53,7 +53,7 @@ const defaultSpecifics: WarningNodeSpecifics = {
 const WarningSidePanel = (props: WarningSidePanelProps, ref: ForwardedRef<any>) => {
     const { node, onComplete, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<WarningNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<WarningNodeSpecifics>(node.id, defaultWarningSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<WarningNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {

@@ -67,7 +67,7 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-const defaultSpecifics: InjectNodeSpecifics = {
+export const defaultInjectSpecifics: InjectNodeSpecifics = {
     properties: [],
     inject: true,
     injectDelay: 0,
@@ -82,7 +82,7 @@ interface InjectSidePanelProps extends HTMLAttributes<HTMLDivElement> {
 const InjectSidePanel = (props: InjectSidePanelProps, ref: ForwardedRef<any>) => {
     const { onComplete, node, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<InjectNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<InjectNodeSpecifics>(node.id, defaultInjectSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<InjectNodeSpecifics>(specifics)
     const [cronInText, setCronInText] = useState('')
 

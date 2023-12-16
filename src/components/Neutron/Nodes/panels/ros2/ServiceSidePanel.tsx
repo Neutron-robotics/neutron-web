@@ -45,13 +45,13 @@ interface ServiceNodeSpecifics {
     service?: IRos2Service
 }
 
-const defaultSpecifics: ServiceNodeSpecifics = {
+export const defaultServiceSpecifics: ServiceNodeSpecifics = {
 }
 
 const ServiceSidePanel = (props: ServiceSidePanelProps, ref: ForwardedRef<any>) => {
     const { services, onComplete, node, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<ServiceNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<ServiceNodeSpecifics>(node.id, defaultServiceSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<ServiceNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {

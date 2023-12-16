@@ -64,14 +64,14 @@ const makeDefaultChangeField = (): ChangeField => ({
     targetField: ''
 })
 
-const defaultSpecifics: ChangeNodeSpecifics = {
+export const defaultChangeSpecifics: ChangeNodeSpecifics = {
     fields: [makeDefaultChangeField()]
 }
 
 const ChangeSidePanel = (props: ChangeSidePanelProps, ref: ForwardedRef<any>) => {
     const { onComplete, node, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<ChangeNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<ChangeNodeSpecifics>(node.id, defaultChangeSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<ChangeNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {

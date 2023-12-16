@@ -45,13 +45,13 @@ interface PublisherNodeSpecifics {
     topic?: IRos2Topic
 }
 
-const defaultSpecifics: PublisherNodeSpecifics = {
+export const defaultPublisherSpecifics: PublisherNodeSpecifics = {
 }
 
 const PublisherSidePanel = (props: PublisherSidePanelProps, ref: ForwardedRef<any>) => {
     const { topics, onComplete, node, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<PublisherNodeSpecifics>(node.id, defaultSpecifics)
+    const [specifics, setSpecifics] = useNodeSpecifics<PublisherNodeSpecifics>(node.id, defaultPublisherSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<PublisherNodeSpecifics>(specifics)
 
     function handleSaveClick(): void {
