@@ -60,10 +60,11 @@ interface INodeData {
 
 interface ComponentDrawerProps {
     graphType: NeutronGraphType
+    forcedClose?: boolean
 }
 
 const ComponentDrawer = (props: ComponentDrawerProps) => {
-    const { graphType } = props
+    const { graphType, forcedClose } = props
     const [isHovered, setIsHovered] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(true);
     const classes = useStyles();
@@ -103,7 +104,7 @@ const ComponentDrawer = (props: ComponentDrawerProps) => {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <Collapse orientation="horizontal" style={{ zIndex: 30 }} in={isDrawerOpen}>
+            <Collapse orientation="horizontal" style={{ zIndex: 30 }} in={!forcedClose && isDrawerOpen}>
                 <Box className={classes.box} >
                     <TextField
                         variant="outlined"

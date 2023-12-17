@@ -23,6 +23,7 @@ import { IRos2PartSystem, IRos2System, NeutronGraphType } from "neutron-core"
 import SubscriberSidePanel, { defaultSubscriberSpecifics } from "./ros2/SubscriberSidePanel"
 import ServiceSidePanel, { defaultServiceSpecifics } from "./ros2/ServiceSidePanel"
 import ActionSidePanel, { defaultActionSpecifics } from "./ros2/ActionSidePanel"
+import DebugMenuSidePanel from "./menu/DebugMenuSidePanel"
 
 const useStyles = makeStyles(() => ({
     neutronSidePanelContainer: {
@@ -109,7 +110,7 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
         [NeutronSidePanel.InfoMenu]: <InfoMenuSidePanel graphType={graphType} handleGraphTypeUpdate={handleGraphTypeUpdate} onVariableUpdate={onEnvironmentVariableUpdate} title={title ?? 'New graph'} nodes={nodes} />,
         [NeutronSidePanel.EnvironmentMenu]: <EnvironmentSidePanel onEnvironmentVariableUpdate={onEnvironmentVariableUpdate} environmentVariables={environmentVariables} />,
         [NeutronSidePanel.DocumentationMenu]: <DocumentationSidePanel />,
-        [NeutronSidePanel.DebugMenu]: <div></div>,
+        [NeutronSidePanel.DebugMenu]: <DebugMenuSidePanel nodes={nodes} />,
         [NeutronSidePanel.Inject]: <InjectSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Inject)} />,
         [NeutronSidePanel.Debug]: <DebugSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Debug)} />,
         [NeutronSidePanel.Success]: <SuccessSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Success)} />,
@@ -132,7 +133,6 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
     const minWidth = (panel: NeutronSidePanel) => {
         const small =
             [NeutronSidePanel.InfoMenu,
-            NeutronSidePanel.DebugMenu,
             NeutronSidePanel.DocumentationMenu,
             NeutronSidePanel.EnvironmentMenu
             ].includes(panel)

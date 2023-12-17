@@ -1,4 +1,4 @@
-import { IconButton, ToggleButton, ToggleButtonGroup, Tooltip } from "@mui/material"
+import { CircularProgress, IconButton, ToggleButton, ToggleButtonGroup, Tooltip } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
@@ -22,6 +22,10 @@ import InfoIcon from '@mui/icons-material/Info';
 import StorageIcon from '@mui/icons-material/Storage';
 import BookIcon from '@mui/icons-material/Book';
 import { NeutronSidePanel } from "./Nodes/panels";
+import AdbIcon from '@mui/icons-material/Adb';
+import StopIcon from '@mui/icons-material/Stop';
+import neutronMuiThemeDefault from "../../contexts/MuiTheme";
+import { NeutronGraphStatus } from "../../utils/useNeutronGraph";
 
 const useStyles = makeStyles(() => ({
     toolbar: {
@@ -59,8 +63,10 @@ interface NeutronToolBarProps {
     edges: Edge[],
     title: string,
     loadedGraph?: INeutronGraph
+    graphExecutionStatus: NeutronGraphStatus
     onGraphUpdate: (graph?: INeutronGraph) => void
     onTitleUpdate: (title: string) => void
+    onDebugClick: () => void
     panels: {
         addSidePanel: (panel: NeutronSidePanel, clearOther?: boolean) => void;
         removePanel: (panel: NeutronSidePanel) => void;
@@ -69,10 +75,11 @@ interface NeutronToolBarProps {
 }
 
 const NeutronToolBar = (props: NeutronToolBarProps) => {
-    const { ros2System, nodes, edges, selectedRobotId, selectedRobotPartId, loadedGraph, onGraphUpdate, panels, title, onTitleUpdate } = props
+    const { graphExecutionStatus, nodes, edges, selectedRobotId, selectedRobotPartId, loadedGraph, onGraphUpdate, panels, title, onTitleUpdate, onDebugClick } = props
     const classes = useStyles()
     const alert = useAlert()
     const [Dialog, prompt] = useConfirmationDialog();
+    const isDebug = graphExecutionStatus !== 'unloaded'
 
     const onSave = useCallback(async () => {
         if (title === '') {
@@ -92,7 +99,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                 const createModel: CreateGraphModel = {
                     title,
                     robotId: selectedRobotId,
-                    type: 'Component',
+                    type: 'Connector',
                     partId: selectedRobotPartId,
                     nodes: nodes as INeutronNode[],
                     edges: edges as INeutronEdge[],
@@ -170,39 +177,41 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
     }
 
     return (
-        <div className={classes.toolbar}>
+        <div className={classes.toolbar} style={isDebug ? { backgroundColor: `${neutronMuiThemeDefault.palette.primary.light}`, color: 'white' } : undefined}>
             {Dialog}
             <div className={classes.leftTools}>
-                <Tooltip arrow title="Create new graph">
-                    <IconButton onClick={onNewGraphClick} color="secondary">
+                <IconButton disabled={isDebug} onClick={onNewGraphClick} color="secondary">
+                    <Tooltip arrow title="Create new graph">
                         <InsertDriveFileIcon />
-                    </IconButton>
-                </Tooltip>
-                <Tooltip arrow title="Open existing graph">
-                    <IconButton color="secondary">
+                    </Tooltip>
+                </IconButton>
+                <IconButton disabled={isDebug} color="secondary">
+                    <Tooltip arrow title="Open existing graph">
                         <ButtonDialog
                             onConfirm={handleOpenDialog}
                             dialog={NeutronOpenDialog}
                         >
                             <FolderOpenIcon />
                         </ButtonDialog>
-                    </IconButton>
-                </Tooltip>
-                <Tooltip arrow title="Save graph">
-                    <IconButton disabled={!updated} onClick={onSave} color="secondary">
+                    </Tooltip>
+                </IconButton>
+                <IconButton disabled={isDebug || !updated} onClick={onSave} color="secondary">
+                    <Tooltip arrow title="Save graph">
                         <SaveIcon />
-                    </IconButton>
-                </Tooltip>
-                <Tooltip arrow title="Run graph in development mode">
-                    <IconButton disabled onClick={onSave} color="secondary">
-                        <PlayCircleIcon />
-                    </IconButton>
-                </Tooltip>
-                <Tooltip arrow title="Delete graph">
-                    <IconButton onClick={handleDeleteClick} disabled={loadedGraph?._id === undefined} color="secondary">
+                    </Tooltip>
+                </IconButton>
+                <IconButton onClick={handleDeleteClick} disabled={isDebug || loadedGraph?._id === undefined} color="secondary">
+                    <Tooltip arrow title="Delete graph">
                         <DeleteIcon />
-                    </IconButton>
-                </Tooltip>
+                    </Tooltip>
+                </IconButton>
+                <IconButton onClick={onDebugClick} color="secondary">
+                    <Tooltip arrow title={isDebug ? "Stop debugging" : "Run graph in development mode"}>
+                        {graphExecutionStatus !== 'unloaded' && graphExecutionStatus !== 'compiling' ? <StopIcon /> :
+                            graphExecutionStatus === 'unloaded' ? <PlayCircleIcon /> :
+                                <CircularProgress size={24} />}
+                    </Tooltip>
+                </IconButton>
                 <div className={classes.separation} />
             </div>
             <EditText className={classes.title} onChange={handleTitleUpdate} value={title !== '' ? title : "Enter title here"} />
@@ -224,8 +233,15 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                         <BookIcon />
                     </Tooltip>
                 </ToggleButton>
+                {isDebug && (
+                    <ToggleButton value={NeutronSidePanel.DebugMenu} onClick={() => handlePanelBtnClick(NeutronSidePanel.DebugMenu)} color="secondary">
+                        <Tooltip arrow title="Open the debug menu">
+                            <AdbIcon />
+                        </Tooltip>
+                    </ToggleButton>
+                )}
             </ToggleButtonGroup>
-        </div>
+        </div >
     )
 }
 

@@ -5,7 +5,6 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { VisualNode } from "../..";
 import PanelBottomTable, { TableData } from "../PanelBottomTable";
-import { INeutronGraph } from "../../../../../api/models/graph.model";
 import { NeutronGraphType } from "neutron-core";
 
 const useStyles = makeStyles(() => ({
@@ -96,7 +95,7 @@ const InfoMenuSidePanel = (props: InfoMenuSidePanelProps, ref: ForwardedRef<any>
                         ]
                         :
                         [
-                            { key: 'Graph Type', value: graphType, range: ["Flow", "Connector", "Component"], readonly: true },
+                            { key: 'Graph Type', value: graphType, range: ["Connector", "Flow"], readonly: true },
                             { key: 'Node count', value: nodes.length, readonly: true }
                         ]
                     }

@@ -2,6 +2,7 @@ import { CSSProperties, makeStyles } from "@mui/styles"
 import { useMemo } from "react"
 import { Handle, NodeProps, Position } from "reactflow"
 import neutronMuiThemeDefault from "../../../contexts/MuiTheme"
+import { ButtonBase } from "@mui/material"
 
 const useStyles = makeStyles((theme: any) => ({
     nodeRoot: {
@@ -16,7 +17,8 @@ const useStyles = makeStyles((theme: any) => ({
             color: ' #777',
             fontSize: '12px',
         },
-        userSelect: 'none'
+        userSelect: 'none',
+        cursor: 'pointer'
     },
     nodeBody: {
         display: 'flex',
@@ -74,6 +76,17 @@ const useStyles = makeStyles((theme: any) => ({
         },
         top: 'unset',
         transform: 'unset'
+    },
+    injectButton: {
+        width: '30px',
+        height: '30px',
+        position: 'absolute',
+        background: '#F4F4F4',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        left: ' -35px',
+        borderRadius: '5px',
+        border: '1px solid #CDCDCD',
     }
 }))
 
@@ -106,8 +119,15 @@ const FlowNode = (props: NodeProps<FlowNodeProps>) => {
         }
     }, [inputHandles, outputHandles])
 
+    function handleInjectClickButton(event: React.MouseEvent<HTMLDivElement, MouseEvent>): void {
+        
+    }
+
     return (
         <div style={{ ...nodeStyle, minHeight: maxHandleCount }} className={classes.nodeRoot}>
+            {data.name === 'inject' && (
+                <div onClick={handleInjectClickButton} className={classes.injectButton} />
+            )}
             <div className={classes.containerNode} style={{ flexDirection: iconSide === 'left' ? 'row' : 'row-reverse' }}>
                 <div className={classes.nodeIcon} style={{ left: 0 }}>
                     <img alt="node-icon" src={`${process.env.PUBLIC_URL}/assets/nodes/${icon}`} />
