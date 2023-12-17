@@ -25,7 +25,7 @@ import { NeutronSidePanel } from "./Nodes/panels";
 import AdbIcon from '@mui/icons-material/Adb';
 import StopIcon from '@mui/icons-material/Stop';
 import neutronMuiThemeDefault from "../../contexts/MuiTheme";
-import { NeutronGraphStatus } from "../../utils/useNeutronGraph";
+import { useNeutronGraph } from "../../contexts/NeutronGraphContext";
 
 const useStyles = makeStyles(() => ({
     toolbar: {
@@ -63,10 +63,8 @@ interface NeutronToolBarProps {
     edges: Edge[],
     title: string,
     loadedGraph?: INeutronGraph
-    graphExecutionStatus: NeutronGraphStatus
     onGraphUpdate: (graph?: INeutronGraph) => void
     onTitleUpdate: (title: string) => void
-    onDebugClick: () => void
     panels: {
         addSidePanel: (panel: NeutronSidePanel, clearOther?: boolean) => void;
         removePanel: (panel: NeutronSidePanel) => void;
@@ -75,11 +73,12 @@ interface NeutronToolBarProps {
 }
 
 const NeutronToolBar = (props: NeutronToolBarProps) => {
-    const { graphExecutionStatus, nodes, edges, selectedRobotId, selectedRobotPartId, loadedGraph, onGraphUpdate, panels, title, onTitleUpdate, onDebugClick } = props
+    const { nodes, edges, selectedRobotId, selectedRobotPartId, loadedGraph, onGraphUpdate, panels, title, onTitleUpdate } = props
     const classes = useStyles()
     const alert = useAlert()
     const [Dialog, prompt] = useConfirmationDialog();
-    const isDebug = graphExecutionStatus !== 'unloaded'
+    const { graphStatus, makeNeutronGraph, unloadGraph } = useNeutronGraph()
+    const isDebug = graphStatus !== 'unloaded' && graphStatus !== 'compiling'
 
     const onSave = useCallback(async () => {
         if (title === '') {
@@ -176,6 +175,25 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
             panels.removePanel(sidePanelType)
     }
 
+    async function handleDebugClick(): Promise<void> {
+        if (graphStatus !== 'unloaded') {
+            unloadGraph()
+            alert.info('Debug session has been interrupted')
+            return
+        }
+
+        if (updated) {
+            alert.info("The graph must be saved before debugging")
+            return
+        }
+        if (!loadedGraph.nodes.length) {
+            alert.info("The graph must have at least one node")
+            return
+        }
+
+        await makeNeutronGraph(loadedGraph.type, loadedGraph.nodes, loadedGraph.edges, 1000)
+    }
+
     return (
         <div className={classes.toolbar} style={isDebug ? { backgroundColor: `${neutronMuiThemeDefault.palette.primary.light}`, color: 'white' } : undefined}>
             {Dialog}
@@ -186,14 +204,14 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                     </Tooltip>
                 </IconButton>
                 <IconButton disabled={isDebug} color="secondary">
-                    <Tooltip arrow title="Open existing graph">
-                        <ButtonDialog
-                            onConfirm={handleOpenDialog}
-                            dialog={NeutronOpenDialog}
-                        >
+                    <ButtonDialog
+                        onConfirm={handleOpenDialog}
+                        dialog={NeutronOpenDialog}
+                    >
+                        <Tooltip arrow title="Open existing graph">
                             <FolderOpenIcon />
-                        </ButtonDialog>
-                    </Tooltip>
+                        </Tooltip>
+                    </ButtonDialog>
                 </IconButton>
                 <IconButton disabled={isDebug || !updated} onClick={onSave} color="secondary">
                     <Tooltip arrow title="Save graph">
@@ -205,11 +223,13 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                         <DeleteIcon />
                     </Tooltip>
                 </IconButton>
-                <IconButton onClick={onDebugClick} color="secondary">
+                <IconButton onClick={handleDebugClick} color="secondary">
                     <Tooltip arrow title={isDebug ? "Stop debugging" : "Run graph in development mode"}>
-                        {graphExecutionStatus !== 'unloaded' && graphExecutionStatus !== 'compiling' ? <StopIcon /> :
-                            graphExecutionStatus === 'unloaded' ? <PlayCircleIcon /> :
-                                <CircularProgress size={24} />}
+                        <>
+                            {graphStatus !== 'unloaded' && graphStatus !== 'compiling' ? <StopIcon /> :
+                                graphStatus === 'unloaded' ? <PlayCircleIcon /> :
+                                    <CircularProgress size={24} />}
+                        </>
                     </Tooltip>
                 </IconButton>
                 <div className={classes.separation} />

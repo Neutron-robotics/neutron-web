@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 
 type ConfirmationDialogProps = {
     onClose: () => void;

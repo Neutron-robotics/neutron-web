@@ -60,54 +60,21 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-interface ILogLine {
+export interface ILogLine {
     nodeId: string,
     message: string | object
     date: string,
     count: number
 }
 
-const logLines: ILogLine[] = [
-    {
-        nodeId: "88ee5fb3-5361-4b18-b65c-2e15901812cd",
-        message: 'Hello World',
-        date: '2022-01-01 12:00:00',
-        count: 1
-    },
-    {
-        nodeId: "6f007224-2f1f-4038-a58b-149799e9ad33",
-        message: 'Hello World',
-        date: '2022-01-01 12:00:02',
-        count: 2
-    },
-    {
-        nodeId: "6f007224-2f1f-4038-a58b-149799e9ad33",
-        message: 'Hello World',
-        date: '2022-01-01 12:00:02',
-        count: 3
-    },
-    {
-        nodeId: "6f007224-2f1f-4038-a58b-149799e9ad33",
-        message: 'Hello World',
-        date: '2022-01-01 12:00:02',
-        count: 4
-    },
-    {
-        nodeId: "239aacb3-b43e-424e-82f9-3e9b69913b35",
-        message: { "name": "call action", "backgroundColor": "#FF0000", "inputHandles": 1, "outputHandles": 2, "icon": "ros.svg", "supportedGraphTypes": ["Flow", "Connector", "Component"], "description": "Send the request in the specified action. The node has two output, one for the progress and another one for the result." },
-        date: '2022-01-01 12:00:04',
-        count: 9
-    },
-]
-
 interface DebugMenuSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     nodes: VisualNode[],
+    logs: ILogLine[]
 }
 
 const DebugMenuSidePanel = (props: DebugMenuSidePanelProps, ref: ForwardedRef<any>) => {
-    const { nodes, ...otherProps } = props
+    const { nodes, logs, ...otherProps } = props
     const classes = useStyles()
-    const [msg, setMsg] = useState(logLines)
     const containerRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -119,7 +86,7 @@ const DebugMenuSidePanel = (props: DebugMenuSidePanelProps, ref: ForwardedRef<an
         if (isAtMaxScroll) {
             container.scrollTop = container.scrollHeight;
         }
-    }, [msg]);
+    }, [logs]);
 
     return (
         <Paper elevation={3} ref={ref} {...otherProps} className={classes.panelRoot}>
@@ -134,7 +101,7 @@ const DebugMenuSidePanel = (props: DebugMenuSidePanelProps, ref: ForwardedRef<an
                     ))}
                 </div>
                 <div className={classes.consoleContainer} ref={containerRef}>
-                    {msg.map((line) => (
+                    {logs.map((line) => (
                         <div key={line.count} className={classes.logLine}>
                             <div className={classes.logHeader}>
                                 <span>{line.date}</span>

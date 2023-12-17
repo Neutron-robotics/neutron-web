@@ -15,8 +15,7 @@ import { toPartSystem } from "../utils/ros2";
 import { INeutronGraph } from "../api/models/graph.model";
 import ComponentDrawer from "../components/Neutron/ComponentDrawer";
 import NeutronNodePanel, { NeutronSidePanel, defaultSpecificsValues } from "../components/Neutron/Nodes/panels";
-import useNeutronGraph from "../utils/useNeutronGraph";
-import _ from "lodash";
+import { useNeutronGraph } from "../contexts/NeutronGraphContext";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -68,7 +67,7 @@ const NeutronView = (props: NeutronViewProps) => {
     const [graphType, setGraphType] = useState<NeutronGraphType>('Flow')
     const [environmentVariables, setEnvironmentVariable] = useState<Record<string, number | string | undefined>>({ toto: 1, foo: 'haha' })
     const [selectedNode, setSelectedNode] = useState<VisualNode>()
-    const { graphStatus, makeNeutronGraph, unloadGraph, runNode } = useNeutronGraph()
+    const { graphStatus } = useNeutronGraph()
 
     const handleNeutronGraphUpdate = async (graph?: INeutronGraph) => {
         // Click Open
@@ -216,31 +215,9 @@ const NeutronView = (props: NeutronViewProps) => {
         setSelectedNode(node)
     }
 
-    async function handleDebugClick(): Promise<void> {
-        if (graphStatus !== 'unloaded') {
-            unloadGraph()
-            alert.info('Debug session has been interrupted')
-            return
-        }
-
-        const updated = title !== neutronGraph?.title ||
-            !_.isEqual(edges, neutronGraph?.edges) ||
-            !_.isEqual(nodes, neutronGraph?.nodes);
-        if (updated || !neutronGraph) {
-            alert.info("The graph must be saved before debugging")
-            return
-        }
-        if (!neutronGraph.nodes.length) {
-            alert.info("The graph must have at least one node")
-            return
-        }
-
-        await makeNeutronGraph(graphType, neutronGraph.nodes, neutronGraph.edges)
-    }
-
     return (
         <div className={classes.root}>
-            <ComponentDrawer forcedClose={graphStatus !== 'unloaded'} graphType={graphType} />
+            <ComponentDrawer forcedClose={graphStatus !== 'unloaded' && graphStatus !== 'compiling'} graphType={graphType} />
             <div className={classes.fullWidth}>
                 <ReactFlowProvider>
                     <NeutronToolBar
@@ -250,8 +227,6 @@ const NeutronView = (props: NeutronViewProps) => {
                         nodes={nodes}
                         edges={edges}
                         title={title}
-                        graphExecutionStatus={graphStatus}
-                        onDebugClick={handleDebugClick}
                         onTitleUpdate={setTitle}
                         onGraphUpdate={handleNeutronGraphUpdate}
                         loadedGraph={neutronGraph}

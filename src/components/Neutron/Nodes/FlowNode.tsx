@@ -3,6 +3,7 @@ import { useMemo } from "react"
 import { Handle, NodeProps, Position } from "reactflow"
 import neutronMuiThemeDefault from "../../../contexts/MuiTheme"
 import { ButtonBase } from "@mui/material"
+import { useNeutronGraph } from "../../../contexts/NeutronGraphContext"
 
 const useStyles = makeStyles((theme: any) => ({
     nodeRoot: {
@@ -87,10 +88,15 @@ const useStyles = makeStyles((theme: any) => ({
         left: ' -35px',
         borderRadius: '5px',
         border: '1px solid #CDCDCD',
+        "&:hover": {
+            background: theme.palette.primary.light,
+            cursor: 'pointer'
+        }
     }
 }))
 
 interface FlowNodeProps {
+    id: string
     color: string
     inputHandles: number
     outputHandles: number
@@ -102,6 +108,7 @@ const FlowNode = (props: NodeProps<FlowNodeProps>) => {
     const { data } = props
     const { color, inputHandles, outputHandles, name, icon } = data
     const classes = useStyles()
+    const { graphStatus, runNode } = useNeutronGraph()
 
     const maxHandleCount = useMemo(() => 30 + (Math.max(inputHandles, outputHandles) * 10), [inputHandles, outputHandles])
     const nodeStyle: CSSProperties = {
@@ -120,12 +127,12 @@ const FlowNode = (props: NodeProps<FlowNodeProps>) => {
     }, [inputHandles, outputHandles])
 
     function handleInjectClickButton(event: React.MouseEvent<HTMLDivElement, MouseEvent>): void {
-        
+        runNode(props.id)
     }
 
     return (
         <div style={{ ...nodeStyle, minHeight: maxHandleCount }} className={classes.nodeRoot}>
-            {data.name === 'inject' && (
+            {data.name === 'inject' && graphStatus === 'ready' && (
                 <div onClick={handleInjectClickButton} className={classes.injectButton} />
             )}
             <div className={classes.containerNode} style={{ flexDirection: iconSide === 'left' ? 'row' : 'row-reverse' }}>
