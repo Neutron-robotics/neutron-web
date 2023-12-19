@@ -26,6 +26,7 @@ import AdbIcon from '@mui/icons-material/Adb';
 import StopIcon from '@mui/icons-material/Stop';
 import neutronMuiThemeDefault from "../../contexts/MuiTheme";
 import { useNeutronGraph } from "../../contexts/NeutronGraphContext";
+import { areNodeEqual } from "./Nodes";
 
 const useStyles = makeStyles(() => ({
     toolbar: {
@@ -131,7 +132,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
 
     const updated = title !== loadedGraph?.title ||
         !_.isEqual(edges, loadedGraph?.edges) ||
-        !_.isEqual(nodes, loadedGraph?.nodes);
+        !areNodeEqual(nodes, loadedGraph?.nodes);
 
     const onNewGraphClick = () => {
         if (updated) {
@@ -234,7 +235,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                 </IconButton>
                 <div className={classes.separation} />
             </div>
-            <EditText className={classes.title} onChange={handleTitleUpdate} value={title !== '' ? title : "Enter title here"} />
+            <EditText readonly={graphStatus !== 'unloaded'} className={classes.title} onChange={handleTitleUpdate} value={title !== '' ? title : "Enter title here"} />
             <ToggleButtonGroup
                 value={panels.panels}
             >

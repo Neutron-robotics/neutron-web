@@ -1,8 +1,12 @@
-import { Button, Paper } from "@mui/material"
+import { Paper } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import { ForwardedRef, HTMLAttributes, forwardRef, useEffect, useRef, useState } from "react"
 import { VisualNode } from "../.."
 import ReactJsonPrint from "react-json-print"
+import { NeutronNodeRunStatus } from "../../../../../contexts/NeutronGraphContext"
+import SyncIcon from '@mui/icons-material/Sync';
+import DoneIcon from '@mui/icons-material/Done';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -31,7 +35,8 @@ const useStyles = makeStyles(() => ({
         flexDirection: 'row',
         padding: '2px',
         gap: '5px',
-        width: '45%'
+        width: '45%',
+        alignItems: 'center'
     },
     consoleContainer: {
         borderTop: '1px solid #CDCDCD',
@@ -69,11 +74,12 @@ export interface ILogLine {
 
 interface DebugMenuSidePanelProps extends HTMLAttributes<HTMLDivElement> {
     nodes: VisualNode[],
-    logs: ILogLine[]
+    logs: ILogLine[],
+    nodeStatus: Record<string, NeutronNodeRunStatus>
 }
 
 const DebugMenuSidePanel = (props: DebugMenuSidePanelProps, ref: ForwardedRef<any>) => {
-    const { nodes, logs, ...otherProps } = props
+    const { nodeStatus, nodes, logs, ...otherProps } = props
     const classes = useStyles()
     const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -97,6 +103,7 @@ const DebugMenuSidePanel = (props: DebugMenuSidePanelProps, ref: ForwardedRef<an
                         <div key={node.id} className={classes.nodePreview}>
                             <img src={`${process.env.PUBLIC_URL}/assets/nodes/${node.data.icon}`} width={20} alt="node-icon" />
                             <span>{node.data.name}</span>
+                            <NodeStatusIcon status={nodeStatus[node.id] ?? 'pending'} />
                         </div>
                     ))}
                 </div>
@@ -119,6 +126,17 @@ const DebugMenuSidePanel = (props: DebugMenuSidePanelProps, ref: ForwardedRef<an
             </div>
         </Paper>
     )
+}
+
+const NodeStatusIcon = ({ status }: { status: NeutronNodeRunStatus }) => {
+    switch (status) {
+        case "pending":
+            return <MoreHorizIcon />
+        case "running":
+            return <SyncIcon />
+        case "completed":
+            return <DoneIcon />
+    }
 }
 
 export default forwardRef(DebugMenuSidePanel)

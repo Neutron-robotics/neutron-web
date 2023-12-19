@@ -19,12 +19,12 @@ import TemplateSidePanel, { defaultTemplateSpecifics } from "./functions/Templat
 import DelaySidePanel, { defaultDelaySpecifics } from "./functions/DelaySidePanel"
 import FilterSidePanel, { defaultFilterSpecifics } from "./functions/FilterSidePanel"
 import PublisherSidePanel, { defaultPublisherSpecifics } from "./ros2/PublisherSidePanel"
-import { IRos2PartSystem, IRos2System, NeutronGraphType } from "neutron-core"
+import { DebugNode, IDebugEvent, IRos2PartSystem, IRos2System, NeutronGraphType } from "neutron-core"
 import SubscriberSidePanel, { defaultSubscriberSpecifics } from "./ros2/SubscriberSidePanel"
 import ServiceSidePanel, { defaultServiceSpecifics } from "./ros2/ServiceSidePanel"
 import ActionSidePanel, { defaultActionSpecifics } from "./ros2/ActionSidePanel"
 import DebugMenuSidePanel, { ILogLine } from "./menu/DebugMenuSidePanel"
-import { NeutronGraphStatus, useNeutronGraph } from "../../../../contexts/NeutronGraphContext"
+import { NeutronGraphStatus, NeutronNodeRunStatus, useNeutronGraph } from "../../../../contexts/NeutronGraphContext"
 import { useCallback, useEffect, useRef, useState } from "react"
 import moment from "moment"
 
@@ -111,9 +111,11 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
     const { graph, graphStatus } = useNeutronGraph()
     const [nodeEventLogs, setNodeEventLogs] = useState<ILogLine[]>([])
     const prevGraphStatus = useRef<NeutronGraphStatus>(graphStatus)
+    const [nodeStatus, setNodeStatus] = useState<Record<string, NeutronNodeRunStatus>>({})
 
     const handleNodeProcessEvent = useCallback((nodeId: string) => {
         const node = graph?.getNodeById(nodeId)
+        setNodeStatus(prev => ({ ...prev, [nodeId]: 'completed' }))
 
         setNodeEventLogs(prev => [...prev, {
             nodeId: nodeId,
@@ -124,9 +126,25 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
 
     }, [graph, setNodeEventLogs])
 
+    const handleDebugNodeProcessEvent = (event: IDebugEvent) => {
+        setNodeEventLogs(prev => [...prev, {
+            nodeId: event.id,
+            message: event.log,
+            date: moment().format('HH:mm:ss.SSS'),
+            count: (prev[prev.length - 1]?.count ?? 0) + 1
+        }])
+    }
+
     useEffect(() => {
         if (['unloaded', 'compiling'].includes(prevGraphStatus.current) && !['unloaded', 'compiling'].includes(graphStatus)) {
+            setNodeStatus(nodes.reduce((acc, cur) => ({ ...acc, [cur.id]: 'pending' }), {}))
             panels.addSidePanel(NeutronSidePanel.DebugMenu)
+            setNodeEventLogs(prev => [...prev, {
+                nodeId: title,
+                message: `Graph ${title} has successfully compiled`,
+                date: moment().format('HH:mm:ss.SSS'),
+                count: (prev[prev.length - 1]?.count ?? 0) + 1
+            }])
         }
         if (prevGraphStatus.current !== 'unloaded' && graphStatus === 'unloaded') {
             panels.removePanel(NeutronSidePanel.DebugMenu)
@@ -135,9 +153,13 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
         prevGraphStatus.current = graphStatus
 
         if (graphStatus === 'running' && graph) {
+            setNodeStatus(nodes.reduce((acc, cur) => ({ ...acc, [cur.id]: 'pending' }), {}))
             graph.NodeProcessEvent.on(handleNodeProcessEvent)
+            const debugNodes = graph.findNodeByType<DebugNode>(DebugNode)
+            debugNodes.forEach((e) => e.DebugEvent.on(handleDebugNodeProcessEvent))
             return () => {
                 graph.NodeProcessEvent.off(handleNodeProcessEvent)
+                debugNodes.forEach((e) => e.DebugEvent.off(handleDebugNodeProcessEvent))
             }
         }
     }, [graphStatus])
@@ -146,7 +168,7 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
         [NeutronSidePanel.InfoMenu]: <InfoMenuSidePanel graphType={graphType} handleGraphTypeUpdate={handleGraphTypeUpdate} onVariableUpdate={onEnvironmentVariableUpdate} title={title ?? 'New graph'} nodes={nodes} />,
         [NeutronSidePanel.EnvironmentMenu]: <EnvironmentSidePanel onEnvironmentVariableUpdate={onEnvironmentVariableUpdate} environmentVariables={environmentVariables} />,
         [NeutronSidePanel.DocumentationMenu]: <DocumentationSidePanel />,
-        [NeutronSidePanel.DebugMenu]: <DebugMenuSidePanel logs={nodeEventLogs} nodes={nodes} />,
+        [NeutronSidePanel.DebugMenu]: <DebugMenuSidePanel nodeStatus={nodeStatus} logs={nodeEventLogs} nodes={nodes} />,
         [NeutronSidePanel.Inject]: <InjectSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Inject)} />,
         [NeutronSidePanel.Debug]: <DebugSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Debug)} />,
         [NeutronSidePanel.Success]: <SuccessSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Success)} />,

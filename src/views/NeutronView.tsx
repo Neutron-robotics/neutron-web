@@ -132,16 +132,28 @@ const NeutronView = (props: NeutronViewProps) => {
     }, [])
 
     const onNodesChange = useCallback(
-        (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
-        [setNodes]
+        (changes: NodeChange[]) => {
+            if (graphStatus !== 'unloaded')
+                return
+            setNodes((nds) => applyNodeChanges(changes, nds))
+        },
+        [setNodes, graphStatus]
     );
     const onEdgesChange = useCallback(
-        (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-        [setEdges]
+        (changes: EdgeChange[]) => {
+            if (graphStatus !== 'unloaded')
+                return
+            setEdges((eds) => applyEdgeChanges(changes, eds))
+        },
+        [setEdges, graphStatus]
     );
     const onConnect = useCallback(
-        (connection: Edge | Connection) => setEdges((eds) => addEdge(connection, eds)),
-        [setEdges]
+        (connection: Edge | Connection) => {
+            if (graphStatus !== 'unloaded')
+                return
+            setEdges((eds) => addEdge(connection, eds))
+        },
+        [setEdges, graphStatus]
     );
 
     const onDragOver = (event: any) => {

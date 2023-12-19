@@ -22,6 +22,7 @@ export type NeutronGraphStatus =
     | "ready"
     | "running";
 
+export type NeutronNodeRunStatus = 'pending' | 'running' | 'completed'
 
 export const NeutronGraphContext = createContext<ContextProps>({} as ContextProps)
 
