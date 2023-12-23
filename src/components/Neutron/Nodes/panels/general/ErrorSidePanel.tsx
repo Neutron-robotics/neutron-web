@@ -1,4 +1,4 @@
-import { Button, Checkbox, MenuItem, Paper, Select, SelectChangeEvent } from "@mui/material"
+import { Button, Checkbox, MenuItem, Paper, Select, SelectChangeEvent, TextField } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import { ChangeEvent, ForwardedRef, HTMLAttributes, forwardRef, useState } from "react"
 import MenuIcon from '@mui/icons-material/Menu';
@@ -47,7 +47,8 @@ interface ErrorSidePanelProps extends HTMLAttributes<HTMLDivElement> {
 export const defaultErrorSpecifics: ErrorNodeSpecifics = {
     output: 'full',
     closeAuto: true,
-    ack: false
+    ack: false,
+    exception: ''
 }
 
 const ErrorSidePanel = (props: ErrorSidePanelProps, ref: ForwardedRef<any>) => {
@@ -77,11 +78,25 @@ const ErrorSidePanel = (props: ErrorSidePanelProps, ref: ForwardedRef<any>) => {
         setLocalSpecifics((prev) => ({ ...prev, ack: checked }))
     }
 
+    function handleExceptionValueChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
+        setLocalSpecifics((prev) => ({ ...prev, exception: event.target.value }))
+    }
+
     return (
         <Paper elevation={3} ref={ref} {...otherProps} className={classes.panelRoot}>
             <h3 className={classes.title}>Error</h3>
             <div className={classes.panelBody}>
                 <div>
+                    <div className={classes.formField}>
+                        <span>Exception type</span>
+                        <TextField
+                            size="small"
+                            style={{ marginLeft: '5px' }}
+                            variant="outlined"
+                            value={specificsLocal.exception}
+                            onChange={handleExceptionValueChange}
+                        />
+                    </div>
                     <div className={classes.formField}>
                         <MenuIcon />
                         <span>Output</span>

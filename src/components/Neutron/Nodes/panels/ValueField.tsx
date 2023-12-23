@@ -4,11 +4,13 @@ import { ChangeEvent } from "react";
 
 const useStyles = makeStyles(() => ({
     input: {
+        width: '50%',
         paddingLeft: '0px',
         "& input": {
             fontSize: '12px',
             height: '25px'
         },
+
         '& > div:first-child': {
             paddingLeft: '0px',
         },
@@ -63,21 +65,33 @@ const ValueField = (props: ValueFieldProps) => {
             onValueChanged({ type: icon.value, value: value.value })
     }
 
-    function handleChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
-        if (onValueChanged !== undefined)
-            onValueChanged({ type: value.type, value: event.target.value })
+    function handleValueChanged(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
+        if (onValueChanged === undefined)
+            return
+
+        const updatedValue = value.type === 'number' ? +event.target.value : event.target.value
+        onValueChanged({ type: value.type, value: updatedValue })
     }
 
     return (
         <TextField
             variant="outlined"
-            value={value.value}
+            value={value.value ?? false}
             type={
                 value.type === 'number' ? 'number' :
                     value.type === 'bool' ? 'checkbox' :
                         'text'
             }
             className={classes.input}
+            onChange={handleValueChanged}
+            {...otherProps}
+            sx={value.type === 'bool' ? {
+                "> div > fieldset:first-of-type": {
+                    height: '45px',
+                    top: '-13px',
+                    width: '100%'
+                },
+            } : undefined}
             InputProps={{
                 startAdornment: (
                     <InputAdornment className={classes.inputAdornment} position="start">
@@ -115,10 +129,8 @@ const ValueField = (props: ValueFieldProps) => {
                     </InputAdornment>
                 ),
             }}
-            onChange={handleChange}
-            {...otherProps}
         >
-        </TextField>
+        </TextField >
     );
 };
 

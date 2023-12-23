@@ -40,7 +40,7 @@ export interface INeutronGraph {
     createdBy: string
     createdAt: string
     modifiedBy: string
-    modifiedAt: string
+    updatedAt: string
     edges: INeutronEdge[]
     nodes: INeutronNode[]
 }

@@ -26,7 +26,6 @@ import AdbIcon from '@mui/icons-material/Adb';
 import StopIcon from '@mui/icons-material/Stop';
 import neutronMuiThemeDefault from "../../contexts/MuiTheme";
 import { useNeutronGraph } from "../../contexts/NeutronGraphContext";
-import { areNodeEqual } from "./Nodes";
 
 const useStyles = makeStyles(() => ({
     toolbar: {
@@ -106,7 +105,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                     imgUrl: thumbnailUrl
                 }
                 const graphId = await graphApi.create(createModel)
-                onGraphUpdate({ ...createModel, _id: graphId, part: createModel.partId, robot: createModel.robotId, createdBy: '', modifiedBy: '', modifiedAt: '', createdAt: '' })
+                onGraphUpdate({ ...createModel, _id: graphId, part: createModel.partId, robot: createModel.robotId, createdBy: '', modifiedBy: '', updatedAt: '', createdAt: '' })
                 alert.success("The graph has been created successfuly")
             }
             else {
@@ -129,10 +128,28 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
     const handleTitleUpdate = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         onTitleUpdate(e.target.value)
     }
+    const areNodeEqual = useCallback(
+        (
+            nodes1: INeutronNode[] | Node[],
+            nodes2: INeutronNode[] | Node[]
+        ): boolean => {
+            const propertyIsolator = (e: INeutronNode | Node) => ({
+                data: e.data,
+                id: e.id,
+                type: e.type,
+                position: e.position,
+            });
 
-    const updated = title !== loadedGraph?.title ||
-        !_.isEqual(edges, loadedGraph?.edges) ||
-        !areNodeEqual(nodes, loadedGraph?.nodes);
+            const first = nodes1.map(propertyIsolator);
+            const second = nodes2.map(propertyIsolator);
+            return _.isEqual(first, second);
+        },
+        []
+    );
+
+    const updated = title !== (loadedGraph?.title ?? '') ||
+        !_.isEqual(edges, loadedGraph?.edges ?? []) ||
+        !areNodeEqual(nodes, loadedGraph?.nodes ?? []);
 
     const onNewGraphClick = () => {
         if (updated) {
@@ -187,7 +204,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
             alert.info("The graph must be saved before debugging")
             return
         }
-        if (!loadedGraph.nodes.length) {
+        if (!loadedGraph?.nodes.length) {
             alert.info("The graph must have at least one node")
             return
         }

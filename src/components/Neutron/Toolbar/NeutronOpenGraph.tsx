@@ -61,9 +61,9 @@ const NeutronOpenGraph = (props: NeutronOpenGraphProps) => {
         const filteredGraphs = allGraphs.filter(e => e.title.toLocaleLowerCase().includes(searchQuery.toLocaleLowerCase()))
 
         const disposition: Record<string, INeutronGraphOpen[]> = {
-            'Today': filteredGraphs.filter(e => moment(e.modifiedAt).isSame(moment(), 'day')),
-            'This month': filteredGraphs.filter(e => moment(e.modifiedAt).isSame(moment(), 'month') && !moment(e.modifiedAt).isSame(moment(), 'day')),
-            'Olders': filteredGraphs.filter(e => !moment(e.modifiedAt).isSame(moment(), 'month') && !moment(e.modifiedAt).isSame(moment(), 'day'))
+            'Today': filteredGraphs.filter(e => moment(e.updatedAt).isSame(moment(), 'day')),
+            'This month': filteredGraphs.filter(e => moment(e.updatedAt).isSame(moment(), 'month') && !moment(e.updatedAt).isSame(moment(), 'day')),
+            'Olders': filteredGraphs.filter(e => !moment(e.updatedAt).isSame(moment(), 'month') && !moment(e.updatedAt).isSame(moment(), 'day'))
         }
         for (const key in disposition) {
             if (Array.isArray(disposition[key]) && disposition[key].length === 0) {
@@ -113,7 +113,7 @@ const NeutronOpenGraph = (props: NeutronOpenGraphProps) => {
     }, [searchQuery])
 
     const filterByOwnership = useCallback((allGraphs: INeutronGraphOpen[]) => {
-        const filteredGraphs = allGraphs.filter(e => e.title.toLocaleLowerCase().includes(searchQuery.toLocaleLowerCase())).sort((a, b) => moment(b.modifiedAt).diff(moment(a.modifiedAt)))
+        const filteredGraphs = allGraphs.filter(e => e.title.toLocaleLowerCase().includes(searchQuery.toLocaleLowerCase())).sort((a, b) => moment(b.updatedAt).diff(moment(a.updatedAt)))
 
         const disposition: Record<string, INeutronGraphOpen[]> = {
             'My graphs': filteredGraphs.filter(e => e.createdBy === user?.id),

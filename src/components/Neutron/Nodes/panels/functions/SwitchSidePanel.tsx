@@ -85,17 +85,16 @@ export const defaultSwitchSpecifics: SwitchNodeSpecifics = {
 const SwitchSidePanel = (props: SwitchSidePanelProps, ref: ForwardedRef<any>) => {
     const { onComplete, node, ...otherProps } = props
     const classes = useStyles()
-    const [specifics, setSpecifics] = useNodeSpecifics<SwitchNodeSpecifics>(node.id, defaultSwitchSpecifics)
+    const [specifics] = useNodeSpecifics<SwitchNodeSpecifics>(node.id, defaultSwitchSpecifics)
     const [specificsLocal, setLocalSpecifics] = useState<SwitchNodeSpecifics>(specifics)
     const { setNodes } = useReactFlow();
 
     function handleSaveClick(): void {
-        handleOutputNodeCountUpdate(specificsLocal.switchFields.length)
-        setSpecifics(specificsLocal)
+        handleOutputNodeCountUpdate(specificsLocal)
         onComplete()
     }
 
-    function handleOutputNodeCountUpdate(count: number) {
+    function handleOutputNodeCountUpdate(specifics: SwitchNodeSpecifics) {
         setNodes((nodes) => {
             const updatedNodes = nodes.map(e => {
                 if (e.id === node.id) {
@@ -103,7 +102,8 @@ const SwitchSidePanel = (props: SwitchSidePanelProps, ref: ForwardedRef<any>) =>
                         ...e,
                         data: {
                             ...e.data,
-                            outputHandles: count
+                            outputHandles: specifics.switchFields.length,
+                            specifics: specifics
                         }
                     }
                 }

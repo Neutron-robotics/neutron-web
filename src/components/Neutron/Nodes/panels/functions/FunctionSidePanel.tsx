@@ -4,6 +4,8 @@ import { ForwardedRef, HTMLAttributes, Suspense, forwardRef, lazy, useState } fr
 import { VisualNode } from "../.."
 import useNodeSpecifics from "../../../../../utils/useNodeSpecifics"
 import { FunctionNodeSpecifics } from "neutron-core"
+import { Monaco } from "@monaco-editor/react"
+
 const Editor = lazy(() => import('@monaco-editor/react'));
 
 const useStyles = makeStyles(() => ({
@@ -76,7 +78,7 @@ const FunctionSidePanel = (props: FunctionSidePanelProps, ref: ForwardedRef<any>
                     <Suspense fallback={<div>loading editor</div>}>
                         <Editor
                             className={classes.editor}
-                            defaultLanguage="typescript"
+                            defaultLanguage="javascript"
                             value={specificsLocal.code}
                             onChange={handleEditorChange}
                         />
