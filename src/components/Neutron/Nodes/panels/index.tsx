@@ -19,7 +19,7 @@ import TemplateSidePanel, { defaultTemplateSpecifics } from "./functions/Templat
 import DelaySidePanel, { defaultDelaySpecifics } from "./functions/DelaySidePanel"
 import FilterSidePanel, { defaultFilterSpecifics } from "./functions/FilterSidePanel"
 import PublisherSidePanel, { defaultPublisherSpecifics } from "./ros2/PublisherSidePanel"
-import { DebugNode, IDebugEvent, IRos2PartSystem, IRos2System, NeutronGraphType } from "neutron-core"
+import { DebugNode, IDebugEvent, INeutronGraphProcessEvent, IRos2PartSystem, IRos2System, NeutronGraphType } from "neutron-core"
 import SubscriberSidePanel, { defaultSubscriberSpecifics } from "./ros2/SubscriberSidePanel"
 import ServiceSidePanel, { defaultServiceSpecifics } from "./ros2/ServiceSidePanel"
 import ActionSidePanel, { defaultActionSpecifics } from "./ros2/ActionSidePanel"
@@ -113,12 +113,14 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
     const prevGraphStatus = useRef<NeutronGraphStatus>(graphStatus)
     const [nodeStatus, setNodeStatus] = useState<Record<string, NeutronNodeRunStatus>>({})
 
-    const handleNodeProcessEvent = useCallback((nodeId: string) => {
-        const node = graph?.getNodeById(nodeId)
-        setNodeStatus(prev => ({ ...prev, [nodeId]: 'completed' }))
+    const handleNodeProcessEvent = useCallback((event: INeutronGraphProcessEvent) => {
+        const node = graph?.getNodeById(event.nodeId)
+        setNodeStatus(prev => ({ ...prev, [event.nodeId]: event.status }))
+        if (event.status === 'running')
+            return
 
         setNodeEventLogs(prev => [...prev, {
-            nodeId: nodeId,
+            nodeId: event.nodeId,
             message: `Node ${node?.constructor.name ?? 'INVALID NODE'} has been processed`,
             date: moment().format('HH:mm:ss.SSS'),
             count: (prev[prev.length - 1]?.count ?? 0) + 1

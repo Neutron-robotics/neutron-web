@@ -108,7 +108,7 @@ const FlowNode = (props: NodeProps<FlowNodeProps>) => {
     const { data } = props
     const { color, inputHandles, outputHandles, name, icon } = data
     const classes = useStyles()
-    const { graphStatus, runNode } = useNeutronGraph()
+    const { graphStatus, runInputNode } = useNeutronGraph()
 
     const maxHandleCount = useMemo(() => 30 + (Math.max(inputHandles, outputHandles) * 10), [inputHandles, outputHandles])
     const nodeStyle: CSSProperties = {
@@ -127,7 +127,7 @@ const FlowNode = (props: NodeProps<FlowNodeProps>) => {
     }, [inputHandles, outputHandles])
 
     function handleInjectClickButton(event: React.MouseEvent<HTMLDivElement, MouseEvent>): void {
-        runNode(props.id)
+        runInputNode(props.id)
     }
 
     return (

@@ -1,6 +1,7 @@
 import { ReactNode, createContext, useContext, useState } from "react"
 import { ConnectorGraph, FlowGraph, NeutronEdgeDB, NeutronGraphType, NeutronNodeDB, NodeMessage } from "neutron-core"
 import { sleep } from "../utils/time"
+import { useAlert } from "./AlertContext"
 
 type ContextProps = {
     makeNeutronGraph: (
@@ -9,7 +10,7 @@ type ContextProps = {
         edges: NeutronEdgeDB[],
         initialTimeout: number
     ) => void
-    runNode: (id: string, message?: NodeMessage) => void
+    runInputNode: (id: string, message?: NodeMessage) => void
     unloadGraph: () => void
     graph: ConnectorGraph | FlowGraph | undefined
     graphStatus: NeutronGraphStatus
@@ -29,6 +30,7 @@ export const NeutronGraphContext = createContext<ContextProps>({} as ContextProp
 export const NeutronGraphProvider = ({ children }: { children: ReactNode }) => {
     const [graph, setGraph] = useState<ConnectorGraph | FlowGraph | undefined>();
     const [graphStatus, setGraphStatus] = useState<NeutronGraphStatus>("unloaded");
+    const alert = useAlert()
 
     const makeNeutronGraph = async (
         type: NeutronGraphType,
@@ -42,27 +44,29 @@ export const NeutronGraphProvider = ({ children }: { children: ReactNode }) => {
 
         await sleep(initialTimeout);
 
-        if (type === "Connector") {
-            graph = new ConnectorGraph(nodes, edges);
-        } else if (type === "Flow") {
-            graph = new FlowGraph(nodes, edges);
+        try {
+            if (type === "Connector") {
+                graph = new ConnectorGraph(nodes, edges);
+            } else if (type === "Flow") {
+                graph = new FlowGraph(nodes, edges);
+            }
         }
-
-        if (!graph) throw new Error("Could not create the neutron graph");
+        catch (err: any) {
+            alert.error(err.message)
+            setGraphStatus('unloaded')
+        }
+        if (!graph) return
 
         setGraph(graph);
         setGraphStatus("ready");
         return graph;
     };
 
-    const runNode = async (id: string, message?: NodeMessage) => {
+    const runInputNode = async (id: string, message?: NodeMessage) => {
         if (!graph) throw new Error("No graph loaded");
 
-        const node = graph.getNodeById(id);
-        if (!node) throw new Error(`No node found with id ${id}`);
-
         setGraphStatus("running");
-        await graph.run(node, message);
+        await graph.runInputNode(id, message);
         setGraphStatus("ready");
     };
 
@@ -74,7 +78,7 @@ export const NeutronGraphProvider = ({ children }: { children: ReactNode }) => {
         <NeutronGraphContext.Provider value={
             {
                 makeNeutronGraph,
-                runNode,
+                runInputNode,
                 unloadGraph,
                 graph,
                 graphStatus

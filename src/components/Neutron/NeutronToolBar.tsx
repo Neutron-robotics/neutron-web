@@ -5,7 +5,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import SaveIcon from '@mui/icons-material/Save';
 import { EditText } from "react-edit-text";
 import { useCallback } from "react";
-import { IRos2PartSystem, IRos2System } from "neutron-core";
+import { IRos2PartSystem, IRos2System, NeutronGraphType } from "neutron-core";
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Edge, Node } from "reactflow";
@@ -58,7 +58,8 @@ const useStyles = makeStyles(() => ({
 interface NeutronToolBarProps {
     ros2System?: IRos2System | IRos2PartSystem,
     selectedRobotId?: string
-    selectedRobotPartId?: string,
+    selectedRobotPartId?: string
+    graphType: NeutronGraphType
     nodes: Node[],
     edges: Edge[],
     title: string,
@@ -73,7 +74,7 @@ interface NeutronToolBarProps {
 }
 
 const NeutronToolBar = (props: NeutronToolBarProps) => {
-    const { nodes, edges, selectedRobotId, selectedRobotPartId, loadedGraph, onGraphUpdate, panels, title, onTitleUpdate } = props
+    const { nodes, edges, graphType, selectedRobotId, selectedRobotPartId, loadedGraph, onGraphUpdate, panels, title, onTitleUpdate } = props
     const classes = useStyles()
     const alert = useAlert()
     const [Dialog, prompt] = useConfirmationDialog();
@@ -98,19 +99,22 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                 const createModel: CreateGraphModel = {
                     title,
                     robotId: selectedRobotId,
-                    type: 'Connector',
+                    type: graphType,
                     partId: selectedRobotPartId,
                     nodes: nodes as INeutronNode[],
                     edges: edges as INeutronEdge[],
                     imgUrl: thumbnailUrl
                 }
                 const graphId = await graphApi.create(createModel)
-                onGraphUpdate({ ...createModel, _id: graphId, part: createModel.partId, robot: createModel.robotId, createdBy: '', modifiedBy: '', updatedAt: '', createdAt: '' })
+                onGraphUpdate({
+                    ...createModel, _id: graphId, part: createModel.partId, type: graphType, robot: createModel.robotId, createdBy: '', modifiedBy: '', updatedAt: '', createdAt: ''
+                })
                 alert.success("The graph has been created successfuly")
             }
             else {
                 const updateModel: UpdateGraphModel = {
                     title,
+                    type: graphType,
                     nodes: nodes as INeutronNode[],
                     edges: edges as INeutronEdge[],
                     imgUrl: thumbnailUrl
@@ -123,7 +127,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
         catch (err) {
             alert.error("An unexpected error happens while attempting to save the Neutron Graph to the server")
         }
-    }, [alert, edges, loadedGraph, nodes, onGraphUpdate, selectedRobotId, selectedRobotPartId, title]);
+    }, [alert, edges, loadedGraph, nodes, onGraphUpdate, selectedRobotId, selectedRobotPartId, title, graphType]);
 
     const handleTitleUpdate = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         onTitleUpdate(e.target.value)
@@ -148,6 +152,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
     );
 
     const updated = title !== (loadedGraph?.title ?? '') ||
+        graphType !== (loadedGraph?.type ?? graphType) ||
         !_.isEqual(edges, loadedGraph?.edges ?? []) ||
         !areNodeEqual(nodes, loadedGraph?.nodes ?? []);
 

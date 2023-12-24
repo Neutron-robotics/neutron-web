@@ -57,11 +57,11 @@ export const defaultRangeSpecifics: RangeNodeSpecifics = {
     mode: 'scale',
     inputScale: {
         from: 0,
-        to: 1000
+        to: 10
     },
     outputScale: {
         from: 0,
-        to: 1000
+        to: 100
     },
     round: false
 }
@@ -94,11 +94,11 @@ const RangeSidePanel = (props: RangeSidePanelProps, ref: ForwardedRef<any>) => {
     }
 
     function handleOutputScaleFromValueChanged(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void {
-        setLocalSpecifics((prev) => ({ ...prev, outputScale: { ...prev.inputScale, from: +event.target.value } }))
+        setLocalSpecifics((prev) => ({ ...prev, outputScale: { ...prev.outputScale, from: +event.target.value } }))
     }
 
     function handleOutputScaleToValueChanged(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void {
-        setLocalSpecifics((prev) => ({ ...prev, outputScale: { ...prev.inputScale, to: +event.target.value } }))
+        setLocalSpecifics((prev) => ({ ...prev, outputScale: { ...prev.outputScale, to: +event.target.value } }))
     }
 
     function handleRoundChange(_: ChangeEvent<HTMLInputElement>, checked: boolean): void {
@@ -125,7 +125,7 @@ const RangeSidePanel = (props: RangeSidePanelProps, ref: ForwardedRef<any>) => {
                             onChange={handleScaleModeChange}
                         >
                             <MenuItem value={"scale"}>Scale the property of the message</MenuItem>
-                            <MenuItem value={"scaleAndLimit"}>Scale the property and limit it without the range</MenuItem>
+                            <MenuItem value={"scaleAndLimit"}>Scale the property and limit it within the range</MenuItem>
                             <MenuItem value={"scaleAndDeleteOverflow"}>Scale the property of the message or remove it if not contained within the range</MenuItem>
                         </Select>
                     </div>

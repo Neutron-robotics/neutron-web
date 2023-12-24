@@ -1,12 +1,13 @@
-import { Paper } from "@mui/material"
+import { Button, Paper } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import { ForwardedRef, HTMLAttributes, forwardRef, useEffect, useRef, useState } from "react"
 import { VisualNode } from "../.."
 import ReactJsonPrint from "react-json-print"
-import { NeutronNodeRunStatus } from "../../../../../contexts/NeutronGraphContext"
+import { NeutronNodeRunStatus, useNeutronGraph } from "../../../../../contexts/NeutronGraphContext"
 import SyncIcon from '@mui/icons-material/Sync';
 import DoneIcon from '@mui/icons-material/Done';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import moment from "moment"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -62,6 +63,10 @@ const useStyles = makeStyles(() => ({
             textOverflow: 'ellipsis',
             fontSize: '12px'
         }
+    },
+    cancelButton: {
+        textAlign: 'center',
+        paddingTop: '10px'
     }
 }))
 
@@ -82,17 +87,46 @@ const DebugMenuSidePanel = (props: DebugMenuSidePanelProps, ref: ForwardedRef<an
     const { nodeStatus, nodes, logs, ...otherProps } = props
     const classes = useStyles()
     const containerRef = useRef<HTMLDivElement | null>(null);
+    const [relativeTime, setRelativeTime] = useState<string>()
+    const startTimeRef = useRef<moment.Moment | null>(null);
+    const { graph, graphStatus } = useNeutronGraph()
 
     useEffect(() => {
         const container = containerRef.current;
         if (container === null)
             return
 
-        const isAtMaxScroll = container.scrollTop >= container.scrollHeight - container.clientHeight - 100;
+        const isAtMaxScroll = container.scrollTop >= container.scrollHeight - container.clientHeight - 300;
         if (isAtMaxScroll) {
             container.scrollTop = container.scrollHeight;
         }
     }, [logs]);
+
+    useEffect(() => {
+        if (graphStatus === 'running') {
+            startTimeRef.current = moment()
+        }
+        else {
+            startTimeRef.current = null
+        }
+    }, [graphStatus])
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (startTimeRef.current !== null) {
+                const elapsedTime = moment().diff(startTimeRef.current, 'milliseconds');
+                const formattedTime = moment(elapsedTime).format('s.S');
+                setRelativeTime(formattedTime);
+            }
+        }, 300);
+
+        return () => clearInterval(interval);
+    }, [startTimeRef.current]);
+
+
+    function onCancelGraphExecution(): void {
+        graph?.stopExecution()
+    }
 
     return (
         <Paper elevation={3} ref={ref} {...otherProps} className={classes.panelRoot}>
@@ -122,6 +156,19 @@ const DebugMenuSidePanel = (props: DebugMenuSidePanelProps, ref: ForwardedRef<an
                             )}
                         </div>
                     ))}
+                    {
+                        graphStatus === 'running' && (
+                            <div className={classes.cancelButton}>
+                                <Button
+                                    variant="contained"
+                                    color="error"
+                                    onClick={onCancelGraphExecution}
+                                >
+                                    {relativeTime}s Cancel
+                                </Button>
+                            </div>
+                        )
+                    }
                 </div>
             </div>
         </Paper>

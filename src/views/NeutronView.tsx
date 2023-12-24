@@ -1,7 +1,7 @@
 import { makeStyles } from "@mui/styles"
 import { useCallback, useEffect, useRef, useState } from "react";
 import NeutronToolBar from "../components/Neutron/NeutronToolBar";
-import ReactFlow, { Background, BackgroundVariant, Controls, NodeChange, addEdge, applyEdgeChanges, applyNodeChanges, Edge, EdgeChange, Connection, ReactFlowProvider } from "reactflow";
+import ReactFlow, { Background, BackgroundVariant, Controls, NodeChange, addEdge, applyEdgeChanges, applyNodeChanges, Edge, EdgeChange, Connection, ReactFlowProvider, BezierEdge, StraightEdge, StepEdge, SmoothStepEdge } from "reactflow";
 import 'reactflow/dist/style.css';
 import { v4 } from "uuid";
 import * as organization from "../api/organization";
@@ -47,6 +47,10 @@ const useStyles = makeStyles(() => ({
 
 interface NeutronViewProps {
 
+}
+
+const edgeType = {
+    default: SmoothStepEdge,
 }
 
 const NeutronView = (props: NeutronViewProps) => {
@@ -143,7 +147,11 @@ const NeutronView = (props: NeutronViewProps) => {
         (changes: EdgeChange[]) => {
             if (graphStatus !== 'unloaded')
                 return
-            setEdges((eds) => applyEdgeChanges(changes, eds))
+            const changed = changes.map(e => ({
+                ...e,
+                item: e.type === 'add' ? { ...e.item, type: 'smoothstep' } : (e as any).item
+            }))
+            setEdges((eds) => applyEdgeChanges(changed, eds))
         },
         [setEdges, graphStatus]
     );
@@ -236,6 +244,7 @@ const NeutronView = (props: NeutronViewProps) => {
                         ros2System={ros2System}
                         selectedRobotId={selectedRobot?._id}
                         selectedRobotPartId={selectedPart?._id}
+                        graphType={graphType}
                         nodes={nodes}
                         edges={edges}
                         title={title}
@@ -270,6 +279,7 @@ const NeutronView = (props: NeutronViewProps) => {
                         <ReactFlow
                             nodes={nodes}
                             edges={edges}
+                            edgeTypes={edgeType}
                             onInit={setReactFlowInstance}
                             onNodesChange={onNodesChange}
                             onEdgesChange={onEdgesChange}
