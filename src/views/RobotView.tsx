@@ -1,4 +1,4 @@
-import { Breadcrumbs, Link, SpeedDial, SpeedDialAction, SpeedDialIcon, Tab, Tabs, Typography } from "@mui/material"
+import { Breadcrumbs, Button, Link, SpeedDial, SpeedDialAction, SpeedDialIcon, Tab, Tabs, Typography } from "@mui/material"
 import { OrganizationModel } from "../api/models/organization.model"
 import { UserModel } from "../api/models/user.model"
 import ClickableImageUpload from "../components/controls/imageUpload"
@@ -6,7 +6,7 @@ import { EditText, EditTextarea, onSaveProps } from "react-edit-text"
 import { makeStyles } from "@mui/styles";
 import { useState } from "react"
 import { uploadFile } from "../api/file"
-import { ICreateRobotModel, IRobot, IRobotPart } from "../api/models/robot.model"
+import { ICreateRobotModel, IRobot, IRobotPart, IRobotStatus } from "../api/models/robot.model"
 import { useAlert } from "../contexts/AlertContext"
 import useConfirmationDialog from "../components/controls/useConfirmationDialog"
 import * as robotApi from "../api/robot"
@@ -15,6 +15,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt';
 import ShareIcon from '@mui/icons-material/Share';
 import RobotPartCard from "../components/Robot/RobotPartCard"
+import RobotStatusDisplay from "../components/Robot/RobotStatusDisplay"
+import RobotConnectionMenu from "../components/Robot/RobotConnectionMenu"
+import RobotSynchronization from "../components/Robot/RobotSynchronization"
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -52,9 +55,62 @@ const useStyles = makeStyles(() => ({
         borderRadius: "20px",
         maxHeight: "200px",
     },
+
 }));
 
 type RobotSpeedDialActions = 'Remove' | 'Add Part' | 'Add Module' | 'Share'
+
+const mockRobotStatus: IRobotStatus = {
+    _id: "1",
+    time: 1630761600000, // Unix timestamp for a specific date
+    battery: {
+        charging: false,
+        level: 75,
+    },
+    status: "Online",
+    system: {
+        battery: 80,
+        cpu: 75,
+        memory: 60,
+        operationTime: 3600,
+    },
+    location: {
+        name: "Living Room",
+    },
+};
+
+
+const mockRobotStatusDisconnected: IRobotStatus = {
+    _id: "1",
+    time: 1630761600000, // Unix timestamp for a specific date
+    status: "Offline",
+};
+
+const mockRobotStatusOperating: IRobotStatus = {
+    _id: "1",
+    time: 1630761600000, // Unix timestamp for a specific date
+    status: "Operating",
+    system: {
+        battery: 80,
+        cpu: 75,
+        memory: 60,
+        operationTime: 3600,
+    },
+    location: {
+        name: "Living Room",
+    },
+    battery: {
+        charging: false,
+        level: 75,
+    },
+};
+
+const mockRobotStatusUnknown: IRobotStatus = {
+    _id: "1",
+    time: 1630761600000, // Unix timestamp for a specific date
+    status: "Unknown",
+};
+
 
 const robotSpeedDialActions: { icon: JSX.Element, name: RobotSpeedDialActions }[] = [
     { icon: <DeleteIcon color={"error"} />, name: 'Remove' },
@@ -205,6 +261,11 @@ const RobotView = (props: RobotViewProps) => {
                     rows={"auto" as any}
                     onSave={handleDescriptionUpdate}
                 />
+                {!robot.linked ? (
+                    <RobotSynchronization robot={robotModel} />
+                ) : (
+                    <RobotConnectionMenu status={mockRobotStatus} />
+                )}
             </div>
             <Tabs
                 centered
@@ -217,11 +278,13 @@ const RobotView = (props: RobotViewProps) => {
                 <Tab label="Modules" />
                 {!isNewRobot && <Tab label="History" />}
             </Tabs>
-            {activeTab === 0 && (
-                <div>
-                    {robot.parts && robot.parts.length ? robot.parts.map(part => (<RobotPartCard key={part.name} robotPart={part} onClick={() => onSelectPart(part)} />)) : ''}
-                </div>
-            )}
+            {
+                activeTab === 0 && (
+                    <div>
+                        {robot.parts && robot.parts.length ? robot.parts.map(part => (<RobotPartCard key={part.name} robotPart={part} onClick={() => onSelectPart(part)} />)) : ''}
+                    </div>
+                )
+            }
             {Dialog}
             <SpeedDial
                 ariaLabel="robot action speeddial"
@@ -238,7 +301,7 @@ const RobotView = (props: RobotViewProps) => {
                     />
                 ))}
             </SpeedDial>
-        </div>
+        </div >
     )
 }
 
