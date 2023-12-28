@@ -32,6 +32,7 @@ export interface IRobot {
   key: string;
   parts: IRobotPart[];
   linked: boolean;
+  secretKey: string;
   imgUrl: string;
   description: string;
   context: ConnectionContextType;

@@ -4,7 +4,7 @@ import { UserModel } from "../api/models/user.model"
 import ClickableImageUpload from "../components/controls/imageUpload"
 import { EditText, EditTextarea, onSaveProps } from "react-edit-text"
 import { makeStyles } from "@mui/styles";
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { uploadFile } from "../api/file"
 import { ICreateRobotModel, IRobot, IRobotPart, IRobotStatus } from "../api/models/robot.model"
 import { useAlert } from "../contexts/AlertContext"
@@ -38,14 +38,6 @@ const useStyles = makeStyles(() => ({
             objectFit: "cover",
             height: "100%",
         },
-        "& button": {
-            maxWidth: '150px',
-            marginRight: '10px',
-            borderRadius: '20px',
-            "&:hover": {
-                background: '#f7f7f7'
-            },
-        },
         "& textarea": {
             width: "100%",
         },
@@ -60,57 +52,11 @@ const useStyles = makeStyles(() => ({
 
 type RobotSpeedDialActions = 'Remove' | 'Add Part' | 'Add Module' | 'Share'
 
-const mockRobotStatus: IRobotStatus = {
-    _id: "1",
-    time: 1630761600000, // Unix timestamp for a specific date
-    battery: {
-        charging: false,
-        level: 75,
-    },
-    status: "Online",
-    system: {
-        battery: 80,
-        cpu: 75,
-        memory: 60,
-        operationTime: 3600,
-    },
-    location: {
-        name: "Living Room",
-    },
-};
-
-
 const mockRobotStatusDisconnected: IRobotStatus = {
     _id: "1",
-    time: 1630761600000, // Unix timestamp for a specific date
+    time: 1630761600000,
     status: "Offline",
 };
-
-const mockRobotStatusOperating: IRobotStatus = {
-    _id: "1",
-    time: 1630761600000, // Unix timestamp for a specific date
-    status: "Operating",
-    system: {
-        battery: 80,
-        cpu: 75,
-        memory: 60,
-        operationTime: 3600,
-    },
-    location: {
-        name: "Living Room",
-    },
-    battery: {
-        charging: false,
-        level: 75,
-    },
-};
-
-const mockRobotStatusUnknown: IRobotStatus = {
-    _id: "1",
-    time: 1630761600000, // Unix timestamp for a specific date
-    status: "Unknown",
-};
-
 
 const robotSpeedDialActions: { icon: JSX.Element, name: RobotSpeedDialActions }[] = [
     { icon: <DeleteIcon color={"error"} />, name: 'Remove' },
@@ -134,9 +80,23 @@ const RobotView = (props: RobotViewProps) => {
     const classes = useStyles()
     const isNewRobot = robotModel === null
     const [robot, setRobot] = useState<Partial<IRobot>>(robotModel ?? { name: "New Robot", description: "Enter here the description of the robot" })
+    const [robotStatus, setRobotStatus] = useState<IRobotStatus>({
+        _id: "1",
+        time: 1630761600000,
+        status: "Offline",
+    })
     const alert = useAlert()
     const [Dialog, prompt] = useConfirmationDialog()
 
+    useEffect(() => {
+        if (isNewRobot || robot._id === undefined)
+            return
+
+        robotApi.getLatestRobotStatus(robot._id).then(status => {
+            if (status)
+                setRobotStatus(status)
+        })
+    }, [isNewRobot])
 
     const handleRobotImageUpload = async (file: File) => {
         try {
@@ -261,11 +221,16 @@ const RobotView = (props: RobotViewProps) => {
                     rows={"auto" as any}
                     onSave={handleDescriptionUpdate}
                 />
-                {!robot.linked ? (
-                    <RobotSynchronization robot={robotModel} />
-                ) : (
-                    <RobotConnectionMenu status={mockRobotStatus} />
-                )}
+                {
+                    !isNewRobot && (
+                        !robot.linked ? (
+                            <RobotSynchronization onRobotChange={(robot) => setRobot(robot)} robot={robotModel} />
+                        ) : (
+
+                            <RobotConnectionMenu status={robotStatus} />
+                        )
+                    )
+                }
             </div>
             <Tabs
                 centered
