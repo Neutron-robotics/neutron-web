@@ -1,5 +1,5 @@
 import api from "./api"
-import { ConnectionContextType, ICreateRobotModel, IRobot, IRobotStatus, IUpdateRobotModel } from "./models/robot.model"
+import { ConnectionContextType, ICreateRobotModel, IRobot, IRobotStatus, IRobotWithStatus, IUpdateRobotModel } from "./models/robot.model"
 
 const create = async (organizationId: string, model: ICreateRobotModel) => {
     const res = await api.post(`robot/create`, {
@@ -47,11 +47,21 @@ const getLatestRobotStatus = async (robotId: string): Promise<IRobotStatus> => {
     return res.data.status as IRobotStatus
 }
 
+const getMyRobots = async (includeStatus: boolean): Promise<IRobotWithStatus[]> => {
+    const res = await api.get(`user/me/robots${includeStatus ? '?includeStatus=true' : ''}`)
+
+    if (res.status !== 200) {
+        throw new Error("Could not delete the robot")
+    }
+    return res.data.robots as IRobotWithStatus[]
+}
+
 
 export {
     create,
     getRobot,
     update,
     deleteRobot,
-    getLatestRobotStatus
+    getLatestRobotStatus,
+    getMyRobots
 }

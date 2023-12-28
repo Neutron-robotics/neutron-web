@@ -38,6 +38,10 @@ export interface IRobot {
   context: ConnectionContextType;
 }
 
+export interface IRobotWithStatus extends IRobot {
+  status: IRobotStatus
+}
+
 export interface IRobotStatus {
   _id: string;
   time: number;

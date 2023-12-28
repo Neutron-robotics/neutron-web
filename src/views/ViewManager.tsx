@@ -12,6 +12,7 @@ import { UserLight, UserModel } from "../api/models/user.model";
 import OrganizationPage from "./OrganizationPage";
 import NeutronView from "./NeutronView";
 import { NeutronGraphProvider } from "../contexts/NeutronGraphContext";
+import HomeView from "./HomeView";
 
 export interface IHeaderMenuState {
 }
@@ -52,7 +53,7 @@ const ViewManager = () => {
                 <Box sx={{ display: 'flex', height: 'calc(100% - 56px)' }}>
                     <CssBaseline />
                     <MenuVerticalTabs onSelectTab={(v) => { setViewType(v) }} isLightUser={isUserLight} />
-                    {(viewType === ViewType.Home) && <ConnectionView setHeaderBody={setHeaderBody} />}
+                    {(viewType === ViewType.Home) && <HomeView user={user as UserModel} />}
                     {(viewType === ViewType.ConnectionView) && <ConnectionView setHeaderBody={setHeaderBody} />}
                     {(viewType === ViewType.Neutron) && <NeutronGraphProvider><NeutronView /></NeutronGraphProvider>}
                     {(!isUserLight && viewType === ViewType.Organization) && <OrganizationPage user={user as UserModel} />}
