@@ -2,10 +2,11 @@ import { makeStyles } from "@mui/styles"
 import { UserModel } from "../api/models/user.model"
 import { useEffect, useState } from "react"
 import { getMyRobots } from "../api/robot"
-import { IRobot, IRobotStatus, IRobotWithStatus } from "../api/models/robot.model"
+import { IRobotWithStatus } from "../api/models/robot.model"
 import RobotStatusDisplay from "../components/Robot/RobotStatusDisplay"
-import { Button, IconButton } from "@mui/material"
+import { IconButton } from "@mui/material"
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import RobotConnectionModal from "../components/Connection/RobotConnectionModal"
 
 const useStyles = makeStyles(() => ({
     robotPreview: {
@@ -32,6 +33,7 @@ const HomeView = (props: HomeViewProps) => {
     const { } = props
     const classes = useStyles()
     const [robots, setRobots] = useState<IRobotWithStatus[]>([])
+    const [robotToConnect, setRobotToConnect] = useState<IRobotWithStatus | undefined>()
 
     useEffect(() => {
         getMyRobots(true).then((res) => {
@@ -48,8 +50,17 @@ const HomeView = (props: HomeViewProps) => {
             .slice(0, 5)
     }
 
+    function handleConnectButtonClick(robot: IRobotWithStatus): void {
+        setRobotToConnect(robot)
+    }
+
+    function handleCloseConnectionModal(): void {
+        setRobotToConnect(undefined)
+    }
+
     return (
         <div>
+            {robotToConnect && <RobotConnectionModal robot={robotToConnect} open={robotToConnect !== undefined} onClose={handleCloseConnectionModal} />}
             <div className={classes.robotWidget}>
                 <h2>Robots</h2>
                 {robots.map((robot) => (
@@ -62,6 +73,7 @@ const HomeView = (props: HomeViewProps) => {
                         <RobotStatusDisplay status={robot.status} />
                         {(robot.status.status === 'Online' || robot.status.status === 'Operating') && (
                             <IconButton
+                                onClick={() => handleConnectButtonClick(robot)}
                                 color="primary"
                                 style={{
                                     display: 'block',

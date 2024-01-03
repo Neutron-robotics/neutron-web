@@ -31,6 +31,7 @@ export interface IRobot {
   name: string;
   key: string;
   parts: IRobotPart[];
+  hostname: string
   linked: boolean;
   secretKey: string;
   imgUrl: string;
@@ -42,6 +43,16 @@ export interface IRobotWithStatus extends IRobot {
   status: IRobotStatus
 }
 
+export interface IRobotProcess {
+  cpu: number;
+  mem: number;
+  mem_usage: number;
+  active: boolean;
+  pid: number;
+  name: string;
+  id: string;
+}
+
 export interface IRobotStatus {
   _id: string;
   time: number;
@@ -50,6 +61,8 @@ export interface IRobotStatus {
   connection?: INeutronConnection;
   system?: IRobotSystemStatus;
   location?: IRobotLocationStatus;
+  processes?: IRobotProcess[]
+  context?: IRobotProcess
 }
 
 export interface IRobotLocationStatus {

@@ -232,7 +232,7 @@
             "outputHandles": 1,
             "icon": "component.svg",
             "supportedGraphTypes": [
-                "Component"
+                "Connector"
             ],
             "description": "This node implements the IBaseController interface that describes the event that will be triggered when a UI component that implements this connector is getting interacted by the user."
         },
@@ -243,7 +243,7 @@
             "outputHandles": 0,
             "icon": "component.svg",
             "supportedGraphTypes": [
-                "Component"
+                "Connector"
             ],
             "description": "This node implements the IRTCCameraComponent interface that will render an image each time the connector is updated with a new image."
         }

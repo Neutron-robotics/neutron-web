@@ -56,11 +56,20 @@ const getMyRobots = async (includeStatus: boolean): Promise<IRobotWithStatus[]> 
     return res.data.robots as IRobotWithStatus[]
 }
 
+const start = async (robotId: string, partsId?: string[]) => {
+    const res = await api.post(`robot/start/${robotId}`, { partsId })
+
+    if (res.status !== 200) {
+        throw new Error("Could not start the robot")
+    }
+}
+
 
 export {
     create,
     getRobot,
     update,
+    start,
     deleteRobot,
     getLatestRobotStatus,
     getMyRobots

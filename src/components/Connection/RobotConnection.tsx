@@ -55,7 +55,6 @@ const RobotConnection = (props: IRobotConnectionProps) => {
 
     return (
         <>
-            {connectionModalOpen && <RobotConnectionModal open={connectionModalOpen} onConnect={handleOnRobotConnect} onClose={handleCloseConnectionModal} coreConnection={coreConnection} />}
             <div className={classes.root}>
                 <h2>{coreConnection.name}</h2>
                 <p>{coreConnection.status}</p>

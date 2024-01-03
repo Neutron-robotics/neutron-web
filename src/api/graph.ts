@@ -1,3 +1,4 @@
+import { NeutronGraphType } from "neutron-core";
 import api from "./api";
 import { CreateGraphModel, INeutronGraph, INeutronGraphWithOrganization, INeutronGraphWithRobots, UpdateGraphModel } from "./models/graph.model";
 
@@ -20,6 +21,14 @@ const me = async () => {
 
 const getByOrganization = async (organizationId: string) => {
     const res = await api.get(`graph/organization/${organizationId}`)
+    if (res.status !== 200) {
+        throw new Error("could not get organization graphs")
+    }
+    return res.data.graphs as INeutronGraph[]
+}
+
+const getByRobot = async (robotId: string, type?: NeutronGraphType) => {
+    const res = await api.get(`graph/robot/${robotId}` + (type ? `?type=${type}` : ""))
     if (res.status !== 200) {
         throw new Error("could not get organization graphs")
     }
@@ -60,6 +69,7 @@ export {
     create,
     me,
     getByOrganization,
+    getByRobot,
     update,
     deleteGraph,
     getAll,
