@@ -94,3 +94,30 @@ export interface IUpdateRobotModel {
   description?: string;
   connexionContextType?: ConnectionContextType;
 }
+
+export const defaultRobot: IRobot = {
+  name: "New Robot",
+  description: "Enter here the description of the robot",
+  _id: "",
+  key: "",
+  parts: [],
+  hostname: "",
+  linked: false,
+  secretKey: "",
+  imgUrl: "",
+  context: ConnectionContextType.Ros2
+}
+
+export const defaultRobotPartModel: IRobotPart = {
+  _id: "",
+  type: "",
+  category: RobotPartCategory.Actuator,
+  name: "New part",
+  imgUrl: "",
+  ros2Package: "",
+  ros2Node: "",
+  publishers: [],
+  subscribers: [],
+  services: [],
+  actions: []
+}

@@ -9,13 +9,9 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const drawerMaxWidth = 240;
-
-interface MenuVerticalTabsProps {
-    onSelectTab: (type: ViewType) => void
-    isLightUser: boolean
-}
 
 const DrawerHeader = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -26,44 +22,38 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     ...theme.mixins.toolbar,
 }));
 
-const listItems: MenuOption[] = [
+const views: MenuOption[] = [
     {
         title: 'Home',
         icon: <HomeIcon />,
         viewType: ViewType.Home,
-        lightUserVisible: true
     },
     {
         title: 'Connection',
         icon: <LinkIcon />,
         viewType: ViewType.ConnectionView,
-        lightUserVisible: true
     },
     {
         title: 'Organization',
         icon: <Diversity3Icon />,
         viewType: ViewType.Organization,
-        lightUserVisible: false
     },
     {
         title: 'Neutron',
         icon: <SmartToyIcon />,
         viewType: ViewType.Neutron,
-        lightUserVisible: false
     },
     {
         title: 'Settings',
         icon: <SettingsIcon />,
         viewType: ViewType.Settings,
-        lightUserVisible: false
     }
 ]
 
 interface MenuOption {
     title: string;
     icon: JSX.Element;
-    viewType: ViewType;
-    lightUserVisible: boolean
+    viewType: string;
 }
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
@@ -102,13 +92,15 @@ const closedMixin = (theme: Theme): CSSObject => ({
     width: `calc(${theme.spacing(7)} + 1px)`,
 });
 
+interface MenuVerticalTabsProps {
+}
 
 const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
-    const { onSelectTab, isLightUser } = props
-    const [selectedTab, setSelectedTab] = useState<MenuOption>();
+    const location = useLocation()
+    const selectedView = views.find(e => e.viewType === location.pathname)
     const [drawerWidth, setDrawerWidth] = useState("50px")
-
     const [open, setOpen] = React.useState(false);
+    const navigate = useNavigate();
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -121,11 +113,8 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
     };
 
     const handleMenuSelected = (menuOption: MenuOption) => {
-        setSelectedTab(menuOption);
-        onSelectTab(menuOption.viewType);
+        navigate(menuOption.viewType, { replace: true });
     };
-
-    const menuItems = listItems.filter(e => (!isLightUser || e.lightUserVisible))
 
     return (
         <Drawer variant="permanent" open={open} anchor='left' sx={{
@@ -147,7 +136,7 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
                 )}
             </DrawerHeader>
             <List>
-                {menuItems.map(e => (
+                {views.map(e => (
                     <ListItem key={e.title} disablePadding sx={{ display: 'block' }} onClick={() => handleMenuSelected(e)}>
                         <ListItemButton
                             sx={{
@@ -162,7 +151,7 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
                                     mr: open ? 3 : 'auto',
                                     justifyContent: 'center',
                                     fontWeight: 'bold',
-                                    color: (e.title === selectedTab?.title) ? 'black' : undefined
+                                    color: (e.title === selectedView?.title) ? 'black' : undefined
                                 }}
                             >
                                 {e.icon}

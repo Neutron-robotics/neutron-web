@@ -95,7 +95,7 @@ const update = async (model: UserUpdateModel) => {
 const deactivate = async () => {
   const res = await api.post(`/auth/deactivate`);
   if (res.status !== 200) {
-    throw new Error("An error occured when updating");
+    throw new Error("An error occured when deactivating");
   }
 };
 
@@ -115,6 +115,18 @@ function stopRefreshTokenTimer() {
   clearTimeout(refreshTokenTimeout);
 }
 
+const isSessionValid = () => {
+  const token = Cookies.get("_neutron_token");
+  if (!token) return false;
+
+  // Decode the JWT token to get the expiration time
+  const jwtToken = JSON.parse(atob(token.split(".")[1]));
+  const expirationTime = jwtToken.exp * 1000;
+
+  // Check if the current time is before the token expiration time
+  return Date.now() < expirationTime;
+};
+
 export {
   login,
   logout,
@@ -125,4 +137,5 @@ export {
   update,
   deactivate,
   tryLoginFromCookie,
+  isSessionValid
 };

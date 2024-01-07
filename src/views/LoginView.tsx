@@ -74,7 +74,7 @@ const LoginView = (props: ILoginViewProps) => {
     if (user !== null) {
         return <Navigate to="/" />;
     }
-    
+
     const handleLoginClick = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
@@ -91,13 +91,6 @@ const LoginView = (props: ILoginViewProps) => {
         }
     }
 
-    const handleContinueLocaly = () => {
-        login({
-            firstName: 'guest',
-            imgUrl: 'file/anonymous-icon.jpg'
-        })
-    }
-
     const handleForgotPasswordClick = () => {
 
     }
@@ -105,8 +98,6 @@ const LoginView = (props: ILoginViewProps) => {
     const handleSignUp = () => {
 
     }
-
-
 
     return (
         <div className={classes.root} >
@@ -144,8 +135,6 @@ const LoginView = (props: ILoginViewProps) => {
                 <div onClick={handleForgotPasswordClick} className={classes.link}>Forgot password?</div>
                 <div onClick={handleSignUp} className={classes.link}>Sign up</div>
             </div>
-            <div className={classes.centered}>Or</div>
-            <div onClick={handleContinueLocaly} className={`${classes.link} ${classes.centered}`}>Continue localy</div>
         </div>
     )
 }

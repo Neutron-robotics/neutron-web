@@ -1,12 +1,12 @@
 import { createContext, ReactNode, useState } from "react";
 
 export enum ViewType {
-    Home,
-    ConnectionView,
-    OperationView,
-    Organization,
-    Neutron,
-    Settings
+    Home = '/',
+    ConnectionView = '/connection',
+    OperationView = '/operation',
+    Organization = '/organization',
+    Neutron = '/neutron',
+    Settings = '/settings'
 }
 
 export interface IViewContext {

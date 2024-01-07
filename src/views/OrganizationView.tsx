@@ -13,6 +13,11 @@ import ClickableImageUpload from "../components/controls/imageUpload";
 import { uploadFile } from "../api/file";
 import RobotTable from "../components/Organization/RobotTable";
 import { IRobot } from "../api/models/robot.model";
+import { useAuth } from "../contexts/AuthContext";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import useAsync from "../utils/useAsync";
+import * as organizationApi from "../api/organization"
+import ComponentError from "../components/ComponentError";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -44,19 +49,30 @@ const useStyles = makeStyles(() => ({
     },
 }));
 
+export enum OrganizationViewType {
+    Summary,
+    Robot,
+    Part
+}
+
 interface OrganizationViewProps {
-    user: UserModel
-    activeOrganization: OrganizationModel
-    organizations: OrganizationModel[]
-    activeTab: number
-    onOrganizationSwitch: (organizatioName: string) => void
-    onUpdateOrganization: (model: Partial<OrganizationModel>) => void
-    onSelectRobot: (robot: IRobot | null) => void
-    onTabChange: (tabId: number) => void
+}
+
+type OrganizationViewParams = {
+    organizationId: string
 }
 
 const OrganizationView = (props: OrganizationViewProps) => {
-    const { user, activeOrganization, organizations, onOrganizationSwitch, onUpdateOrganization, activeTab, onTabChange, onSelectRobot } = props
+    const navigate = useNavigate();
+    const location = useLocation()
+    const params = useParams<OrganizationViewParams>()
+    const { user } = useAuth() as { user: UserModel };
+    const [organizations, setOrganizations, areOrganizationsLoading, organizationsError] =
+        useAsync<OrganizationModel[]>(location.state?.organization, () => organizationApi.me())
+    const [activeOrganization, setActiveOrganization, isOrganizationLoading, activeOrganizationError] =
+        useAsync<OrganizationModel>(location.state?.organization, () => params.organizationId ? organizationApi.getById(params.organizationId) : Promise.resolve(null))
+
+    const [activeTab, setActiveTab] = useState(0)
     const [members, setMembers] = useState<UserRanked[]>([]);
     const classes = useStyles();
     const isAdmin = user ? isOrganizationUserAdmin(user, members) : false;
@@ -80,11 +96,22 @@ const OrganizationView = (props: OrganizationViewProps) => {
     }, [members.length, activeOrganization])
 
     useEffect(() => {
-        fetchOrganizationMembers()
-    }, [fetchOrganizationMembers, activeOrganization]);
+        if (areOrganizationsLoading || isOrganizationLoading || !organizations)
+            return
+        if (!activeOrganization && organizations.length > 0)
+            setActiveOrganization(organizations[0])
+        else
+            fetchOrganizationMembers()
+    }, [fetchOrganizationMembers, activeOrganization, areOrganizationsLoading, isOrganizationLoading, organizations, setActiveOrganization]);
 
     const handleOrganizationChange = (event: SelectChangeEvent<string>) => {
-        onOrganizationSwitch(event.target.value)
+        if (!organizations)
+            return
+
+        const index = organizations.findIndex(e => e.name === event.target.value)
+        if (index === -1)
+            return
+        setActiveOrganization(organizations[index])
     };
 
     const handleDescriptionUpdate = async (data: onSaveProps) => {
@@ -101,6 +128,22 @@ const OrganizationView = (props: OrganizationViewProps) => {
             });
     };
 
+    const handleOrganizationUpdate = (updateModel: Partial<OrganizationModel>) => {
+        setActiveOrganization((prev) => prev === null ? null : ({ ...prev, ...updateModel }))
+
+        setOrganizations((prev) => {
+            if (!prev) return null
+
+            const activeOrganizationIndex = prev.findIndex((e) => e._id === updateModel._id ?? activeOrganization?._id ?? '')
+            const updatedOrganizations = prev.map((org, index) =>
+                index === activeOrganizationIndex
+                    ? { ...org, ...updateModel }
+                    : org
+            );
+            return updatedOrganizations;
+        });
+    }
+
     const handleOrganizationImageUpload = async (file: File) => {
         if (!activeOrganization) return;
         try {
@@ -108,8 +151,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
             await organization.update(activeOrganization.name, {
                 imgUrl
             })
-            // setSelectedOrganization(prev => ({ ...prev, imgUrl: imgUrl } as any))
-            onUpdateOrganization({ imgUrl: imgUrl })
+            handleOrganizationUpdate({ imgUrl: imgUrl })
             alert.success('The image has successfuly been updated')
         }
         catch (err: any) {
@@ -123,8 +165,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
         try {
             await organization.promote(activeOrganization.name, role, email)
             const member = await organization.getMember(activeOrganization.name, { email })
-
-            onUpdateOrganization({ ...activeOrganization, users: [...activeOrganization.users, { userId: member.id, permissions: [role] }] })
+            handleOrganizationUpdate({ ...activeOrganization, users: [...activeOrganization.users, { userId: member.id, permissions: [role] }] })
             setMembers((e) => ([...e, { ...member, rank: role as OrganizationPermissions }]))
         }
         catch (err: any) {
@@ -138,12 +179,36 @@ const OrganizationView = (props: OrganizationViewProps) => {
         try {
             await organization.demote(activeOrganization.name, user.email)
             setMembers(e => e.filter(e => e.id !== user.id))
-            onUpdateOrganization({ ...activeOrganization, users: activeOrganization.users.filter(e => e.userId !== user.id) })
+            handleOrganizationUpdate({ ...activeOrganization, users: activeOrganization.users.filter(e => e.userId !== user.id) })
         }
         catch (err: any) {
             alert.error("An error has occured while demoting a member");
         }
     }
+
+    function handleRobotSelectedClick(robot: IRobot | null): void {
+        if (!activeOrganization)
+            return
+
+        navigate(`/organization/${activeOrganization._id}/robot/${robot?._id ?? 'create'}`, {
+            replace: true,
+            state: {
+                isNew: robot === null,
+                robotModel: robot ?? undefined,
+                organization: activeOrganization
+            }
+        })
+    }
+
+    if (areOrganizationsLoading || isOrganizationLoading || !activeOrganization) {
+        return (
+            <div />
+        )
+    }
+
+    if (organizationsError || activeOrganizationError)
+        return <ComponentError title="Organization not found" description="An error has occured while fetching the organization" />
+
     return (
         <>
             <div className={classes.root}>
@@ -176,7 +241,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
                 <Tabs
                     centered
                     value={activeTab}
-                    onChange={(_, v) => onTabChange(v)}
+                    onChange={(_, v) => setActiveTab(v)}
                     aria-label="tabs"
                 >
                     <Tab label="Member" />
@@ -197,7 +262,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
                         <RobotTable
                             user={user}
                             activeOrganization={activeOrganization}
-                            onSelectRobot={onSelectRobot}
+                            onSelectRobot={handleRobotSelectedClick}
                         />
                     </>
                 )}

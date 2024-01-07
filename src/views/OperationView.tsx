@@ -21,12 +21,12 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-export interface IOperationViewProps extends IViewProps {
-    tabId: string
+export interface IOperationViewProps {
 }
 
 const OperationView = (props: IOperationViewProps) => {
-    const { setHeaderBody, tabId } = props
+    // const { setHeaderBody, tabId } = props
+    const tabId = '0'
     const classes = useStyles()
     const actualTab = useTab(tabId)
     const [initializedTab, setInitializedTab] = useState("")
@@ -85,14 +85,14 @@ const OperationView = (props: IOperationViewProps) => {
 
     useEffect(() => {
         const operationCategoryFiltered: IOperationCategory[] = makeOperationBar(operationComponentsConfiguration, connection?.modules ?? [])
-        setHeaderBody(
-            <OperationHeader
-                mountComponent={handleOnAddOperationComponent}
-                operationCategories={operationCategoryFiltered}
-                connectionId={tabId}
-            />
-        )
-    }, [handleOnAddOperationComponent, connection, setHeaderBody, tabId])
+        // setHeaderBody(
+        //     <OperationHeader
+        //         mountComponent={handleOnAddOperationComponent}
+        //         operationCategories={operationCategoryFiltered}
+        //         connectionId={tabId}
+        //     />
+        // )
+    }, [handleOnAddOperationComponent, connection, tabId])
 
     return (
         <>

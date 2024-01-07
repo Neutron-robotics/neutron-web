@@ -20,7 +20,7 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-interface IConnectionViewProps extends IViewProps {
+interface IConnectionViewProps {
 }
 
 const ConnectionView = (props: IConnectionViewProps) => {

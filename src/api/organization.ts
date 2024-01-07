@@ -11,6 +11,15 @@ const create = async (model: CreateOrganizationModel) => {
     }
 }
 
+const getById = async (id: string) => {
+    const res = await api.get(`organization/${id}`)
+
+    if (res.status !== 200) {
+        throw new Error("Could not get organization data")
+    }
+    return res.data.organization as OrganizationModel
+}
+
 const me = async () => {
     const res = await api.get(`organization/me`)
 
@@ -80,6 +89,7 @@ const getOrganizationRobots = async (name: string) => {
 export {
     create,
     me,
+    getById,
     update,
     promote,
     demote,

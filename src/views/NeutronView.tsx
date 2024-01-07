@@ -1,7 +1,7 @@
 import { makeStyles } from "@mui/styles"
 import { useCallback, useEffect, useRef, useState } from "react";
 import NeutronToolBar from "../components/Neutron/NeutronToolBar";
-import ReactFlow, { Background, BackgroundVariant, Controls, NodeChange, addEdge, applyEdgeChanges, applyNodeChanges, Edge, EdgeChange, Connection, ReactFlowProvider, BezierEdge, StraightEdge, StepEdge, SmoothStepEdge } from "reactflow";
+import ReactFlow, { Background, BackgroundVariant, Controls, NodeChange, addEdge, applyEdgeChanges, applyNodeChanges, Edge, EdgeChange, Connection, ReactFlowProvider, SmoothStepEdge } from "reactflow";
 import 'reactflow/dist/style.css';
 import { v4 } from "uuid";
 import * as organization from "../api/organization";

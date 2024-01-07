@@ -26,11 +26,9 @@ const useStyles = makeStyles(() => ({
 }))
 
 interface HomeViewProps {
-    user: UserModel
 }
 
 const HomeView = (props: HomeViewProps) => {
-    const { } = props
     const classes = useStyles()
     const [robots, setRobots] = useState<IRobotWithStatus[]>([])
     const [robotToConnect, setRobotToConnect] = useState<IRobotWithStatus | undefined>()
@@ -40,8 +38,6 @@ const HomeView = (props: HomeViewProps) => {
             setRobots(filterAndLimitRobots(res))
         })
     }, [])
-
-    console.log('robots', robots)
 
     const filterAndLimitRobots = (robots: IRobotWithStatus[]) => {
         return robots

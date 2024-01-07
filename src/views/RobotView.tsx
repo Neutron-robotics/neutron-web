@@ -1,23 +1,26 @@
-import { Breadcrumbs, Button, Link, SpeedDial, SpeedDialAction, SpeedDialIcon, Tab, Tabs, Typography } from "@mui/material"
-import { OrganizationModel } from "../api/models/organization.model"
-import { UserModel } from "../api/models/user.model"
+import { Breadcrumbs, Link, SpeedDial, SpeedDialAction, SpeedDialIcon, Tab, Tabs, Typography } from "@mui/material"
 import ClickableImageUpload from "../components/controls/imageUpload"
 import { EditText, EditTextarea, onSaveProps } from "react-edit-text"
 import { makeStyles } from "@mui/styles";
 import { useEffect, useState } from "react"
 import { uploadFile } from "../api/file"
-import { ICreateRobotModel, IRobot, IRobotPart, IRobotStatus } from "../api/models/robot.model"
+import { ICreateRobotModel, IRobot, IRobotPart, IRobotStatus, defaultRobot } from "../api/models/robot.model"
 import { useAlert } from "../contexts/AlertContext"
 import useConfirmationDialog from "../components/controls/useConfirmationDialog"
 import * as robotApi from "../api/robot"
+import * as organizationApi from "../api/organization"
 import SettingsIcon from '@mui/icons-material/Settings';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt';
 import ShareIcon from '@mui/icons-material/Share';
 import RobotPartCard from "../components/Robot/RobotPartCard"
-import RobotStatusDisplay from "../components/Robot/RobotStatusDisplay"
 import RobotConnectionMenu from "../components/Robot/RobotConnectionMenu"
 import RobotSynchronization from "../components/Robot/RobotSynchronization"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
+import useAsyncOrDefault from "../utils/useAsyncOrDefault"
+import useAsync from "../utils/useAsync"
+import { OrganizationModel } from "../api/models/organization.model";
+import ComponentError from "../components/ComponentError";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -52,12 +55,6 @@ const useStyles = makeStyles(() => ({
 
 type RobotSpeedDialActions = 'Remove' | 'Add Part' | 'Add Module' | 'Share'
 
-const mockRobotStatusDisconnected: IRobotStatus = {
-    _id: "1",
-    time: 1630761600000,
-    status: "Offline",
-};
-
 const robotSpeedDialActions: { icon: JSX.Element, name: RobotSpeedDialActions }[] = [
     { icon: <DeleteIcon color={"error"} />, name: 'Remove' },
     { icon: <SettingsIcon color={"primary"} />, name: 'Add Part' },
@@ -66,20 +63,27 @@ const robotSpeedDialActions: { icon: JSX.Element, name: RobotSpeedDialActions }[
 ];
 
 interface RobotViewProps {
-    user: UserModel
-    activeOrganization: OrganizationModel
-    title: string
-    robotModel: IRobot | null
-    onBreadcrumbsClick: () => void
-    onSelectPart: (part: IRobotPart | null) => void
+
 }
 
+type RobotViewParams = {
+    organizationId: string
+    robotId: string
+}
+
+
 const RobotView = (props: RobotViewProps) => {
-    const { activeOrganization, title, onBreadcrumbsClick, robotModel, onSelectPart } = props
+    const location = useLocation()
+    const navigate = useNavigate();
+    const params = useParams<RobotViewParams>()
+    const isNewRobot = location.state?.isNew ?? false
+    const [robot, setRobot, isRobotLoading, robotError] = useAsyncOrDefault(
+        { model: location.state?.robotModel as IRobot | undefined, defaultModel: defaultRobot, isNew: isNewRobot },
+        () => robotApi.getRobot(params.robotId ?? ''))
+    const [activeOrganization, setActiveOrganization, isOrganizationLoading, organizationError] =
+        useAsync<OrganizationModel>(location.state?.organization, () => organizationApi.getById(params.organizationId ?? ''))
     const [activeTab, setActiveTab] = useState(0);
     const classes = useStyles()
-    const isNewRobot = robotModel === null
-    const [robot, setRobot] = useState<Partial<IRobot>>(robotModel ?? { name: "New Robot", description: "Enter here the description of the robot" })
     const [robotStatus, setRobotStatus] = useState<IRobotStatus>({
         _id: "1",
         time: 1630761600000,
@@ -89,14 +93,14 @@ const RobotView = (props: RobotViewProps) => {
     const [Dialog, prompt] = useConfirmationDialog()
 
     useEffect(() => {
-        if (isNewRobot || robot._id === undefined)
+        if (isRobotLoading || isNewRobot || !robot.linked)
             return
 
         robotApi.getLatestRobotStatus(robot._id).then(status => {
             if (status)
                 setRobotStatus(status)
         })
-    }, [isNewRobot])
+    }, [isNewRobot, isRobotLoading, robot])
 
     const handleRobotImageUpload = async (file: File) => {
         try {
@@ -147,6 +151,8 @@ const RobotView = (props: RobotViewProps) => {
     }
 
     const handleBreadcrumbsClick = () => {
+        if (!activeOrganization)
+            return
         if (isNewRobot) {
             prompt("Do you want to save the robot", async (confirmed: boolean) => {
                 if (confirmed) {
@@ -156,25 +162,27 @@ const RobotView = (props: RobotViewProps) => {
                     catch (err) {
                         alert.error("")
                     }
-                    onBreadcrumbsClick()
+                    navigate(`/organization/${activeOrganization._id}`, { replace: true })
                 }
                 else {
-                    onBreadcrumbsClick()
+                    navigate(`/organization/${activeOrganization._id}`, { replace: true })
                 }
             })
         }
         else {
-            onBreadcrumbsClick()
+            navigate(`/organization/${activeOrganization._id}`, { replace: true })
         }
     }
 
     const handleSpeedDialClick = (action: RobotSpeedDialActions) => {
+        if (!activeOrganization)
+            return
         switch (action) {
             case 'Remove':
                 prompt("Are you sure you want to delete this robot ?", async () => {
                     try {
                         robot?._id && await robotApi.deleteRobot(robot._id)
-                        onBreadcrumbsClick()
+                        navigate(`/organization/${activeOrganization._id}`, { replace: true })
                     }
                     catch {
                         alert.error("An error occured while trying to delete the robot")
@@ -182,11 +190,12 @@ const RobotView = (props: RobotViewProps) => {
                 })
                 break;
             case 'Add Part':
-                onSelectPart(null)
+                navigate(`/organization/${activeOrganization._id}/robot/${robot._id}/part/`, { replace: true, state: { isNew: true } });
                 break;
             case 'Add Module':
                 break;
             case 'Share':
+                navigator.clipboard.writeText(`${window.location.protocol}//${window.location.hostname}/organization/${activeOrganization._id}/robot/${robot._id}/`)
                 alert.info("The link to this robot has been copied to your clipboard")
                 break;
             default:
@@ -194,13 +203,26 @@ const RobotView = (props: RobotViewProps) => {
         }
     }
 
+    if (isRobotLoading || isOrganizationLoading)
+        return <div />
+
+
+    function handleOnPartSelected(robotPart: IRobotPart): void {
+        if (!activeOrganization)
+            return
+        navigate(`/organization/${activeOrganization._id}/robot/${robot._id}/part/${robotPart._id}`, { replace: true, state: { isNew: true } });
+    }
+
+    if (robotError || organizationError)
+        return <ComponentError title="Robot not found" description="An error has occured while fetching the robot" />
+
     return (
         <div className={classes.root}>
             <Breadcrumbs aria-label="breadcrumb">
                 <Link underline="hover" color="inherit" onClick={handleBreadcrumbsClick}>
-                    {activeOrganization.name}
+                    {activeOrganization?.name}
                 </Link>
-                <Typography color="text.primary">{title}</Typography>
+                <Typography color="text.primary">{isNewRobot ? "New Robot" : robot.name}</Typography>
             </Breadcrumbs>
             <EditText
                 defaultValue={robot.name}
@@ -224,7 +246,7 @@ const RobotView = (props: RobotViewProps) => {
                 {
                     !isNewRobot && (
                         !robot.linked ? (
-                            <RobotSynchronization onRobotChange={(robot) => setRobot(robot)} robot={robotModel} />
+                            <RobotSynchronization onRobotChange={(robot) => setRobot(robot)} robot={robot} />
                         ) : (
 
                             <RobotConnectionMenu status={robotStatus} />
@@ -246,7 +268,7 @@ const RobotView = (props: RobotViewProps) => {
             {
                 activeTab === 0 && (
                     <div>
-                        {robot.parts && robot.parts.length ? robot.parts.map(part => (<RobotPartCard key={part.name} robotPart={part} onClick={() => onSelectPart(part)} />)) : ''}
+                        {robot.parts && robot.parts.length ? robot.parts.map(part => (<RobotPartCard key={part.name} robotPart={part} onClick={handleOnPartSelected} />)) : ''}
                     </div>
                 )
             }

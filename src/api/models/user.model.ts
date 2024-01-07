@@ -16,6 +16,4 @@ export interface UserDTO {
     imgUrl: string
 }
 
-export type UserLight = Partial<UserModel>
-
 export type UserUpdateModel =  Partial<Omit<UserModel, "id">>
