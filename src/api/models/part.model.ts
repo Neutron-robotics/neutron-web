@@ -1,12 +1,12 @@
-import { RobotPartCategory } from "./robot.model";
+import { ConnectionContextType, RobotPartCategory } from "./robot.model";
 
 export interface CreateRobotPartModel {
-  type: string;
+  type: ConnectionContextType;
   category: RobotPartCategory;
   name: string;
-  imgUrl: string;
-  ros2Package: string,
-  ros2Node: string
+  imgUrl?: string;
+  ros2Package?: string,
+  ros2Node?: string
 }
 
 export interface UpdatePartModel {

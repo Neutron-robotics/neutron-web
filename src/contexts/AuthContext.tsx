@@ -2,6 +2,7 @@ import { ReactNode, createContext, useCallback, useContext, useEffect, useState 
 import { UserModel } from "../api/models/user.model";
 import * as auth from "../api/auth";
 import { useNavigate } from "react-router-dom";
+import { useAlert } from "./AlertContext";
 
 type ContextProps = {
     user: UserModel | null,
@@ -16,18 +17,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<UserModel | null>(null)
     const [loggedIn, setLoggedIn] = useState(auth.tryLoginFromCookie())
     const navigate = useNavigate();
+    const alert = useAlert()
 
     const getUser = useCallback(async () => {
         const user = await auth.me()
         if (user) {
             setUser(user)
         }
-    }, [navigate])
+    }, [])
 
     useEffect(() => {
         if (loggedIn)
             getUser()
-    }, [getUser])
+    }, [getUser, loggedIn])
 
     const login = (user: UserModel) => {
         setUser(user)
@@ -41,10 +43,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         navigate("/login", { replace: true });
     }
 
-    if (!auth.isSessionValid()) {
-        navigate("/login", { replace: true });
-        setUser(null)
+    if (loggedIn && user && !auth.isSessionValid()) {
+        alert.info("Your session has expired, please re-connect")
         setLoggedIn(false)
+        setUser(null)
+        navigate("/login", { replace: true });
     }
 
     return <AuthContext.Provider

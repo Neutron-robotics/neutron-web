@@ -29,6 +29,9 @@ const useStyles = makeStyles(() => ({
             display: 'flex',
             justifyContent: 'space-around'
         }
+    },
+    msgDisplayHeader: {
+        fontWeight: 'bold'
     }
 }))
 
@@ -124,39 +127,63 @@ function AddServiceTypeDialog(props: AddServiceTypeDialogProps) {
                     {isActionDefined && (
                         <span style={{ fontWeight: 'bold' }}>Goal</span>
                     )}
+                    <div>
+                        <div className={classes.msgDisplayHeader}>
+                            Type
+                        </div>
+                        <div className={classes.msgDisplayHeader}>
+                            Name
+                        </div>
+                    </div>
                     {actionType.goal.map((e, i) =>
                         <div key={i}>
                             <div>
-                                {`Name: ${e.fieldname}`}
+                                {e.fieldname}
                             </div>
                             <div>
-                                {`Type: ${e.fieldtype}`}
+                                {e.fieldtype}
                             </div>
                         </div>
                     )}
                     {isActionDefined && (
                         <span style={{ fontWeight: 'bold' }}>Feedback</span>
                     )}
+                    <div>
+                        <div className={classes.msgDisplayHeader}>
+                            Type
+                        </div>
+                        <div className={classes.msgDisplayHeader}>
+                            Name
+                        </div>
+                    </div>
                     {actionType.feedback.map((e, i) =>
                         <div key={i}>
                             <div>
-                                {`Name: ${e.fieldname}`}
+                                {e.fieldname}
                             </div>
                             <div>
-                                {`Type: ${e.fieldtype}`}
+                                {e.fieldtype}
                             </div>
                         </div>
                     )}
                     {isActionDefined && (
                         <span style={{ fontWeight: 'bold' }}>Result</span>
                     )}
+                    <div>
+                        <div className={classes.msgDisplayHeader}>
+                            Type
+                        </div>
+                        <div className={classes.msgDisplayHeader}>
+                            Name
+                        </div>
+                    </div>
                     {actionType.result.map((e, i) =>
                         <div key={i}>
                             <div>
-                                {`Name: ${e.fieldname}`}
+                                {e.fieldname}
                             </div>
                             <div>
-                                {`Type: ${e.fieldtype}`}
+                                {e.fieldtype}
                             </div>
                         </div>
                     )}

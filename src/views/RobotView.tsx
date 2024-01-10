@@ -157,10 +157,15 @@ const RobotView = (props: RobotViewProps) => {
             prompt("Do you want to save the robot", async (confirmed: boolean) => {
                 if (confirmed) {
                     try {
-                        await robotApi.create(activeOrganization._id, robot as ICreateRobotModel)
+                        const model: ICreateRobotModel = {
+                            name: robot.name,
+                            description: robot.description,
+                            imgUrl: robot.imgUrl === "" ? undefined : robot.imgUrl
+                        }
+                        await robotApi.create(activeOrganization._id, model)
                     }
                     catch (err) {
-                        alert.error("")
+                        alert.error("An error has occured when creating the robot")
                     }
                     navigate(`/organization/${activeOrganization._id}`, { replace: true })
                 }
@@ -190,7 +195,7 @@ const RobotView = (props: RobotViewProps) => {
                 })
                 break;
             case 'Add Part':
-                navigate(`/organization/${activeOrganization._id}/robot/${robot._id}/part/`, { replace: true, state: { isNew: true } });
+                navigate(`/organization/${activeOrganization._id}/robot/${robot._id}/part/new`, { replace: true, state: { isNew: true } });
                 break;
             case 'Add Module':
                 break;
@@ -210,7 +215,7 @@ const RobotView = (props: RobotViewProps) => {
     function handleOnPartSelected(robotPart: IRobotPart): void {
         if (!activeOrganization)
             return
-        navigate(`/organization/${activeOrganization._id}/robot/${robot._id}/part/${robotPart._id}`, { replace: true, state: { isNew: true } });
+        navigate(`/organization/${activeOrganization._id}/robot/${robot._id}/part/${robotPart._id}`, { replace: true });
     }
 
     if (robotError || organizationError)

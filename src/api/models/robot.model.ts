@@ -14,7 +14,7 @@ export enum ConnectionContextType {
 
 export interface IRobotPart {
   _id: string;
-  type: string;
+  type: ConnectionContextType;
   category: RobotPartCategory;
   name: string;
   imgUrl: string;
@@ -110,7 +110,7 @@ export const defaultRobot: IRobot = {
 
 export const defaultRobotPartModel: IRobotPart = {
   _id: "",
-  type: "",
+  type: ConnectionContextType.Ros2,
   category: RobotPartCategory.Actuator,
   name: "New part",
   imgUrl: "",

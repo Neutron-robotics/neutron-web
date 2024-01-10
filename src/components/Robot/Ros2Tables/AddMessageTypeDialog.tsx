@@ -25,10 +25,17 @@ const useStyles = makeStyles(() => ({
         flexDirection: 'column',
         maxHeight: '150px',
         overflowY: 'auto',
+        textAlign: 'center',
         '& div': {
             display: 'flex',
             justifyContent: 'space-around'
+        },
+        "& span": {
+            width: '50%'
         }
+    },
+    msgDisplayHeader: {
+        fontWeight: 'bold'
     }
 }))
 
@@ -109,14 +116,22 @@ function AddMessageTypeDialog(props: AddMessageTypeDialogProps) {
                     onChange={handleFieldChange}
                 />
                 <div className={classes.msgDisplayContainer}>
+                    <div>
+                        <div className={classes.msgDisplayHeader}>
+                            Type
+                        </div>
+                        <div className={classes.msgDisplayHeader}>
+                            Name
+                        </div>
+                    </div>
                     {fields?.map((e, i) =>
                         <div key={i}>
-                            <div>
-                                {`Name: ${e.fieldname}`}
-                            </div>
-                            <div>
-                                {`Type: ${e.fieldtype}`}
-                            </div>
+                            <span>
+                                {e.fieldtype}
+                            </span>
+                            <span>
+                                {e.fieldname}
+                            </span>
                         </div>
                     )}
                 </div>

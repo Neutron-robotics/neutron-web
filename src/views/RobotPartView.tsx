@@ -109,7 +109,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
     const location = useLocation()
     const navigate = useNavigate();
     const params = useParams<RobotPartViewParams>()
-    const isNewPart = location.state?.isNew ?? false
+    const isNewPart = location.state?.isNew as boolean ?? false
     const [activeTab, previousTab, setActiveTab] = useStateWithPrevious(0);
 
     const [robot, setRobot, isRobotLoading, robotError] = useAsync<IRobot>(location.state?.organization, () => robotApi.getRobot(params.robotId ?? ''))
@@ -137,8 +137,8 @@ const RobotPartView = (props: RobotPartViewProps) => {
     const handleRobotImageUpload = async (file: File) => {
         try {
             const imgUrl = await uploadFile(file);
-            if (isNewPart.current) setPart((prev) => ({ ...prev, imgUrl }));
-            else if (!isNewPart.current && part._id) {
+            if (isNewPart) setPart((prev) => ({ ...prev, imgUrl }));
+            else if (!isNewPart && part._id) {
                 await updatePart({ imgUrl });
             }
         } catch (err: any) {
@@ -159,8 +159,8 @@ const RobotPartView = (props: RobotPartViewProps) => {
     };
 
     const handleNameUpdate = async (data: onSaveProps) => {
-        if (isNewPart.current) setPart((prev) => ({ ...prev, name: data.value }));
-        if (!isNewPart.current && part._id) {
+        if (isNewPart) setPart((prev) => ({ ...prev, name: data.value }));
+        if (!isNewPart && part._id) {
             try {
                 await updatePart({ name: data.value });
             } catch (err) {
@@ -170,11 +170,11 @@ const RobotPartView = (props: RobotPartViewProps) => {
     };
 
     const handleTypeUpdate = async (event: SelectChangeEvent<string>) => {
-        if (isNewPart.current)
-            setPart((prev) => ({ ...prev, type: event.target.value }));
-        if (!isNewPart.current && part._id) {
+        if (isNewPart)
+            setPart((prev) => ({ ...prev, type: event.target.value as ConnectionContextType }));
+        if (!isNewPart && part._id) {
             try {
-                await updatePart({ type: event.target.value });
+                await updatePart({ type: event.target.value as ConnectionContextType });
             } catch (err) {
                 alert.error("An error has occured while updating part type");
             }
@@ -182,12 +182,12 @@ const RobotPartView = (props: RobotPartViewProps) => {
     };
 
     const handleCategoryUpdate = async (event: SelectChangeEvent<string>) => {
-        if (isNewPart.current)
+        if (isNewPart)
             setPart((prev) => ({
                 ...prev,
                 category: event.target.value as RobotPartCategory,
             }));
-        if (!isNewPart.current && part._id) {
+        if (!isNewPart && part._id) {
             try {
                 await updatePart({ category: event.target.value as RobotPartCategory });
             } catch (err) {
@@ -199,13 +199,13 @@ const RobotPartView = (props: RobotPartViewProps) => {
     const handleRos2PackageUpdate = async (
         event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
-        if (isNewPart.current) {
+        if (isNewPart) {
         }
         setPart((prev) => ({
             ...prev,
             ros2Package: event.target.value as RobotPartCategory,
         }));
-        if (!isNewPart.current && part._id) {
+        if (!isNewPart && part._id) {
             try {
                 await updatePart({ ros2Package: event.target.value });
             } catch (err) {
@@ -217,12 +217,12 @@ const RobotPartView = (props: RobotPartViewProps) => {
     const handleRos2NodeUpdate = async (
         event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
-        if (isNewPart.current)
+        if (isNewPart)
             setPart((prev) => ({
                 ...prev,
                 ros2Node: event.target.value as RobotPartCategory,
             }));
-        if (!isNewPart.current && part._id) {
+        if (!isNewPart && part._id) {
             try {
                 await updatePart({ ros2Node: event.target.value });
             } catch (err) {
@@ -238,13 +238,21 @@ const RobotPartView = (props: RobotPartViewProps) => {
         const newLocation = view === OrganizationViewType.Robot ? `/organization/${organization._id}/robot/${robot._id}`
             : `/organization/${organization._id}`
 
-        if (isNewPart.current) {
+        if (isNewPart) {
             prompt("Do you want to save the part", async (confirmed: boolean) => {
                 if (confirmed) {
                     try {
-                        await partApi.create(robot._id, part as CreateRobotPartModel);
+                        const createModel: CreateRobotPartModel = {
+                            type: part.type,
+                            category: part.category,
+                            name: part.name,
+                            imgUrl: part.imgUrl === "" ? undefined : part.imgUrl,
+                            ros2Package: part.ros2Package,
+                            ros2Node: part.ros2Node
+                        }
+                        await partApi.create(robot._id, createModel);
                     } catch (err) {
-                        alert.error("");
+                        alert.error("An error has occured while creating the part");
                     }
                     navigate(newLocation, { replace: true })
                 } else {
@@ -269,7 +277,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
         }
     }
 
-    if (isRobotLoading || isOrganizationLoading)
+    if (isRobotLoading || isOrganizationLoading || part._id === '')
         return <div />
 
     if (robotError || organizationError || (part._id === '' && params.partId !== 'new')) {
@@ -362,7 +370,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
                     <span>{capitalize(part.category as string)}</span>
                 </div>
             </div>
-            {!isNewPart.current && (
+            {!isNewPart && (
                 <>
                     <Tabs
                         centered

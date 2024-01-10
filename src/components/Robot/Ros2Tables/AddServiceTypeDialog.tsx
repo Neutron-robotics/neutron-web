@@ -29,6 +29,9 @@ const useStyles = makeStyles(() => ({
             display: 'flex',
             justifyContent: 'space-around'
         }
+    },
+    msgDisplayHeader: {
+        fontWeight: 'bold'
     }
 }))
 
@@ -120,26 +123,42 @@ function AddServiceTypeDialog(props: AddServiceTypeDialogProps) {
                     {(serviceType.response.length > 0 || serviceType.request.length > 0) && (
                         <span style={{ fontWeight: 'bold' }}>Request</span>
                     )}
+                    <div>
+                        <div className={classes.msgDisplayHeader}>
+                            Type
+                        </div>
+                        <div className={classes.msgDisplayHeader}>
+                            Name
+                        </div>
+                    </div>
                     {serviceType.request.map((e, i) =>
                         <div key={i}>
                             <div>
-                                {`Name: ${e.fieldname}`}
+                                {e.fieldname}
                             </div>
                             <div>
-                                {`Type: ${e.fieldtype}`}
+                                {e.fieldtype}
                             </div>
                         </div>
                     )}
                     {(serviceType.response.length > 0 || serviceType.request.length > 0) && (
                         <span style={{ fontWeight: 'bold' }}>Response</span>
                     )}
+                    <div>
+                        <div className={classes.msgDisplayHeader}>
+                            Type
+                        </div>
+                        <div className={classes.msgDisplayHeader}>
+                            Name
+                        </div>
+                    </div>
                     {serviceType.response.map((e, i) =>
                         <div key={i}>
                             <div>
-                                {`Name: ${e.fieldname}`}
+                                {e.fieldname}
                             </div>
                             <div>
-                                {`Type: ${e.fieldtype}`}
+                                {e.fieldtype}
                             </div>
                         </div>
                     )}

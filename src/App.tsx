@@ -37,19 +37,19 @@ function App() {
   return (
     <div className={classes.root}>
       <LoggerProvider>
-        <AuthProvider>
-          <TabProvider>
-            <ViewProvider>
-              <AlertProvider>
+        <AlertProvider>
+          <AuthProvider>
+            <TabProvider>
+              <ViewProvider>
                 <MultiConnectionProvider>
                   <ThemeProvider theme={neutronMuiThemeDefault}>
                     <RouteManager />
                   </ThemeProvider>
                 </MultiConnectionProvider>
-              </AlertProvider>
-            </ViewProvider>
-          </TabProvider>
-        </AuthProvider>
+              </ViewProvider>
+            </TabProvider>
+          </AuthProvider>
+        </AlertProvider>
       </LoggerProvider>
     </div>
   );
