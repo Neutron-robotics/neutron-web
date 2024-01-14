@@ -242,7 +242,7 @@ const NeutronView = (props: NeutronViewProps) => {
                 <ReactFlowProvider>
                     <NeutronToolBar
                         ros2System={ros2System}
-                        selectedRobotId={selectedRobot?._id}
+                        selectedRobot={selectedRobot}
                         selectedRobotPartId={selectedPart?._id}
                         graphType={graphType}
                         nodes={nodes}

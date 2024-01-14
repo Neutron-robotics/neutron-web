@@ -29,8 +29,8 @@ const deleteRobot = async (robotId: string) => {
     }
 }
 
-const getRobot = async (robotId: string): Promise<IRobot> => {
-    const res = await api.get(`robot/${robotId}`)
+const getRobot = async (robotId: string, includeStatus: boolean = false): Promise<IRobot> => {
+    const res = await api.get(`robot/${robotId}${includeStatus ? '?includeStatus=true' : ''}`)
 
     if (res.status !== 200) {
         throw new Error("Could not delete the robot")

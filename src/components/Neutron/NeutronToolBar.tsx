@@ -5,7 +5,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import SaveIcon from '@mui/icons-material/Save';
 import { EditText } from "react-edit-text";
 import { useCallback } from "react";
-import { IRos2PartSystem, IRos2System, NeutronGraphType } from "neutron-core";
+import { ConnectorGraph, FlowGraph, IRos2PartSystem, IRos2System, NeutronGraphType, makeConnectionContext } from "neutron-core";
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Edge, Node } from "reactflow";
@@ -14,6 +14,7 @@ import { useAlert } from "../../contexts/AlertContext";
 import makeGraphThumbnailFile from "../../utils/makeGraphThumbnail";
 import { uploadFile } from "../../api/file";
 import * as graphApi from "../../api/graph"
+import * as connectionApi from "../../api/connection"
 import _ from 'lodash'
 import useConfirmationDialog from "../controls/useConfirmationDialog";
 import ButtonDialog from "../controls/ButtonDialog";
@@ -26,6 +27,7 @@ import AdbIcon from '@mui/icons-material/Adb';
 import StopIcon from '@mui/icons-material/Stop';
 import neutronMuiThemeDefault from "../../contexts/MuiTheme";
 import { useNeutronGraph } from "../../contexts/NeutronGraphContext";
+import { IRobot } from "../../api/models/robot.model";
 
 const useStyles = makeStyles(() => ({
     toolbar: {
@@ -57,7 +59,7 @@ const useStyles = makeStyles(() => ({
 
 interface NeutronToolBarProps {
     ros2System?: IRos2System | IRos2PartSystem,
-    selectedRobotId?: string
+    selectedRobot: IRobot | undefined
     selectedRobotPartId?: string
     graphType: NeutronGraphType
     nodes: Node[],
@@ -74,7 +76,7 @@ interface NeutronToolBarProps {
 }
 
 const NeutronToolBar = (props: NeutronToolBarProps) => {
-    const { nodes, edges, graphType, selectedRobotId, selectedRobotPartId, loadedGraph, onGraphUpdate, panels, title, onTitleUpdate } = props
+    const { nodes, edges, graphType, selectedRobot, selectedRobotPartId, loadedGraph, onGraphUpdate, panels, title, onTitleUpdate } = props
     const classes = useStyles()
     const alert = useAlert()
     const [Dialog, prompt] = useConfirmationDialog();
@@ -86,7 +88,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
             alert.error('Cannot save graph because it has no title')
             return
         }
-        else if (!selectedRobotId) {
+        else if (!selectedRobot) {
             alert.error('Cannot save graph because no robot is assigned to the graph')
             return
         }
@@ -98,7 +100,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
             if (!loadedGraph) {
                 const createModel: CreateGraphModel = {
                     title,
-                    robotId: selectedRobotId,
+                    robotId: selectedRobot?._id,
                     type: graphType,
                     partId: selectedRobotPartId,
                     nodes: nodes as INeutronNode[],
@@ -127,7 +129,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
         catch (err) {
             alert.error("An unexpected error happens while attempting to save the Neutron Graph to the server")
         }
-    }, [alert, edges, loadedGraph, nodes, onGraphUpdate, selectedRobotId, selectedRobotPartId, title, graphType]);
+    }, [alert, edges, loadedGraph, nodes, onGraphUpdate, selectedRobot, selectedRobotPartId, title, graphType]);
 
     const handleTitleUpdate = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         onTitleUpdate(e.target.value)
@@ -199,6 +201,11 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
     }
 
     async function handleDebugClick(): Promise<void> {
+        if (!selectedRobot) {
+            alert.error("No robot is assigned to the graph")
+            return
+        }
+
         if (graphStatus !== 'unloaded') {
             unloadGraph()
             alert.info('Debug session has been interrupted')
@@ -214,7 +221,31 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
             return
         }
 
-        await makeNeutronGraph(loadedGraph.type, loadedGraph.nodes, loadedGraph.edges, 1000)
+        let graph: FlowGraph | ConnectorGraph | undefined
+        try {
+            graph = await makeNeutronGraph(loadedGraph.type, loadedGraph.nodes, loadedGraph.edges, 1000)
+            if (!graph)
+                throw new Error()
+        }
+        catch {
+            alert.error('Failed to compile the graph')
+        }
+
+        try {
+            const connectionInfos = await connectionApi.connectRobotAndCreateConnection(selectedRobot._id)
+            const context = makeConnectionContext(selectedRobot.context, {
+                hostname: connectionInfos.hostname,
+                port: connectionInfos.port,
+                clientId: connectionInfos.registerId,
+            })
+            await context.connect()
+            graph?.useContext(context)
+            alert.success("Connected to the robot")
+        }
+        catch (err: any) {
+            console.log("error during connection: ", err)
+            alert.error('Failed to connect to the robot')
+        }
     }
 
     return (

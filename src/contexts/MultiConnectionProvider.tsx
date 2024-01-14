@@ -1,7 +1,6 @@
 import { Core, IConnectionContext } from "neutron-core";
 import { IRobotModule, IRobotModuleDefinition } from "neutron-core/dist/interfaces/RobotConnection";
 import React, { createContext, ReactNode, useContext, useState } from "react";
-import getConnectionType from "../utils/getConnectionType";
 import { useAlert } from "./AlertContext";
 
 interface IConnection {
@@ -40,7 +39,7 @@ export const MultiConnectionProvider = ({ children }: { children: ReactNode }) =
         }
         const success = await connectionContext.connect()
         if (!success) {
-            alert.error(`Failed to connect to the context ${getConnectionType(connectionContext.type)}`)
+            alert.error(`Failed to connect to the context `)
             return false;
         }
         console.log("modules are", modules)

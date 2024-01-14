@@ -1,6 +1,6 @@
 import { Fade } from "@mui/material"
 import { makeStyles } from "@mui/styles"
-import { Core, IRobotConnectionInfo, IRobotModuleDefinition, makeConnectionContext, RobotConnectionType } from "neutron-core"
+import { Core, IRobotConnectionInfo, IRobotModuleDefinition, makeConnectionContext, ConnectionContextType } from "neutron-core"
 import React from "react"
 import { useContext, useEffect, useState } from "react"
 import RobotConnection from "../components/Connection/RobotConnection"
@@ -83,16 +83,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
     // data is hardcoded in the frontend
     useEffect(() => {
         setRobotConnectionsInfos([
-            {
-                hostname: '10.211.55.4',
-                port: 8000,
-                type: RobotConnectionType.ROSBRIDGE,
-            },
-            {
-                hostname: '172.20.10.12',
-                port: 8000,
-                type: RobotConnectionType.ROSBRIDGE,
-            },
+            
         ])
     }, [])
 

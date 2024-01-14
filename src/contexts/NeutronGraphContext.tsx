@@ -9,7 +9,7 @@ type ContextProps = {
         nodes: NeutronNodeDB[],
         edges: NeutronEdgeDB[],
         initialTimeout: number
-    ) => void
+    ) => Promise<FlowGraph | ConnectorGraph | undefined>
     runInputNode: (id: string, message?: NodeMessage) => void
     unloadGraph: () => void
     graph: ConnectorGraph | FlowGraph | undefined
@@ -38,7 +38,7 @@ export const NeutronGraphProvider = ({ children }: { children: ReactNode }) => {
         edges: NeutronEdgeDB[],
         initialTimeout: number = 1000
     ) => {
-        let graph;
+        let graph: ConnectorGraph | FlowGraph | undefined;
 
         setGraphStatus("compiling");
 
@@ -59,18 +59,35 @@ export const NeutronGraphProvider = ({ children }: { children: ReactNode }) => {
 
         setGraph(graph);
         setGraphStatus("ready");
+
+        const inputNodes = graph.getInputNodes()
+        for (const inputNode of inputNodes) {
+            inputNode.ProcessingBegin.on(handleInputNodeStartRunning)
+            inputNode.ProcessingBegin.on(handleInputNodeFinishedRunning)
+        }
         return graph;
     };
+
+    const handleInputNodeStartRunning = () => {
+        setGraphStatus("running");
+    }
+
+    const handleInputNodeFinishedRunning = () => {
+        setGraphStatus("ready");
+    }
 
     const runInputNode = async (id: string, message?: NodeMessage) => {
         if (!graph) throw new Error("No graph loaded");
 
-        setGraphStatus("running");
         await graph.runInputNode(id, message);
-        setGraphStatus("ready");
     };
 
     const unloadGraph = () => {
+        const inputNodes = graph?.getInputNodes() ?? []
+        for (const inputNode of inputNodes) {
+            inputNode.ProcessingBegin.offAll()
+            inputNode.ProcessingBegin.offAll()
+        }
         setGraph(undefined);
         setGraphStatus("unloaded");
     };

@@ -41,7 +41,7 @@ const HomeView = (props: HomeViewProps) => {
 
     const filterAndLimitRobots = (robots: IRobotWithStatus[]) => {
         return robots
-            .filter(e => e.status !== undefined)
+            .filter(e => e.status != undefined)
             .sort(e => e.status.time)
             .slice(0, 5)
     }

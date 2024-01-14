@@ -37,6 +37,7 @@ export interface IRobot {
   imgUrl: string;
   description: string;
   context: ConnectionContextType;
+  status?: IRobotStatus
 }
 
 export interface IRobotWithStatus extends IRobot {
@@ -53,6 +54,10 @@ export interface IRobotProcess {
   id: string;
 }
 
+export interface IRobotContextProcess extends IRobotProcess {
+  port: number
+}
+
 export interface IRobotStatus {
   _id: string;
   time: number;
@@ -62,7 +67,7 @@ export interface IRobotStatus {
   system?: IRobotSystemStatus;
   location?: IRobotLocationStatus;
   processes?: IRobotProcess[]
-  context?: IRobotProcess
+  context?: IRobotContextProcess
 }
 
 export interface IRobotLocationStatus {

@@ -172,7 +172,7 @@
     ],
     "ROS2": [
         {
-            "name": "publish",
+            "name": "publisher",
             "backgroundColor": "#FF0000",
             "inputHandles": 1,
             "outputHandles": 0,
@@ -185,7 +185,7 @@
             "description": "Triggers an event when a message is received on the defined ROS2 topic."
         },
         {
-            "name": "subscribe",
+            "name": "subscriber",
             "backgroundColor": "#FF0000",
             "inputHandles": 0,
             "outputHandles": 1,
@@ -198,7 +198,7 @@
             "description": "Publish a payload in the specified ROS2 topic."
         },
         {
-            "name": "call service",
+            "name": "service",
             "backgroundColor": "#FF0000",
             "inputHandles": 1,
             "outputHandles": 1,
@@ -211,7 +211,7 @@
             "description": "Send the payload in the specified ROS2 service, and await for a response to be forwarded in the output."
         },
         {
-            "name": "call action",
+            "name": "action",
             "backgroundColor": "#FF0000",
             "inputHandles": 1,
             "outputHandles": 2,

@@ -59,10 +59,11 @@ export enum NeutronSidePanel {
     Template = 'template',
     Delay = 'delay',
     Filter = 'filter',
-    Publisher = 'publish',
-    Subscriber = 'subscribe',
-    Service = 'call service',
-    Action = 'call action'
+    // Ros2
+    Publisher = 'publisher',
+    Subscriber = 'subscriber',
+    Service = 'service',
+    Action = 'action'
 }
 
 export const defaultSpecificsValues: Record<NeutronSidePanel, any> = {
@@ -156,15 +157,23 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
 
         if (graphStatus === 'running' && graph) {
             setNodeStatus(nodes.reduce((acc, cur) => ({ ...acc, [cur.id]: 'pending' }), {}))
-            graph.NodeProcessEvent.on(handleNodeProcessEvent)
-            const debugNodes = graph.findNodeByType<DebugNode>(DebugNode)
-            debugNodes.forEach((e) => e.DebugEvent.on(handleDebugNodeProcessEvent))
-            return () => {
-                graph.NodeProcessEvent.off(handleNodeProcessEvent)
-                debugNodes.forEach((e) => e.DebugEvent.off(handleDebugNodeProcessEvent))
-            }
         }
     }, [graphStatus])
+
+    useEffect(() => {
+        if (!graph)
+            return
+
+        graph.NodeProcessEvent.on(handleNodeProcessEvent)
+        const debugNodes = graph.findNodeByType<DebugNode>(DebugNode)
+        debugNodes.forEach((e) => e.DebugEvent.on(handleDebugNodeProcessEvent))
+
+        return () => {
+            graph.NodeProcessEvent.off(handleNodeProcessEvent)
+            debugNodes.forEach((e) => e.DebugEvent.off(handleDebugNodeProcessEvent))
+        }
+    }, [graph, handleNodeProcessEvent])
+
 
     const neutronPanels = {
         [NeutronSidePanel.InfoMenu]: <InfoMenuSidePanel graphType={graphType} handleGraphTypeUpdate={handleGraphTypeUpdate} onVariableUpdate={onEnvironmentVariableUpdate} title={title ?? 'New graph'} nodes={nodes} />,
