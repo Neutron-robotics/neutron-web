@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Zoom } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import DocumentationSidePanel from "./menu/DocumentationSidePanel"

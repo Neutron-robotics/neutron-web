@@ -54,7 +54,7 @@ const connectRobotAndCreateConnection = async (robotId: string) => {
     robot.status.status === "Offline"
   )
     throw new Error(
-      `The robot is in the ${robot.status.status} status which is not suitable for creating a new connection`
+      `The robot is ${robot.status.status}`
     );
 
   try {
@@ -66,13 +66,14 @@ const connectRobotAndCreateConnection = async (robotId: string) => {
   try {
     robot = await robotApi.getRobot(robotId, true);
   } catch {
+    await robotApi.stop(robotId)
     throw new Error(
       "An error happened while getting robot informations after starting it"
     );
   }
 
-  if (!robot.status?.context?.port) {
-    console.log(robot)
+  if (!robot.status?.context?.port) {    
+    await robotApi.stop(robotId)
     throw new Error("Robot is not ready for connection");
   }
 
@@ -82,6 +83,7 @@ const connectRobotAndCreateConnection = async (robotId: string) => {
       robotId: robot._id,
     });
   } catch {
+    await robotApi.stop(robotId)
     throw new Error("Failed to create the neutron connection");
   }
 

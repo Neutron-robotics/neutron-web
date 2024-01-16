@@ -5,7 +5,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import SaveIcon from '@mui/icons-material/Save';
 import { EditText } from "react-edit-text";
 import { useCallback } from "react";
-import { ConnectorGraph, FlowGraph, IRos2PartSystem, IRos2System, NeutronGraphType, makeConnectionContext } from "neutron-core";
+import { IRos2PartSystem, IRos2System, NeutronGraphType } from "neutron-core";
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Edge, Node } from "reactflow";
@@ -14,7 +14,6 @@ import { useAlert } from "../../contexts/AlertContext";
 import makeGraphThumbnailFile from "../../utils/makeGraphThumbnail";
 import { uploadFile } from "../../api/file";
 import * as graphApi from "../../api/graph"
-import * as connectionApi from "../../api/connection"
 import _ from 'lodash'
 import useConfirmationDialog from "../controls/useConfirmationDialog";
 import ButtonDialog from "../controls/ButtonDialog";
@@ -66,7 +65,8 @@ interface NeutronToolBarProps {
     edges: Edge[],
     title: string,
     loadedGraph?: INeutronGraph
-    onGraphUpdate: (graph?: INeutronGraph) => void
+    onGraphUpdate: (graph: INeutronGraph) => void
+    handleGraphNewClick: () => void
     onTitleUpdate: (title: string) => void
     panels: {
         addSidePanel: (panel: NeutronSidePanel, clearOther?: boolean) => void;
@@ -76,7 +76,7 @@ interface NeutronToolBarProps {
 }
 
 const NeutronToolBar = (props: NeutronToolBarProps) => {
-    const { nodes, edges, graphType, selectedRobot, selectedRobotPartId, loadedGraph, onGraphUpdate, panels, title, onTitleUpdate } = props
+    const { nodes, edges, graphType, selectedRobot, selectedRobotPartId, loadedGraph, onGraphUpdate, handleGraphNewClick, panels, title, onTitleUpdate } = props
     const classes = useStyles()
     const alert = useAlert()
     const [Dialog, prompt] = useConfirmationDialog();
@@ -163,12 +163,12 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
             prompt('There are pending changes for your current graph, do you want to discard it ?', (confirm) => {
                 if (confirm) {
                     onTitleUpdate('')
-                    onGraphUpdate()
+                    handleGraphNewClick()
                 }
             })
         } else {
             onTitleUpdate('')
-            onGraphUpdate()
+            handleGraphNewClick()
         }
     }
 
@@ -184,7 +184,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
             if (confirm) {
                 graphApi.deleteGraph(loadedGraph?._id).then(res => {
                     onTitleUpdate('')
-                    onGraphUpdate()
+                    handleGraphNewClick()
                     alert.success("The graph has been deleted")
                 }).catch(() => {
                     alert.error("Impossible to delete the graph")
@@ -221,31 +221,12 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
             return
         }
 
-        let graph: FlowGraph | ConnectorGraph | undefined
-        try {
-            graph = await makeNeutronGraph(loadedGraph.type, loadedGraph.nodes, loadedGraph.edges, 1000)
-            if (!graph)
-                throw new Error()
-        }
-        catch {
-            alert.error('Failed to compile the graph')
-        }
-
-        try {
-            const connectionInfos = await connectionApi.connectRobotAndCreateConnection(selectedRobot._id)
-            const context = makeConnectionContext(selectedRobot.context, {
-                hostname: connectionInfos.hostname,
-                port: connectionInfos.port,
-                clientId: connectionInfos.registerId,
-            })
-            await context.connect()
-            graph?.useContext(context)
-            alert.success("Connected to the robot")
-        }
-        catch (err: any) {
-            console.log("error during connection: ", err)
-            alert.error('Failed to connect to the robot')
-        }
+        await makeNeutronGraph(
+            loadedGraph.type,
+            loadedGraph.nodes,
+            loadedGraph.edges,
+            selectedRobot,
+            1000)
     }
 
     return (
@@ -277,7 +258,7 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                         <DeleteIcon />
                     </Tooltip>
                 </IconButton>
-                <IconButton onClick={handleDebugClick} color="secondary">
+                <IconButton disabled={!loadedGraph} onClick={handleDebugClick} color="secondary">
                     <Tooltip arrow title={isDebug ? "Stop debugging" : "Run graph in development mode"}>
                         <>
                             {graphStatus !== 'unloaded' && graphStatus !== 'compiling' ? <StopIcon /> :

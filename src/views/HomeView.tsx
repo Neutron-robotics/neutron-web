@@ -1,5 +1,5 @@
+/* eslint-disable eqeqeq */
 import { makeStyles } from "@mui/styles"
-import { UserModel } from "../api/models/user.model"
 import { useEffect, useState } from "react"
 import { getMyRobots } from "../api/robot"
 import { IRobotWithStatus } from "../api/models/robot.model"

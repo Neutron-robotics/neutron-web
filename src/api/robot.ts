@@ -64,12 +64,21 @@ const start = async (robotId: string, partsId?: string[]) => {
     }
 }
 
+const stop = async (robotId: string) => {
+    const res = await api.post(`robot/stop/${robotId}`)
+
+    if (res.status !== 200) {
+        throw new Error("Could not start the robot")
+    }
+}
+
 
 export {
     create,
     getRobot,
     update,
     start,
+    stop,
     deleteRobot,
     getLatestRobotStatus,
     getMyRobots

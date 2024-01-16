@@ -22,4 +22,5 @@ export interface ConnectionRegistrationInfos {
   hostname: string,
   port: number,
   registerId: string
+  connectionId: string
 }

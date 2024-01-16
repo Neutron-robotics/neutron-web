@@ -73,42 +73,39 @@ const NeutronView = (props: NeutronViewProps) => {
     const [selectedNode, setSelectedNode] = useState<VisualNode>()
     const { graphStatus } = useNeutronGraph()
 
-    const handleNeutronGraphUpdate = async (graph?: INeutronGraph) => {
-        // Click Open
-        if (!neutronGraph && graph) {
-            const robot = Object.values(availableRobots).reduce((acc, cur) => [...acc, ...cur], []).find(e => e._id === graph.robot)
-            if (!robot) {
-                alert.error("The selected robot could not be found")
+    const handleNeutronGraphOpen = async (graph: INeutronGraph) => {
+        const robot = Object.values(availableRobots).reduce((acc, cur) => [...acc, ...cur], []).find(e => e._id === graph.robot)
+        if (!robot) {
+            alert.error("The selected robot could not be found")
+            return
+        }
+        const ros2System = await getRos2System(robot._id)
+        setSelectedRobot(robot)
+        if (graph.part) {
+            const part = robot.parts.find(e => e._id === graph.part)
+            if (!part) {
+                alert.error("The selected part could not be found")
                 return
             }
-            const ros2System = await getRos2System(robot._id)
-            setSelectedRobot(robot)
-            if (graph.part) {
-                const part = robot.parts.find(e => e._id === graph.part)
-                if (!part) {
-                    alert.error("The selected part could not be found")
-                    return
-                }
-                setSelectedPart(part)
-                const partSystem = toPartSystem(part, ros2System)
-                setRos2System(partSystem)
-            }
-            else {
-                setRos2System(ros2System)
-            }
-            setNodes(graph.nodes as VisualNode[])
-            setEdges(graph.edges)
+            setSelectedPart(part)
+            const partSystem = toPartSystem(part, ros2System)
+            setRos2System(partSystem)
         }
-
-        // Click new
-        if (!graph) {
-            setNodes([])
-            setEdges([])
-            setSelectedPart(undefined)
-            setSelectedRobot(undefined)
-            setRos2System(undefined)
+        else {
+            setRos2System(ros2System)
         }
+        setNodes(graph.nodes as VisualNode[])
+        setEdges(graph.edges)
         setNeutronGraph(graph)
+    }
+
+    const handleNeutronGraphNewClick = () => {
+        setNodes([])
+        setEdges([])
+        setSelectedPart(undefined)
+        setSelectedRobot(undefined)
+        setRos2System(undefined)
+        setNeutronGraph(undefined)
     }
 
     const addSidePanel = (panel: NeutronSidePanel, clearOther?: boolean) => {
@@ -249,7 +246,8 @@ const NeutronView = (props: NeutronViewProps) => {
                         edges={edges}
                         title={title}
                         onTitleUpdate={setTitle}
-                        onGraphUpdate={handleNeutronGraphUpdate}
+                        onGraphUpdate={handleNeutronGraphOpen}
+                        handleGraphNewClick={handleNeutronGraphNewClick}
                         loadedGraph={neutronGraph}
                         panels={{
                             addSidePanel,

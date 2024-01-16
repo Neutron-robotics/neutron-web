@@ -121,7 +121,7 @@ const DebugMenuSidePanel = (props: DebugMenuSidePanelProps, ref: ForwardedRef<an
         }, 300);
 
         return () => clearInterval(interval);
-    }, [startTimeRef.current]);
+    }, []);
 
 
     function onCancelGraphExecution(): void {
