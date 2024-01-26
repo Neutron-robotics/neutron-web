@@ -11,9 +11,9 @@ import {
 } from '@mui/icons-material';
 
 interface BatteryProps {
-    value: number,
-    charging: boolean,
     className: string
+    value: number,
+    charging?: boolean,
 }
 
 const Battery = (props: BatteryProps) => {

@@ -13,6 +13,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import LoginView from './views/LoginView';
 import { ProtectedRoute } from './components/controls/ProtectedRoute';
 import RouteManager from './views/RouteManager';
+import { ConnectionProvider } from './contexts/ConnectionContext';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -41,11 +42,11 @@ function App() {
           <AuthProvider>
             <TabProvider>
               <ViewProvider>
-                <MultiConnectionProvider>
+                <ConnectionProvider>
                   <ThemeProvider theme={neutronMuiThemeDefault}>
                     <RouteManager />
                   </ThemeProvider>
-                </MultiConnectionProvider>
+                </ConnectionProvider>
               </ViewProvider>
             </TabProvider>
           </AuthProvider>

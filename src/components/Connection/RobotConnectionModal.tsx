@@ -13,7 +13,8 @@ import DoneIcon from '@mui/icons-material/Done';
 import neutronMuiThemeDefault from "../../contexts/MuiTheme";
 import * as robotStartUtils from "../../utils/robotStartUtils";
 import CancelIcon from '@mui/icons-material/Cancel';
-import { start } from "../../api/robot";
+import * as robotApi from "../../api/robot";
+import { RobotConnectionStep } from "../../contexts/ConnectionContext";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -124,14 +125,6 @@ export interface RobotConnectionModalProps {
     robot: IRobotWithStatus
 }
 
-enum RobotConnectionStep {
-    Start,
-    CompilingGraph,
-    SpawningContext,
-    SpawningParts,
-    Done
-}
-
 const RobotConnectionModal = (props: RobotConnectionModalProps) => {
     const { open, onClose, robot } = props
     const classes = useStyles()
@@ -166,7 +159,7 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
             setConnectionStep(RobotConnectionStep.CompilingGraph)
             await sleep(200)
 
-            const startPromise = start(robot._id, partsIdToConnect)
+            const startPromise = robotApi.start(robot._id, partsIdToConnect)
 
             setConnectionStep(RobotConnectionStep.SpawningContext)
             await robotStartUtils.waitForContextToSpawn(robot._id, 500, 30_000)

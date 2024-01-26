@@ -162,28 +162,28 @@ const CameraComponent = (props: IOperationComponentSpecifics<ICameraComponentSpe
     )
 }
 
-export const CameraComponentBuilder: IOperationComponentDescriptor = {
-    name: "Camera Viewer",
-    type: "passive",
-    partType: "camera",
-    component: CameraComponent,
-    icon: <CameraAltIcon />,
-    settings: {
-        defaultSize: {
-            height: 480,
-            width: 854
-        },
-        minSize: {
-            height: 240,
-            width: 427
-        },
-        maxSize: {
-            height: 720,
-            width: 1281
-        },
-        resizable: true,
-        conserveSizeRatio: true
-    },
-}
+// export const CameraComponentBuilder: IOperationComponentDescriptor = {
+//     name: "Camera Viewer",
+//     type: "passive",
+//     partType: "camera",
+//     component: CameraComponent,
+//     icon: <CameraAltIcon />,
+//     settings: {
+//         defaultSize: {
+//             height: 480,
+//             width: 854
+//         },
+//         minSize: {
+//             height: 240,
+//             width: 427
+//         },
+//         maxSize: {
+//             height: 720,
+//             width: 1281
+//         },
+//         resizable: true,
+//         conserveSizeRatio: true
+//     },
+// }
 
 export default CameraComponent

@@ -249,27 +249,23 @@ const Console = (props: IConsoleProps) => {
     );
 };
 
-export const ConsoleComponentBuilder: IOperationComponentDescriptor = {
-    name: "Console",
-    type: "passive",
-    partType: "utils",
-    component: Console,
-    icon: <AdbIcon />,
-    settings: {
-        defaultSize: {
-            height: 300,
-            width: 500
-        },
-        minSize: {
-            height: 150,
-            width: 250
-        },
-        maxSize: {
-            height: 600,
-            width: 1000
-        },
-        resizable: true
-    },
-}
+// export const ConsoleComponentBuilder: IOperationComponentDescriptor = {
+//     name: "Console",
+//     settings: {
+//         defaultSize: {
+//             height: 300,
+//             width: 500
+//         },
+//         minSize: {
+//             height: 150,
+//             width: 250
+//         },
+//         maxSize: {
+//             height: 600,
+//             width: 1000
+//         },
+//         resizable: true
+//     },
+// }
 
 export default Console;

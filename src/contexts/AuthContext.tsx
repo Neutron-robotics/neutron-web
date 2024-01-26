@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAlert } from "./AlertContext";
 
 type ContextProps = {
-    user: UserModel | null,
+    user: UserModel | null
     loggedIn: boolean
     login: (data: UserModel) => void
     logout: () => void

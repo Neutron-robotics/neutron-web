@@ -8,11 +8,11 @@ export function makeOperationBar(
   const operationbar: IOperationCategory[] = categories.reduce<
     IOperationCategory[]
   >((acc, category) => {
-    if (category.type === "global") {
+    if (category.name === "global") {
         return [...acc, category];
     }
     const categoryModules = category.components.filter((component) =>
-      modules.find((module) => module.type === component.partType)
+      modules.find((module) => module.type === 'component.partType')
     );
     if (categoryModules.length === 0) {
       return acc;

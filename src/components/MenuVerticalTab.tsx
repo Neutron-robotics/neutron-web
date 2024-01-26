@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, IconButton, styled, CSSObject, Theme } from '@mui/material';
+import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, IconButton, styled, CSSObject, Theme, Collapse } from '@mui/material';
 import MuiDrawer from '@mui/material/Drawer'
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import HomeIcon from '@mui/icons-material/Home';
@@ -10,6 +10,8 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import RobotConnectionSubMenu, { RobotConnectionSubMenuProps } from './Connection/RobotConnectionSubMenu';
 
 const drawerMaxWidth = 240;
 
@@ -22,7 +24,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     ...theme.mixins.toolbar,
 }));
 
-const views: MenuOption[] = [
+const defaultMenuViews: MenuOption[] = [
     {
         title: 'Home',
         icon: <HomeIcon />,
@@ -32,6 +34,14 @@ const views: MenuOption[] = [
         title: 'Connection',
         icon: <LinkIcon />,
         viewType: ViewType.ConnectionView,
+        subItems: [
+            {
+                title: 'OsoyooBot',
+                connectionId: 'totototooto'
+            } as RobotConnectionSubMenuProps
+        ],
+        subItemsComponentTemplate: RobotConnectionSubMenu,
+        isSubItemsListOpen: false
     },
     {
         title: 'Organization',
@@ -54,6 +64,13 @@ interface MenuOption {
     title: string;
     icon: JSX.Element;
     viewType: string;
+    isSubItemsListOpen?: boolean
+    subItems?: MenuOptionSubItem[]
+    subItemsComponentTemplate?: any
+}
+
+export interface MenuOptionSubItem {
+    title: string
 }
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
@@ -97,6 +114,7 @@ interface MenuVerticalTabsProps {
 
 const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
     const location = useLocation()
+    const [views, setViews] = useState(defaultMenuViews)
     const selectedView = views.find(e => e.viewType === location.pathname)
     const [drawerWidth, setDrawerWidth] = useState("50px")
     const [open, setOpen] = React.useState(false);
@@ -113,8 +131,15 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
     };
 
     const handleMenuSelected = (menuOption: MenuOption) => {
+        if (menuOption.subItems !== undefined)
+            return handleMenuWithSubItemSelected(menuOption)
+
         navigate(menuOption.viewType, { replace: true });
     };
+
+    const handleMenuWithSubItemSelected = (menuOption: MenuOption) => {
+        setViews(views.map(e => e.title === menuOption.title ? ({ ...menuOption, isSubItemsListOpen: !menuOption.isSubItemsListOpen }) : e))
+    }
 
     return (
         <Drawer variant="permanent" open={open} anchor='left' sx={{
@@ -137,28 +162,40 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
             </DrawerHeader>
             <List>
                 {views.map(e => (
-                    <ListItem key={e.title} disablePadding sx={{ display: 'block' }} onClick={() => handleMenuSelected(e)}>
-                        <ListItemButton
-                            sx={{
-                                minHeight: 48,
-                                justifyContent: open ? 'initial' : 'center',
-                                px: 2.5,
-                            }}
-                        >
-                            <ListItemIcon
+                    <div key={e.title} >
+                        <ListItem disablePadding sx={{ display: 'block' }} onClick={() => handleMenuSelected(e)}>
+                            <ListItemButton
                                 sx={{
-                                    minWidth: 0,
-                                    mr: open ? 3 : 'auto',
-                                    justifyContent: 'center',
-                                    fontWeight: 'bold',
-                                    color: (e.title === selectedView?.title) ? 'black' : undefined
+                                    minHeight: 48,
+                                    justifyContent: open ? 'initial' : 'center',
+                                    px: 2.5,
                                 }}
                             >
-                                {e.icon}
-                            </ListItemIcon>
-                            <ListItemText primary={e.title} sx={{ opacity: open ? 1 : 0 }} />
-                        </ListItemButton>
-                    </ListItem>
+                                <ListItemIcon
+                                    sx={{
+                                        minWidth: 0,
+                                        mr: open ? 3 : 'auto',
+                                        justifyContent: 'center',
+                                        fontWeight: 'bold',
+                                        color: (e.title === selectedView?.title) ? 'black' : undefined
+                                    }}
+                                >
+                                    {e.icon}
+                                </ListItemIcon>
+                                <ListItemText primary={e.title} sx={{ opacity: open ? 1 : 0 }} />
+                                {(!open || e.subItems === undefined) ? <></> : e.isSubItemsListOpen ? <ExpandLess /> : <ExpandMore />}
+                            </ListItemButton>
+                        </ListItem>
+                        <Collapse in={e.isSubItemsListOpen && open} timeout="auto" unmountOnExit>
+                            <List component="div" disablePadding>
+                                {
+                                    e.subItems?.map(subItem => (
+                                        <e.subItemsComponentTemplate key={subItem.title} {...subItem} />
+                                    ))
+                                }
+                            </List>
+                        </Collapse>
+                    </div>
                 ))}
             </List>
         </Drawer>

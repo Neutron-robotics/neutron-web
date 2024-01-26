@@ -6,7 +6,6 @@ import { useContext, useRef } from "react";
 import TabHeader from "./TabHeader";
 import { IOperationTab, useTabsDispatch } from "../../contexts/TabContext";
 import React from "react";
-import { UserModel } from "../../api/models/user.model";
 import { capitalize } from "../../utils/string";
 import { useAuth } from "../../contexts/AuthContext";
 

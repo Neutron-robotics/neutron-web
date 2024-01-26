@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { IOperationCategory, IOperationComponent, IOperationComponentBuilder, IOperationComponentDescriptor, IOperationComponentSpecifics } from '../components/OperationComponents/IOperationComponents';
-import { operationComponentsConfiguration } from '../components/OperationComponents/components';
 import { makeOperationComponentLayoutItem } from "../components/OperationComponents/OperationComponentFactory";
 import IViewProps from "./IView";
 import OperationHeader from "../components/Header/OperationHeader";
@@ -10,6 +9,7 @@ import { v4 as uuid } from 'uuid';
 import { useConnection } from '../contexts/MultiConnectionProvider';
 import { makeOperationBar } from '../utils/makeOperationBar';
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -24,8 +24,13 @@ const useStyles = makeStyles(() => ({
 export interface IOperationViewProps {
 }
 
+type OperationViewParams = {
+    connectionId: string
+}
+
 const OperationView = (props: IOperationViewProps) => {
     // const { setHeaderBody, tabId } = props
+    const params = useParams<OperationViewParams>()
     const tabId = '0'
     const classes = useStyles()
     const actualTab = useTab(tabId)
@@ -42,27 +47,27 @@ const OperationView = (props: IOperationViewProps) => {
     }, [dispatcher, tabId])
 
     const handleOnAddOperationComponent = useCallback((descriptor: IOperationComponentDescriptor) => {
-        const componentBuilder: IOperationComponentBuilder = {
-            id: uuid(),
-            tabId: tabId,
-            name: descriptor.name,
-            type: descriptor.type,
-            settings: descriptor.settings,
-            component: descriptor.component,
-            onClose: handleOnCloseOperationComponent,
-        }
-        const componentSpecific: IOperationComponentSpecifics<unknown> = {
-            moduleId: descriptor.moduleId,
-            connectionId: tabId,
-            onCommitComponentSpecific: <TComponentSpecific,>(specifics: TComponentSpecific) => { },
-            specifics: {},
-        }
-        const layoutComponent = makeOperationComponentLayoutItem(componentBuilder, componentSpecific)
-        dispatcher({
-            type: "add-component", tabId: tabId, payload:
-                { builder: componentBuilder, specifics: componentSpecific }
-        })
-        setOperationComponents([...operationComponents, layoutComponent])
+        // const componentBuilder: IOperationComponentBuilder = {
+        //     id: uuid(),
+        //     tabId: tabId,
+        //     name: descriptor.name,
+        //     type: descriptor.type,
+        //     settings: descriptor.settings,
+        //     component: descriptor.component,
+        //     onClose: handleOnCloseOperationComponent,
+        // }
+        // const componentSpecific: IOperationComponentSpecifics<unknown> = {
+        //     moduleId: '',
+        //     connectionId: tabId,
+        //     onCommitComponentSpecific: <TComponentSpecific,>(specifics: TComponentSpecific) => { },
+        //     specifics: {},
+        // }
+        // const layoutComponent = makeOperationComponentLayoutItem(componentBuilder, componentSpecific)
+        // dispatcher({
+        //     type: "add-component", tabId: tabId, payload:
+        //         { builder: componentBuilder, specifics: componentSpecific }
+        // })
+        // setOperationComponents([...operationComponents, layoutComponent])
     }, [dispatcher, handleOnCloseOperationComponent, tabId, operationComponents])
 
     useEffect(() => {
@@ -84,7 +89,7 @@ const OperationView = (props: IOperationViewProps) => {
     }, [actualTab, dispatcher, handleOnCloseOperationComponent, initializedTab, tabId])
 
     useEffect(() => {
-        const operationCategoryFiltered: IOperationCategory[] = makeOperationBar(operationComponentsConfiguration, connection?.modules ?? [])
+        // const operationCategoryFiltered: IOperationCategory[] = makeOperationBar(operationComponentsConfiguration, connection?.modules ?? [])
         // setHeaderBody(
         //     <OperationHeader
         //         mountComponent={handleOnAddOperationComponent}
@@ -98,9 +103,9 @@ const OperationView = (props: IOperationViewProps) => {
         <>
             <div className={classes.root} >
                 {operationComponents.map((e: IOperationComponent) => {
-                    const OperationComponent = e.operationComponent
+                    // const OperationComponent = e.operationComponent
                     return (
-                        <OperationComponent
+                        <e.operationComponent
                             key={e.id}
                         />
                     )

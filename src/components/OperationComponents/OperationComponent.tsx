@@ -89,7 +89,7 @@ const OperationComponent = (props: OperationComponentProps) => {
     const classes = useStyle()
     const nodeRef = useRef(null);
     const [position, setPosition] = useState<ILayoutCoordinates>(defaultPosition || { x: 0, y: 0 })
-    const [size, setSize] = useState({ width: settings.defaultSize.width, height: settings.defaultSize.height })
+    const [size, setSize] = null as any //useState({ width: settings.defaultSize.width, height: settings.defaultSize.height })
     const posRef = useRef(position)
     const tabDispatcher = useTabsDispatch()
     const [isClosing, setIsClosing] = useState(false)
@@ -131,12 +131,12 @@ const OperationComponent = (props: OperationComponentProps) => {
     }
 
     const handleOnResize = (e: any, cb: ResizeCallbackData) => {
-        if (settings.conserveSizeRatio) {
-            const height = (settings.defaultSize.height / settings.defaultSize.width) * cb.size.width
-            setSize({ width: cb.size.width, height: height })
-        }
-        else
-            setSize({ width: cb.size.width, height: cb.size.height })
+        // if (settings.conserveSizeRatio) {
+        //     const height = (settings.defaultSize.height / settings.defaultSize.width) * cb.size.width
+        //     setSize({ width: cb.size.width, height: height })
+        // }
+        // else
+        //     setSize({ width: cb.size.width, height: cb.size.height })
     }
 
     const {

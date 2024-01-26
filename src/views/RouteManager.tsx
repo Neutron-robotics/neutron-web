@@ -16,28 +16,21 @@ import RobotPartView from "./RobotPartView";
 import { NeutronGraphProvider } from "../contexts/NeutronGraphContext";
 import NotFound from "./NotFound";
 
-const useStyles = makeStyles(() => ({
-
-}))
-
 interface RouteManagerProps {
 
 }
 
 const RouteManager = () => {
-    const classes = useStyles();
-
     return (
         <Routes>
             <Route path="/login" element={<LoginView />} />
-
             <Route
                 path="/*"
                 element={
                     <MainLayout>
                         <Routes>
                             <Route index element={<HomeView />} />
-                            <Route path="/connection" element={<ConnectionView />} />
+                            <Route path="/connection/:connectionId" element={<ConnectionView />} />
                             <Route path="/organization" element={<OrganizationView />} />
                             <Route path="/organization/:organizationId" element={<OrganizationView />} />
                             <Route path="/organization/:organizationId/robot/:robotId" element={<RobotView />} />

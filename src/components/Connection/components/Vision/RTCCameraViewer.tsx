@@ -1,10 +1,8 @@
 import { Button } from "@mui/material";
 import { useRef, useState } from "react";
 import { makeStyles } from "@mui/styles"
-import { IOperationComponentDescriptor, IOperationComponentSpecifics } from "../IOperationComponents";
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
-import { useConnection } from "../../../contexts/MultiConnectionProvider";
 import { WebRTC } from "neutron-core";
+import { NodeProps } from "reactflow"
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -19,16 +17,17 @@ const useStyles = makeStyles(() => ({
     },
 }))
 
-interface ICameraRTCComponentSpecifics {
+interface IRTCCameraViewerSpecifics {
 }
 
-function VideoSteam(props: IOperationComponentSpecifics<ICameraRTCComponentSpecifics>) {
-    const { moduleId, connectionId } = props
+function RTCCameraViewer(props: NodeProps<IRTCCameraViewerSpecifics>) {
+    // const { moduleId, connectionId } = props
     const classes = useStyles()
     const pc = useRef<RTCPeerConnection>()
     const media = useRef<HTMLVideoElement>(null)
-    const connection = useConnection(connectionId ?? "")
-    const webRTC = connection?.modules.find(m => m.id === moduleId) as WebRTC | undefined
+    // const connection = useConnection(connectionId ?? "")
+    // const webRTC = connection?.modules.find(m => m.id === moduleId) as WebRTC | undefined
+    const webRTC = null as any as WebRTC
     const [connected, setConnected] = useState(false)
 
     const connect = async () => {
@@ -92,28 +91,4 @@ function VideoSteam(props: IOperationComponentSpecifics<ICameraRTCComponentSpeci
     )
 }
 
-// export const WebRTCCameraComponentBuilder: IOperationComponentDescriptor = {
-//     name: "Camera RTC Viewer",
-//     type: "passive",
-//     partType: "webrtc",
-//     component: VideoSteam,
-//     icon: <CameraAltIcon />,
-//     settings: {
-//         defaultSize: {
-//             height: 480,
-//             width: 854
-//         },
-//         minSize: {
-//             height: 240,
-//             width: 427
-//         },
-//         maxSize: {
-//             height: 720,
-//             width: 1281
-//         },
-//         resizable: true,
-//         conserveSizeRatio: true
-//     },
-// }
-
-export default VideoSteam
+export default RTCCameraViewer

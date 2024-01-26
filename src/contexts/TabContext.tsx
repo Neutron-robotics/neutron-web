@@ -88,7 +88,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         tabsReducer,
         initialTabs
     )
-    
+
     return (
         <TabsContext.Provider value={tabs}>
             <TabsDispatchContext.Provider value={dispatch}>

@@ -37,7 +37,7 @@ const close = async (connectionId: string): Promise<void> => {
   }
 };
 
-const connectRobotAndCreateConnection = async (robotId: string) => {
+const connectRobotAndCreateConnection = async (robotId: string, partsId?: string[]) => {
   let robot: IRobot | undefined;
 
   try {
@@ -58,7 +58,7 @@ const connectRobotAndCreateConnection = async (robotId: string) => {
     );
 
   try {
-    await robotApi.start(robot._id);
+    await robotApi.start(robot._id, partsId);
   } catch {
     throw new Error("Failed to start the robot");
   }

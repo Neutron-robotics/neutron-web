@@ -1,20 +1,22 @@
 import { Divider, IconButton, Menu, MenuItem } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import MenuIcon from '@mui/icons-material/Menu';
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { IOperationCategory, IOperationComponentDescriptor } from "../OperationComponents/IOperationComponents";
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
-import { IRobotStatus } from "neutron-core";
 import React from "react";
 import inputActions, { gamecontrol } from "hotkeys-inputs-js";
 import { GamepadPrototype } from "hotkeys-inputs-js/dist/types";
-import OperationMenuPanel from "./OperationPanel";
-import { useConnection } from "../../contexts/MultiConnectionProvider";
-import { ViewContext, ViewType } from "../../contexts/ViewProvider";
-import { useTabsDispatch } from "../../contexts/TabContext";
 import WifiSignal from "../controls/WifiSignal";
 import Battery from "../controls/Battery";
+import OperationMenuPanel from "../Header/OperationPanel";
+import { IRobotStatus, defaultRobotStatus } from "../../api/models/robot.model";
+import { useConnection } from "../../contexts/ConnectionContext";
+import { loadOperationComponents } from "../OperationComponents/OperationComponentFactory";
+import { v4 } from "uuid";
+import { Node } from "reactflow";
+import { ComponentNode } from "./components/componentType";
 
 const useStyle = makeStyles((theme: any) => ({
     root: {
@@ -78,19 +80,16 @@ const useStyle = makeStyles((theme: any) => ({
 }))
 
 
-interface OperationHeaderProps {
-    mountComponent: (descriptor: IOperationComponentDescriptor) => void;
-    operationCategories: IOperationCategory[]
+interface ConnectionToolBarProps {
     connectionId: string
 }
 
-const OperationHeader = (props: OperationHeaderProps) => {
-    const { mountComponent, operationCategories, connectionId } = props
-    const connection = useConnection(connectionId)
-    const { setViewType } = useContext(ViewContext);
-    const tabDispatch = useTabsDispatch()
-    const { core, modules } = connection
+const ConnectionToolBar = (props: ConnectionToolBarProps) => {
+    const { connectionId } = props
     const classes = useStyle()
+    const { robot, addNode } = useConnection(connectionId)
+    const operationComponents = loadOperationComponents()
+
     const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(menuAnchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -99,56 +98,43 @@ const OperationHeader = (props: OperationHeaderProps) => {
     const handleClose = () => {
         setMenuAnchorEl(null);
     };
-    const [robotStatus, setRobotStatus] = useState<IRobotStatus>({
-        battery: -1,
-        cpu: 0,
-        memory: 0,
-        operationTime: -1,
-        time: 0,
-        modules: []
-    })
+    const [robotStatus, setRobotStatus] = useState<IRobotStatus>(defaultRobotStatus)
 
     const handleOnRobotDisconnect = async () => {
-        await core.stopProcesses()
-        tabDispatch({
-            type: 'remove',
-            tabId: connectionId
-        })
-        setViewType(ViewType.Home)
+
     }
 
     const handleOnModuleSwitchState = async (moduleId: string, connect: boolean) => {
-        if (connect) {
-            return await core.startRobotProcess(moduleId, 30000)
-        }
-        else
-            return await core.stopRobotProcess(moduleId)
+        return true
     }
 
     const handleWifiClick = () => { }
 
     useEffect(() => {
-        const timer = setInterval(async () => {
-            const robotst = await core.getRobotStatus()
-            setRobotStatus(robotst)
-        }, 1000)
+        // const timer = setInterval(async () => {
+        //     const robotStatus = await robotApi.getLatestRobotStatus('toto') // todo, create a route to proxy latest robot status
+        //     setRobotStatus(robotStatus)
+        // }, 1000)
         return () => {
-            clearInterval(timer)
+            // clearInterval(timer)
         }
-    }, [core])
+    }, [])
 
     const handleOnMountComponent = (descriptor: IOperationComponentDescriptor) => {
-        const module = modules.filter(m => m.type === 'descriptor.partType')
-        if (module.length > 1) {
-            console.log("more than one module of this type, need to select, not implemented yet")
-        }
-        if (module.length === 1) {
-            mountComponent({
-                ...descriptor,
-            })
-        }
-        else
-            mountComponent(descriptor)
+        const newNode: ComponentNode = {
+            id: v4(),
+            type: descriptor.name,
+            position: {
+                x: 100,
+                y: 100
+            },
+            data: {
+                connectionId,
+                settings: descriptor.settings
+            },
+            dragHandle: '.custom-drag-handle'
+        };
+        addNode(newNode)
     }
 
     return (
@@ -173,17 +159,15 @@ const OperationHeader = (props: OperationHeaderProps) => {
                         'aria-labelledby': 'basic-button',
                     }}
                 >
-                    {connection?.core && (
-                        <OperationMenuPanel
-                            modules={core.modules}
-                            name={core.name}
-                            cpu={robotStatus.cpu}
-                            ram={robotStatus.memory}
-                            operationStartTime={robotStatus.operationTime}
-                            onShutdownClick={handleOnRobotDisconnect}
-                            onModuleSwitchClick={handleOnModuleSwitchState}
-                        />
-                    )}
+                    <OperationMenuPanel
+                        modules={[]}
+                        name={robot.name}
+                        cpu={robotStatus.system?.cpu ?? 0}
+                        ram={robotStatus.system?.memory ?? 0}
+                        operationStartTime={robotStatus.time}
+                        onShutdownClick={handleOnRobotDisconnect}
+                        onModuleSwitchClick={handleOnModuleSwitchState}
+                    />
                 </Menu>
                 <div className={classes.iconsMenuVertical}>
                     <IconButton
@@ -192,9 +176,9 @@ const OperationHeader = (props: OperationHeaderProps) => {
                         aria-label="battery-info"
                         color="inherit"
                         sx={{ display: 'flex' }}
-                        title={`Battery ${robotStatus.battery === -1 ? 'Unknown' : robotStatus.battery}`}
+                        title={`Battery ${robotStatus.battery?.level === -1 ? 'Unknown' : robotStatus.battery}`}
                     >
-                        <Battery charging={false} value={robotStatus.battery} className={classes.batteryIconButton} />
+                        <Battery charging={robotStatus.battery?.charging} value={robotStatus.battery?.level ?? 0} className={classes.batteryIconButton} />
                     </IconButton>
                     <IconButton
                         size="large"
@@ -219,7 +203,7 @@ const OperationHeader = (props: OperationHeaderProps) => {
 
             <Divider orientation="vertical" flexItem />
             <div className={classes.partIconGroup}>
-                {operationCategories.map(e => <PartCard key={`pc-${e.name}-{e.type}`} mountComponent={handleOnMountComponent} operationCategory={e} isActivated />)}
+                {operationComponents.map(e => <PartCard key={e.name} mountComponent={handleOnMountComponent} operationCategory={e} isActivated />)}
             </div>
             <InputHandlerMenu />
         </div>
@@ -299,9 +283,6 @@ const PartCard = (props: PartCardProps) => {
     };
     const handleSelect = (component: IOperationComponentDescriptor) => {
         handleClose()
-        // if (component.moduleId) {
-        //     console.log("modulesId ?! Wtf ?! ", component.moduleId)
-        // }
         mountComponent(component)
     }
 
@@ -315,7 +296,7 @@ const PartCard = (props: PartCardProps) => {
                 sx={{ display: 'flex' }}
                 onClick={handleClick}
             >
-                {icon}
+                <img src={`${process.env.PUBLIC_URL}/assets/components/${icon}`} width={25} alt="component-icon" />
             </IconButton>
             <Menu
                 anchorEl={anchorEl}
@@ -330,4 +311,4 @@ const PartCard = (props: PartCardProps) => {
 
 
 
-export default OperationHeader
+export default ConnectionToolBar

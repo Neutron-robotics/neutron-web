@@ -126,3 +126,9 @@ export const defaultRobotPartModel: IRobotPart = {
   services: [],
   actions: []
 }
+
+export const defaultRobotStatus: IRobotStatus = {
+  _id: "",
+  time: -1,
+  status: "Unknown"
+}

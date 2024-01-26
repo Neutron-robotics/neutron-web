@@ -6,13 +6,12 @@ import TurnRightIcon from '@mui/icons-material/TurnRight';
 import TurnLeftIcon from '@mui/icons-material/TurnLeft';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import { IOperationComponentDescriptor, IOperationComponentSpecifics } from "../IOperationComponents";
-import { useConnection } from "../../../contexts/MultiConnectionProvider";
 import { useCallback, useEffect, useState } from "react";
 import React from "react";
-import { InputIconButton } from "../../controls/InputButton";
 import inputActions from "hotkeys-inputs-js";
 import { v4 } from "uuid";
+import { NodeProps } from "reactflow";
+import { InputIconButton } from "../../../controls/InputButton";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -28,10 +27,8 @@ const useStyles = makeStyles(() => ({
 interface IRobotBaseComponentSpecifics {
 }
 
-const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseComponentSpecifics>) => {
-    const { moduleId, connectionId } = props
+const RobotBaseComponent = (props: NodeProps<IRobotBaseComponentSpecifics>) => {
     const classes = useStyles()
-    const connection = useConnection(connectionId ?? "")
     const [rotateFactor, setRotateFactor] = useState(0)
     const [direction, setDirection] = useState(0)
     // const robotBase = connection?.modules.find(m => m.id === moduleId) as RobotBase | undefined
@@ -163,22 +160,4 @@ const RobotBaseComponent = (props: IOperationComponentSpecifics<IRobotBaseCompon
     )
 }
 
-// export const RobotBaseComponentBuilder: IOperationComponentDescriptor = {
-//     name: "Robot Base Controller",
-//     type: "active",
-//     partType: "robotbase",
-//     component: RobotBaseComponent,
-//     icon: <DirectionsCarIcon />,
-//     settings: {
-//         defaultSize: {
-//             width: 300,
-//             height: 300
-//         },
-//         resizable: false
-//     }
-// }
-
 export default RobotBaseComponent
-export {
-    RobotBaseComponent
-}
