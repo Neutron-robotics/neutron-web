@@ -114,7 +114,7 @@ export const defaultRobot: IRobot = {
 }
 
 export const defaultRobotPartModel: IRobotPart = {
-  _id: "",
+  _id: "newpart",
   type: ConnectionContextType.Ros2,
   category: RobotPartCategory.Actuator,
   name: "New part",

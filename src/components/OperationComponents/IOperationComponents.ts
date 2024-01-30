@@ -59,3 +59,18 @@ export interface IOperationComponentDescriptor {
   controllerDependancies: string[]
   settings?: IOperationComponentSettings;
 }
+
+
+export interface IOperationCategoryFiltered {
+  name: string;
+  icon: string;
+  components: IOperationComponentDescriptorWithParts[];
+}
+
+export interface IOperationComponentDescriptorWithParts {
+  name: string;
+  icon: string;
+  component: string
+  settings?: IOperationComponentSettings;
+  parts: string[]
+}

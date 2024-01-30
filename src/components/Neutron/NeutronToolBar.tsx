@@ -92,6 +92,10 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
             alert.error('Cannot save graph because no robot is assigned to the graph')
             return
         }
+        else if (!selectedRobotPartId) {
+            alert.error('Cannot save graph because no robot part is assigned to the graph')
+            return
+        }
 
         const file = await makeGraphThumbnailFile(title, nodes)
         const thumbnailUrl = file ? await uploadFile(file) : undefined
@@ -119,10 +123,12 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
                     type: graphType,
                     nodes: nodes as INeutronNode[],
                     edges: edges as INeutronEdge[],
-                    imgUrl: thumbnailUrl
+                    imgUrl: thumbnailUrl,
+                    robotId: selectedRobot?._id,
+                    partId: selectedRobotPartId,
                 }
                 await graphApi.update(loadedGraph._id, updateModel)
-                onGraphUpdate({ ...loadedGraph, nodes: nodes as INeutronNode[], edges: edges as INeutronEdge[] })
+                onGraphUpdate({ ...loadedGraph, nodes: nodes as INeutronNode[], edges: edges as INeutronEdge[], part: updateModel.partId, robot: updateModel.robotId ?? loadedGraph.robot })
                 alert.success("The graph has been saved successfuly")
             }
         }
@@ -154,6 +160,8 @@ const NeutronToolBar = (props: NeutronToolBarProps) => {
     );
 
     const updated = title !== (loadedGraph?.title ?? '') ||
+        selectedRobot?._id !== loadedGraph?.robot ||
+        selectedRobotPartId !== loadedGraph?.part ||
         graphType !== (loadedGraph?.type ?? graphType) ||
         !_.isEqual(edges, loadedGraph?.edges ?? []) ||
         !areNodeEqual(nodes, loadedGraph?.nodes ?? []);

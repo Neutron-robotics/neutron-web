@@ -3,7 +3,7 @@ import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import Battery80Icon from '@mui/icons-material/Battery80';
 import RobotModuleIcon from "../RobotModuleIcon";
 import { makeStyles } from "@mui/styles";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import React from "react";
 import { IRobotPart, IRobotWithStatus } from "../../api/models/robot.model";
 import { getByRobot } from "../../api/graph";
@@ -14,7 +14,11 @@ import neutronMuiThemeDefault from "../../contexts/MuiTheme";
 import * as robotStartUtils from "../../utils/robotStartUtils";
 import CancelIcon from '@mui/icons-material/Cancel';
 import * as robotApi from "../../api/robot";
-import { RobotConnectionStep } from "../../contexts/ConnectionContext";
+import { ConnectionContext, RobotConnectionStep } from "../../contexts/ConnectionContext";
+import { INeutronGraph } from "../../api/models/graph.model";
+import { ConnectorGraph } from "neutron-core";
+import { useNavigate } from "react-router-dom";
+import { ViewType } from "../../contexts/ViewProvider";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -107,11 +111,10 @@ interface IOptionalPart extends IRobotPart {
     connected: boolean
 }
 
-interface IOptionalGraphs {
-    _id: string
-    title: string
+interface IOptionalConnectorGraph extends INeutronGraph {
+    type: 'Connector'
+    enabled: boolean,
     moduleName: string
-    enabled: boolean
 }
 
 interface IRobotCompilationError {
@@ -129,22 +132,24 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
     const { open, onClose, robot } = props
     const classes = useStyles()
     const [parts, setParts] = useState<IOptionalPart[]>(robot.parts.map(m => ({ ...m, enabled: true, connected: false })))
-    const [optionalGraphs, setOptionalGraphs] = useState<IOptionalGraphs[]>([])
+    const [optionalGraphs, setOptionalGraphs] = useState<IOptionalConnectorGraph[]>([])
     const [navigationCount, setNavigationCount] = useState(0)
     const [connectionStep, setConnectionStep] = useState<RobotConnectionStep>(RobotConnectionStep.Start)
     const [robotCompilationError, setRobotCompilationError] = useState<IRobotCompilationError | null>(null)
+    const { makeConnection } = useContext(ConnectionContext)
+    const navigate = useNavigate();
+    const createdConnection = useRef<string>()
 
     const getRobotGraphs = async () => {
         const graphs = await getByRobot(robot._id, 'Connector')
         const controllers = nodesData.Controllers.map(e => e.name)
 
-        const selectedGraphs = graphs.map(e => ({
-            _id: e._id,
-            title: e.title,
+        const selectedGraphs: IOptionalConnectorGraph[] = graphs.map(e => ({
+            ...e,
             moduleName: e.nodes.filter(e => controllers.includes(e.data.name)).map(e => e.data.name).join(', '),
             enabled: true,
+            type: 'Connector'
         }))
-        console.log(selectedGraphs)
         setOptionalGraphs(selectedGraphs)
     }
 
@@ -154,28 +159,19 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
 
     const connect = async () => {
         const partsIdToConnect = parts.filter(e => e.enabled).map(e => e._id)
+        const graphsToConnect = optionalGraphs.filter(e => e.enabled)
 
         try {
-            setConnectionStep(RobotConnectionStep.CompilingGraph)
-            await sleep(200)
-
-            const startPromise = robotApi.start(robot._id, partsIdToConnect)
-
-            setConnectionStep(RobotConnectionStep.SpawningContext)
-            await robotStartUtils.waitForContextToSpawn(robot._id, 500, 30_000)
-
-            setConnectionStep(RobotConnectionStep.SpawningParts)
-            const partsConnectionPromise = robotStartUtils.waitForProcessesToSpawn(robot._id, partsIdToConnect, 500, 30_000)
-            for (const promise of partsConnectionPromise) {
-                promise.then((id) => {
-                    setParts(prev => prev.map(part => part._id === id ? ({ ...part, connected: true }) : part))
-                    return
-                })
-            }
-            await Promise.all(partsConnectionPromise)
-            await startPromise
-
-            setConnectionStep(RobotConnectionStep.Done)
+            const connectionId = await makeConnection(robot, graphsToConnect, {
+                partsIdToConnect,
+                onConnectionProgress: (step) => {
+                    setConnectionStep(step)
+                },
+                onPartConnect: (partId) => {
+                    setParts((prev) => prev.map(e => e._id === partId ? { ...e, connected: true } : e))
+                }
+            })
+            createdConnection.current = connectionId
         }
         catch (e) {
             setConnectionStep(prev => {
@@ -185,7 +181,7 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
                 })
                 return prev
             })
-
+            setConnectionStep(RobotConnectionStep.Start)
         }
     }
 
@@ -216,11 +212,16 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
             setNavigationCount(1)
             return
         }
-        if (navigationCount === 1) {
+        else if (navigationCount === 1) {
             setRobotCompilationError(null)
             setNavigationCount(2)
             await connect()
             return
+        }
+        else if (navigationCount === 2) {
+            if (!createdConnection.current)
+                return
+            navigate(`${ViewType.ConnectionView}/${createdConnection.current}`, { replace: true });
         }
     }
 
@@ -387,7 +388,7 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
                         <Button
                             variant="contained"
                             color="primary"
-                            disabled={navigationCount === 2}
+                            disabled={navigationCount === 2 && connectionStep !== RobotConnectionStep.Done}
                             onClick={handlePrimaryButtonClick}
                             aria-label={'connection-connect-btn'}
                         >

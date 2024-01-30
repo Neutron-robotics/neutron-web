@@ -212,8 +212,8 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
     }
 
     return (
-        <TransitionGroup className={classes.neutronSidePanelContainer} style={{ minWidth: `${minWidth(panels.panels[0])}px`, visibility: panels.panels.length > 0 ? 'visible' : 'hidden' }}>
-            {panels.panels.map((panel) => (
+        <TransitionGroup className={classes.neutronSidePanelContainer} style={{ minWidth: `${minWidth(panels.panels[0])}px`, visibility: panels.panels.filter(e => neutronPanels[e] !== undefined).length > 0 ? 'visible' : 'hidden' }}>
+            {panels.panels.filter(e => neutronPanels[e] !== undefined).map((panel) => (
                 <Zoom key={panel}>
                     {neutronPanels[panel]}
                 </Zoom>

@@ -77,4 +77,6 @@ export interface UpdateGraphModel {
   nodes?: INeutronNode[];
   edges?: INeutronEdge[];
   imgUrl?: string;
+  robotId?: string
+  partId?: string 
 }

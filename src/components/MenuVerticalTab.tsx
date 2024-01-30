@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, IconButton, styled, CSSObject, Theme, Collapse } from '@mui/material';
 import MuiDrawer from '@mui/material/Drawer'
 import Diversity3Icon from '@mui/icons-material/Diversity3';
@@ -12,6 +12,7 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import RobotConnectionSubMenu, { RobotConnectionSubMenuProps } from './Connection/RobotConnectionSubMenu';
+import { ConnectionContext } from '../contexts/ConnectionContext';
 
 const drawerMaxWidth = 240;
 
@@ -119,6 +120,17 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
     const [drawerWidth, setDrawerWidth] = useState("50px")
     const [open, setOpen] = React.useState(false);
     const navigate = useNavigate();
+    const { connections } = useContext(ConnectionContext)
+
+    useEffect(() => {
+        const connectionSubMenus = Object.values(connections).map<RobotConnectionSubMenuProps>(connection => ({
+            connectionId: connection.connectionId,
+            title: connection.robot.name
+        }))
+
+        setViews(prev => prev.map(view => view.title === 'Connection' ? { ...view, subItems: connectionSubMenus } : view))
+
+    }, [connections])
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -138,6 +150,8 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
     };
 
     const handleMenuWithSubItemSelected = (menuOption: MenuOption) => {
+        setOpen(true)
+        setDrawerWidth(`${drawerMaxWidth}px`)
         setViews(views.map(e => e.title === menuOption.title ? ({ ...menuOption, isSubItemsListOpen: !menuOption.isSubItemsListOpen }) : e))
     }
 

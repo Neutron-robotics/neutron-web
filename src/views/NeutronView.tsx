@@ -97,6 +97,7 @@ const NeutronView = (props: NeutronViewProps) => {
         setNodes(graph.nodes as VisualNode[])
         setEdges(graph.edges)
         setNeutronGraph(graph)
+        setGraphType(graph.type)
     }
 
     const handleNeutronGraphNewClick = () => {
@@ -106,6 +107,7 @@ const NeutronView = (props: NeutronViewProps) => {
         setSelectedRobot(undefined)
         setRos2System(undefined)
         setNeutronGraph(undefined)
+        setGraphType('Flow')
     }
 
     const addSidePanel = (panel: NeutronSidePanel, clearOther?: boolean) => {
@@ -268,7 +270,8 @@ const NeutronView = (props: NeutronViewProps) => {
                                 ))}
                             </Select>
 
-                            <Select sx={{ m: 1, minWidth: 120 }} native size="small" disabled={!selectedRobot} onChange={handleOnPartChange} defaultValue="" label="Robot Part">
+                            <Select sx={{ m: 1, minWidth: 120 }} native size="small" disabled={!selectedRobot} onChange={handleOnPartChange} value={selectedPart?._id ?? 'Select a part'} label="Robot Part">
+                                <option disabled value={"Select a part"}>Select a part</option>
                                 {selectedRobot?.parts.map(part => (
                                     <option key={part._id} value={part._id}>{part.name}</option>
                                 ))}

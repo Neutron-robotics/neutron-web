@@ -1,8 +1,8 @@
 import { Divider, IconButton, Menu, MenuItem } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import MenuIcon from '@mui/icons-material/Menu';
-import { useEffect, useState } from "react";
-import { IOperationCategory, IOperationComponentDescriptor } from "../OperationComponents/IOperationComponents";
+import { useEffect, useMemo, useState } from "react";
+import { IOperationCategory, IOperationComponentDescriptor, IOperationComponentDescriptorWithParts } from "../OperationComponents/IOperationComponents";
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import React from "react";
@@ -13,10 +13,11 @@ import Battery from "../controls/Battery";
 import OperationMenuPanel from "../Header/OperationPanel";
 import { IRobotStatus, defaultRobotStatus } from "../../api/models/robot.model";
 import { useConnection } from "../../contexts/ConnectionContext";
-import { loadOperationComponents } from "../OperationComponents/OperationComponentFactory";
+import { loadOperationComponents, loadOperationComponentsWithPartDependancies } from "../OperationComponents/OperationComponentFactory";
 import { v4 } from "uuid";
 import { Node } from "reactflow";
 import { ComponentNode } from "./components/componentType";
+import ComponentMenu from "./ComponentMenu";
 
 const useStyle = makeStyles((theme: any) => ({
     root: {
@@ -62,11 +63,6 @@ const useStyle = makeStyles((theme: any) => ({
             color: 'green'
         },
     },
-    headerPartCard: {
-        display: 'flex',
-        alignItems: 'center',
-        marginLeft: '20px'
-    },
     headerMenu: {
         backgroundColor: '#525CD2',
         color: '#FFFFFF',
@@ -87,8 +83,10 @@ interface ConnectionToolBarProps {
 const ConnectionToolBar = (props: ConnectionToolBarProps) => {
     const { connectionId } = props
     const classes = useStyle()
-    const { robot, addNode } = useConnection(connectionId)
-    const operationComponents = loadOperationComponents()
+    const { robot, connectors, addNode } = useConnection(connectionId)
+    const componentFiltered = useMemo(() => loadOperationComponentsWithPartDependancies(robot.parts.map(e => e._id), connectors), [robot, connectors])
+
+    console.log(componentFiltered)
 
     const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(menuAnchorEl);
@@ -120,7 +118,7 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
         }
     }, [])
 
-    const handleOnMountComponent = (descriptor: IOperationComponentDescriptor) => {
+    const handleOnMountComponent = (descriptor: IOperationComponentDescriptorWithParts, partId: string) => {
         const newNode: ComponentNode = {
             id: v4(),
             type: descriptor.name,
@@ -203,7 +201,7 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
 
             <Divider orientation="vertical" flexItem />
             <div className={classes.partIconGroup}>
-                {operationComponents.map(e => <PartCard key={e.name} mountComponent={handleOnMountComponent} operationCategory={e} isActivated />)}
+                {componentFiltered.map(e => <ComponentMenu key={e.name} robot={robot} mountComponent={handleOnMountComponent} operationCategory={e} />)}
             </div>
             <InputHandlerMenu />
         </div>
@@ -262,53 +260,5 @@ const InputHandlerMenu = () => {
         </div>
     )
 }
-
-interface PartCardProps {
-    mountComponent: (descriptor: IOperationComponentDescriptor) => void;
-    operationCategory: IOperationCategory
-    isActivated: boolean;
-}
-
-const PartCard = (props: PartCardProps) => {
-    const classes = useStyle()
-    const { operationCategory, mountComponent } = props
-    const { name, icon, components } = operationCategory
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-    const handleSelect = (component: IOperationComponentDescriptor) => {
-        handleClose()
-        mountComponent(component)
-    }
-
-    return (
-        <div className={classes.headerPartCard} title={name}>
-            <IconButton
-                size="large"
-                edge="start"
-                color="inherit"
-                aria-label={`${name}-iconbtn`}
-                sx={{ display: 'flex' }}
-                onClick={handleClick}
-            >
-                <img src={`${process.env.PUBLIC_URL}/assets/components/${icon}`} width={25} alt="component-icon" />
-            </IconButton>
-            <Menu
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-            >
-                {components.map(e => <MenuItem key={`mi-${e.name}-${e}`} onClick={() => { handleSelect(e) }}>{e.name}</MenuItem>)}
-            </Menu>
-        </div>
-    )
-}
-
-
 
 export default ConnectionToolBar
