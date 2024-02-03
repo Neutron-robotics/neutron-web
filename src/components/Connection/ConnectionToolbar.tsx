@@ -86,8 +86,6 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
     const { robot, connectors, addNode } = useConnection(connectionId)
     const componentFiltered = useMemo(() => loadOperationComponentsWithPartDependancies(robot.parts.map(e => e._id), connectors), [robot, connectors])
 
-    console.log(componentFiltered)
-
     const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(menuAnchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -128,6 +126,7 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
             },
             data: {
                 connectionId,
+                partId,
                 settings: descriptor.settings
             },
             dragHandle: '.custom-drag-handle'

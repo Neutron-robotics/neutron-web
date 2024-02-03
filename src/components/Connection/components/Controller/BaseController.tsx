@@ -5,7 +5,6 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import TurnRightIcon from '@mui/icons-material/TurnRight';
 import TurnLeftIcon from '@mui/icons-material/TurnLeft';
 import CancelIcon from '@mui/icons-material/Cancel';
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import { useCallback, useEffect, useState } from "react";
 import React from "react";
 import inputActions from "hotkeys-inputs-js";
@@ -24,37 +23,44 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
+export interface RobotBaseControls {
+    speed: number
+    matrix: number[]
+}
+
 interface IRobotBaseComponentSpecifics {
 }
 
-const RobotBaseComponent = (props: NodeProps<IRobotBaseComponentSpecifics>) => {
+interface RobotBaseComponentProps extends NodeProps<IRobotBaseComponentSpecifics> {
+    onControl?: (data: RobotBaseControls) => void
+}
+
+const RobotBaseComponent = (props: RobotBaseComponentProps) => {
+    const { onControl } = props
     const classes = useStyles()
     const [rotateFactor, setRotateFactor] = useState(0)
     const [direction, setDirection] = useState(0)
-    // const robotBase = connection?.modules.find(m => m.id === moduleId) as RobotBase | undefined
-    const [speed, setSpeed] = useState(/*robotBase?.speed  ??*/ 30)
+    const [speed, setSpeed] = useState(30)
 
     const handleStop = useCallback(() => {
         setRotateFactor(0)
         setDirection(0)
-        //robotBase?.stop()
-    }, [/* robotBase */])
+    }, [])
 
     useEffect(() => {
-        if (direction === 0 && rotateFactor === 0)
+        if (!onControl)
             return
-        //robotBase?.move([direction, 0, 0, 0, 0, rotateFactor / 10])
-    }, [direction, /*robotBase, */ rotateFactor])
 
-    // useEffect(() => {
-    //     if (robotBase && robotBase.speed !== speed)
-    //         robotBase.speed = speed
-    // }, [robotBase, speed])
+        const controls: RobotBaseControls = {
+            speed,
+            matrix: [direction, 0, 0, 0, 0, rotateFactor / 10]
+        }
+        onControl(controls)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [direction, rotateFactor, speed])
 
     useEffect(() => {
-        // if (!robotBase)
-        //     return
-        const id = v4() //robotBase?.id ?? 0
+        const id = v4()
         inputActions.onInputActions(`robotBase-${id}`, {
             'direction': handleDirectionChange,
             'rotation': handleRotationChange,
@@ -64,7 +70,7 @@ const RobotBaseComponent = (props: NodeProps<IRobotBaseComponentSpecifics>) => {
         return () => {
             inputActions.offInputActions(`robotBase-${id}`)
         }
-    }, [handleStop, /* robotBase /*, /*robotBase?.id */])
+    }, [handleStop])
 
     const handleRotationChange = (v?: number) => {
         if (!v) return
@@ -95,8 +101,7 @@ const RobotBaseComponent = (props: NodeProps<IRobotBaseComponentSpecifics>) => {
     }
 
     const handleSpeedChange = (e: any, value: number | number[]) => {
-        if (typeof value === "number"/* &&  robotBase */) {
-            //robotBase.speed = value
+        if (typeof value === "number") {
             setSpeed(value)
         }
     }

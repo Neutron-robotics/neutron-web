@@ -4,6 +4,7 @@ import ReactFlow, { Background, BackgroundVariant, NodeChange, ReactFlowProvider
 import { useConnection } from "../contexts/ConnectionContext"
 import ConnectionToolBar from "../components/Connection/ConnectionToolbar"
 import { componentType } from "../components/Connection/components/componentType"
+import useGraphNotifications from "../components/controls/useGraphNotifications"
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -24,9 +25,10 @@ const ConnectionView = (props: IConnectionViewProps) => {
     const { connectionId } = useParams<ConnectionViewParams>() as ConnectionViewParams
     const {
         nodes,
-        setNodes
+        setNodes,
+        connectors
     } = useConnection(connectionId)
-
+    useGraphNotifications(connectors)
 
     function onNodesChange(changes: NodeChange[]): void {
         setNodes(applyNodeChanges(changes, nodes))
@@ -49,9 +51,9 @@ const ConnectionView = (props: IConnectionViewProps) => {
                     panOnDrag={false}
                     autoPanOnNodeDrag={false}
                 >
-                <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-            </ReactFlow>
-        </ReactFlowProvider>
+                    <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+                </ReactFlow>
+            </ReactFlowProvider>
         </div >
     )
 }

@@ -1,7 +1,6 @@
 import { makeStyles } from '@mui/styles';
 import { LoggerProvider } from './contexts/LoggerProvider';
 import { ViewProvider } from './contexts/ViewProvider';
-import { MultiConnectionProvider } from './contexts/MultiConnectionProvider';
 import { TabProvider } from './contexts/TabContext';
 import React, { useEffect } from 'react';
 import { ThemeProvider } from '@mui/material';
@@ -10,8 +9,6 @@ import { AlertProvider } from './contexts/AlertContext';
 import inputActions from 'hotkeys-inputs-js';
 import neutronDefault from './utils/mapping';
 import { AuthProvider } from './contexts/AuthContext';
-import LoginView from './views/LoginView';
-import { ProtectedRoute } from './components/controls/ProtectedRoute';
 import RouteManager from './views/RouteManager';
 import { ConnectionProvider } from './contexts/ConnectionContext';
 

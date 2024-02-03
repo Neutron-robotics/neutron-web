@@ -15,6 +15,7 @@ export const componentType: Record<ComponentTypes, (props: any) => JSX.Element> 
 
 interface ComponentNodeData {
     connectionId: string,
+    partId: string,
     settings?: IOperationComponentSettings
 }
 

@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, createContext, useContext, useState } from "react";
 import { Node } from "reactflow";
 import { IRobot, defaultRobot } from "../api/models/robot.model";
-import { ConnectorGraph, RosContext } from "neutron-core";
+import { BaseNode, ConnectorGraph, INodeBuilder, RosContext } from "neutron-core";
 import { INeutronGraph } from "../api/models/graph.model";
 import { sleep } from "../utils/time";
 import { v4 } from "uuid";
@@ -130,6 +130,9 @@ interface ConnectionContextHook {
     setNodes: (nodes: Node[]) => void
     addNode: (node: Node) => void
     removeNode: (nodeId: string) => void
+    getRelatedNodes: <TNode extends BaseNode, >(nodeType: {
+        new(builder: INodeBuilder<any>): TNode;
+    }, partId: string) => TNode[]
 }
 
 export const useConnection = (connectionId: string): ConnectionContextHook => {
@@ -168,6 +171,25 @@ export const useConnection = (connectionId: string): ConnectionContextHook => {
         }))
     }
 
+    const getRelatedGraphs = (partId: string): OperationalConnectorGraph[] => {
+        return connections[connectionId]?.graphs
+            .filter(e => e.partId === partId)
+    }
+
+    const getRelatedNodes = <TNode extends BaseNode,>(nodeType: {
+        new(builder: INodeBuilder<any>): TNode;
+    }, partId: string): TNode[] => {
+        return connections[connectionId]?.graphs
+            .filter(e => e.partId === partId)
+            .reduce((acc: TNode[], cur: OperationalConnectorGraph) => {
+                const graphNodes = cur.findNodeByType(nodeType)
+                return [
+                    ...acc,
+                    ...graphNodes
+                ]
+            }, [])
+    }
+
     return {
         nodes: connections[connectionId]?.nodes ?? [],
         robot: connections[connectionId]?.robot ?? defaultRobot,
@@ -175,6 +197,7 @@ export const useConnection = (connectionId: string): ConnectionContextHook => {
         connectors: connections[connectionId]?.graphs,
         setNodes,
         addNode,
-        removeNode
+        removeNode,
+        getRelatedNodes
     }
 }

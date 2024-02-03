@@ -1,4 +1,3 @@
-import { makeStyles } from "@mui/styles"
 import { Route, Routes } from "react-router-dom"
 import LoginView from "./LoginView"
 import HomeView from "./HomeView";
@@ -42,8 +41,6 @@ const RouteManager = () => {
                     </MainLayout>
                 }
             />
-
-            {/* <Route path="*" element={<Navigate to="/" />} /> */}
         </Routes>
     );
 };

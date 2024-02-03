@@ -5,6 +5,8 @@ import { NodeResizeControl } from "reactflow"
 import CloseIcon from '@mui/icons-material/Close';
 import { useConnection } from "../../../contexts/ConnectionContext";
 import { ComponentNode } from "./componentType";
+import useConnectionComponent from "./Hooks/useConnectionComponent";
+import React from "react";
 
 const useStyles = makeStyles((theme: any) => ({
     componentRoot: {
@@ -43,6 +45,8 @@ const BaseComponent = (props: PropsWithChildren<ComponentNode>) => {
         removeNode(props.id)
     }
 
+    const controller = useConnectionComponent(props.type ?? '', data.connectionId, data.partId) ?? {}
+
     return (
         <div className={classes.componentRoot}>
             <NodeResizeControl
@@ -66,7 +70,7 @@ const BaseComponent = (props: PropsWithChildren<ComponentNode>) => {
                 </IconButton>
             </div>
             <div className={classes.component}>
-                {children}
+                {React.cloneElement(children as any, controller)}
             </div>
         </div>
     )
