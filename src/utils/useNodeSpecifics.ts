@@ -1,6 +1,5 @@
 import { useCallback } from "react";
 import { useReactFlow } from "reactflow";
-import { Node } from "reactflow";
 
 type SetSpecificsAction<TNodeSpecifics> = (specifics: TNodeSpecifics) => void;
 

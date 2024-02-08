@@ -3,9 +3,9 @@ import { MenuOptionSubItem } from "../MenuVerticalTab"
 import { ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material"
 import CircleIcon from '@mui/icons-material/Circle';
 import { useLocation, useNavigate } from "react-router-dom";
-import { ViewType } from "../../contexts/ViewProvider";
 import { useContext } from "react";
 import { ConnectionContext } from "../../contexts/ConnectionContext";
+import { ViewType } from "../../utils/viewtype";
 
 const useStyles = makeStyles(() => ({
 

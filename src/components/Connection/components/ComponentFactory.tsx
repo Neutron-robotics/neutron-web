@@ -1,36 +1,6 @@
-import React from "react";
-import { IOperationCategory, IOperationCategoryFiltered, IOperationComponent, IOperationComponentBuilder, IOperationComponentDescriptor, IOperationComponentDescriptorWithParts, IOperationComponentSpecifics } from "./IOperationComponents";
-import OperationComponent from "./OperationComponent";
-import componentData from '../../data/components.json'
-import OperationalConnectorGraph from "../../utils/ConnectorGraph";
-
-export const makeOperationComponentLayoutItem = (componentBuilder: IOperationComponentBuilder, props: IOperationComponentSpecifics<unknown>): IOperationComponent => {
-    return {
-        ...componentBuilder,
-        operationComponent: makeOperationComponent(componentBuilder, props)
-    }
-}
-
-export const makeOperationComponent = (builder: IOperationComponentBuilder, props: IOperationComponentSpecifics<unknown>) => {
-    const { name, settings, onClose, component, id, tabId } = builder;
-
-    const OperationComponentContent = component
-
-    return () => (
-        <OperationComponent
-            id={id}
-            tabId={tabId}
-            name={name}
-            onClose={onClose}
-            settings={settings}
-            defaultPosition={settings.defaultPosition}
-            content={{
-                Component: OperationComponentContent,
-                ...props
-            }}
-        />
-    )
-}
+import OperationalConnectorGraph from "../../../utils/ConnectorGraph"
+import componentData from '../../../data/components.json'
+import { IOperationCategory, IOperationCategoryFiltered, IOperationComponentDescriptor } from "./types"
 
 export const loadOperationComponents = (): IOperationCategory[] => {
     const categories = Object.entries(componentData).map(([key, value]) => {
@@ -45,11 +15,8 @@ export const loadOperationComponents = (): IOperationCategory[] => {
     return categories
 }
 
-
 export const loadOperationComponentsWithPartDependancies = (partsId: string[], connectors: OperationalConnectorGraph[]): IOperationCategoryFiltered[] => {
     const operationCategories: IOperationCategory[] = loadOperationComponents()
-
-    console.log(partsId, connectors)
 
     const operationCategoriesFiltered: IOperationCategoryFiltered[] = operationCategories
         .map(category => {

@@ -1,5 +1,5 @@
 import { IRobotModule } from "neutron-core";
-import { IOperationCategory } from "../components/OperationComponents/IOperationComponents";
+import { IOperationCategory } from "../components/Connection/components/types";
 
 export function makeOperationBar(
   categories: IOperationCategory[],

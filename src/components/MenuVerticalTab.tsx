@@ -4,7 +4,6 @@ import MuiDrawer from '@mui/material/Drawer'
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import HomeIcon from '@mui/icons-material/Home';
 import LinkIcon from '@mui/icons-material/Link';
-import { ViewType } from '../contexts/ViewProvider';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -15,6 +14,7 @@ import RobotConnectionSubMenu, { RobotConnectionSubMenuProps } from './Connectio
 import { ConnectionContext } from '../contexts/ConnectionContext';
 import * as connectionApi from '../api/connection'
 import * as robotApi from '../api/robot'
+import { ViewType } from '../utils/viewtype';
 
 const drawerMaxWidth = 240;
 

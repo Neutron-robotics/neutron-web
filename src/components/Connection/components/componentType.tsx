@@ -1,8 +1,8 @@
 import { Node } from "reactflow";
-import { IOperationComponentSettings } from "../../OperationComponents/IOperationComponents";
 import BaseComponent from "./BaseComponent";
 import RobotBaseComponent from "./Controller/BaseController";
 import RTCCameraViewer from "./Vision/RTCCameraViewer";
+import { IOperationComponentSettings } from "./types";
 
 type ComponentTypes =
     'Web RTC Camera' |

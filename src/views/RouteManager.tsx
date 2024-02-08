@@ -3,7 +3,6 @@ import LoginView from "./LoginView"
 import HomeView from "./HomeView";
 import ConnectionView from "./ConnectionView";
 import NeutronView from "./NeutronView";
-import OperationView from "./OperationView";
 import Header from "../components/Header/Header";
 import MenuVerticalTabs from "../components/MenuVerticalTab";
 import { PropsWithChildren } from "react";
@@ -35,7 +34,6 @@ const RouteManager = () => {
                             <Route path="/organization/:organizationId/robot/:robotId" element={<RobotView />} />
                             <Route path="/organization/:organizationId/robot/:robotId/part/:partId" element={<RobotPartView />} />
                             <Route path="/neutron" element={<NeutronGraphProvider> <NeutronView /></NeutronGraphProvider>} />
-                            <Route path="/operation/:tabId" element={<OperationView />} />
                             <Route path="*" element={<NotFound />} />
                         </Routes>
                     </MainLayout>
@@ -51,7 +49,7 @@ const MainLayout = (props: PropsWithChildren<RouteManagerProps>) => {
     return (
         <ProtectedRoute>
             <>
-                <Header headerTabs={[]} />
+                <Header />
                 <Box sx={{ display: 'flex', height: 'calc(100% - 56px)' }}>
                     <CssBaseline />
                     <MenuVerticalTabs />

@@ -8,17 +8,13 @@ import React from "react";
 import { IRobotPart, IRobotWithStatus } from "../../api/models/robot.model";
 import { getByRobot } from "../../api/graph";
 import nodesData from '../../data/nodes.json'
-import { sleep } from "../../utils/time";
 import DoneIcon from '@mui/icons-material/Done';
 import neutronMuiThemeDefault from "../../contexts/MuiTheme";
-import * as robotStartUtils from "../../utils/robotStartUtils";
 import CancelIcon from '@mui/icons-material/Cancel';
-import * as robotApi from "../../api/robot";
 import { ConnectionContext, RobotConnectionStep } from "../../contexts/ConnectionContext";
 import { INeutronGraph } from "../../api/models/graph.model";
-import { ConnectorGraph } from "neutron-core";
 import { useNavigate } from "react-router-dom";
-import { ViewType } from "../../contexts/ViewProvider";
+import { ViewType } from "../../utils/viewtype";
 
 const useStyles = makeStyles(() => ({
     root: {

@@ -1,7 +1,5 @@
 import { makeStyles } from '@mui/styles';
 import { LoggerProvider } from './contexts/LoggerProvider';
-import { ViewProvider } from './contexts/ViewProvider';
-import { TabProvider } from './contexts/TabContext';
 import React, { useEffect } from 'react';
 import { ThemeProvider } from '@mui/material';
 import neutronMuiThemeDefault from './contexts/MuiTheme';
@@ -37,15 +35,11 @@ function App() {
       <LoggerProvider>
         <AlertProvider>
           <AuthProvider>
-            <TabProvider>
-              <ViewProvider>
-                <ConnectionProvider>
-                  <ThemeProvider theme={neutronMuiThemeDefault}>
-                    <RouteManager />
-                  </ThemeProvider>
-                </ConnectionProvider>
-              </ViewProvider>
-            </TabProvider>
+            <ConnectionProvider>
+              <ThemeProvider theme={neutronMuiThemeDefault}>
+                <RouteManager />
+              </ThemeProvider>
+            </ConnectionProvider>
           </AuthProvider>
         </AlertProvider>
       </LoggerProvider>

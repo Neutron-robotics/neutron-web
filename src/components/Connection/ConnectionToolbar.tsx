@@ -2,13 +2,11 @@ import { Divider, IconButton, Menu } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import MenuIcon from '@mui/icons-material/Menu';
 import { useEffect, useMemo, useState } from "react";
-import { IOperationComponentDescriptorWithParts } from "../OperationComponents/IOperationComponents";
 import React from "react";
 import WifiSignal from "../controls/WifiSignal";
 import Battery from "../controls/Battery";
 import OperationMenuPanel from "../Header/OperationPanel";
 import { useConnection } from "../../contexts/ConnectionContext";
-import { loadOperationComponentsWithPartDependancies } from "../OperationComponents/OperationComponentFactory";
 import { v4 } from "uuid";
 import { ComponentNode } from "./components/componentType";
 import ComponentMenu from "./ComponentMenu";
@@ -18,6 +16,8 @@ import * as userApi from "../../api/user"
 import { UserDTO } from "../../api/models/user.model";
 import InputHandlerMenu from "./InputHandlerMenu";
 import ConnectedUserMenuIcon from "./ConnectedUserMenuIcon";
+import { loadOperationComponentsWithPartDependancies } from "./components/ComponentFactory";
+import { IOperationComponentDescriptorWithParts } from "./components/types";
 
 const useStyle = makeStyles((theme: any) => ({
     root: {
