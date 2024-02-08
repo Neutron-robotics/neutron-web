@@ -1,23 +1,23 @@
-import { Divider, IconButton, Menu, MenuItem } from "@mui/material"
+import { Divider, IconButton, Menu } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import MenuIcon from '@mui/icons-material/Menu';
 import { useEffect, useMemo, useState } from "react";
-import { IOperationCategory, IOperationComponentDescriptor, IOperationComponentDescriptorWithParts } from "../OperationComponents/IOperationComponents";
-import KeyboardIcon from '@mui/icons-material/Keyboard';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import { IOperationComponentDescriptorWithParts } from "../OperationComponents/IOperationComponents";
 import React from "react";
-import inputActions, { gamecontrol } from "hotkeys-inputs-js";
-import { GamepadPrototype } from "hotkeys-inputs-js/dist/types";
 import WifiSignal from "../controls/WifiSignal";
 import Battery from "../controls/Battery";
 import OperationMenuPanel from "../Header/OperationPanel";
-import { IRobotStatus, defaultRobotStatus } from "../../api/models/robot.model";
 import { useConnection } from "../../contexts/ConnectionContext";
-import { loadOperationComponents, loadOperationComponentsWithPartDependancies } from "../OperationComponents/OperationComponentFactory";
+import { loadOperationComponentsWithPartDependancies } from "../OperationComponents/OperationComponentFactory";
 import { v4 } from "uuid";
-import { Node } from "reactflow";
 import { ComponentNode } from "./components/componentType";
 import ComponentMenu from "./ComponentMenu";
+import { NeutronConnectionInfoMessage, RobotStatus } from "neutron-core";
+import { INeutronConnection } from "../../api/models/connection.model";
+import * as userApi from "../../api/user"
+import { UserDTO } from "../../api/models/user.model";
+import InputHandlerMenu from "./InputHandlerMenu";
+import ConnectedUserMenuIcon from "./ConnectedUserMenuIcon";
 
 const useStyle = makeStyles((theme: any) => ({
     root: {
@@ -75,17 +75,20 @@ const useStyle = makeStyles((theme: any) => ({
     },
 }))
 
+export interface ConnectionUser extends UserDTO {
+    isLeader: boolean
+}
+
 
 interface ConnectionToolBarProps {
-    connectionId: string
+    connection: INeutronConnection
 }
 
 const ConnectionToolBar = (props: ConnectionToolBarProps) => {
-    const { connectionId } = props
+    const { connection } = props
     const classes = useStyle()
-    const { robot, connectors, addNode } = useConnection(connectionId)
+    const { robot, connectors, addNode, context } = useConnection(connection._id)
     const componentFiltered = useMemo(() => loadOperationComponentsWithPartDependancies(robot.parts.map(e => e._id), connectors), [robot, connectors])
-
     const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(menuAnchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -94,27 +97,57 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
     const handleClose = () => {
         setMenuAnchorEl(null);
     };
-    const [robotStatus, setRobotStatus] = useState<IRobotStatus>(defaultRobotStatus)
+    const [robotStatus, setRobotStatus] = useState<RobotStatus>()
+    const [connectionStatus, setConnectionStatus] = useState<NeutronConnectionInfoMessage>()
+    const [connectedUsers, setConnectedUsers] = useState<ConnectionUser[]>([])
 
     const handleOnRobotDisconnect = async () => {
-
+        // context.quit()
+        // context.disconnect()
     }
 
     const handleOnModuleSwitchState = async (moduleId: string, connect: boolean) => {
         return true
     }
 
-    const handleWifiClick = () => { }
+    useEffect(() => {
+        if (!connectionStatus)
+            return
+
+        const refreshUserList = async (clientIds: string[], leaderId: string) => {
+            const usrsPromise = clientIds.map(e => userApi.getUser(e))
+            const connectionUsers: ConnectionUser[] = (await Promise.all(usrsPromise))
+                .map(e => e.id === leaderId ? { ...e, isLeader: true } : { ...e, isLeader: false })
+            setConnectedUsers(connectionUsers)
+        }
+        refreshUserList(connectionStatus?.clients, connectionStatus?.leaderId)
+    }, [connectionStatus])
 
     useEffect(() => {
-        // const timer = setInterval(async () => {
-        //     const robotStatus = await robotApi.getLatestRobotStatus('toto') // todo, create a route to proxy latest robot status
-        //     setRobotStatus(robotStatus)
-        // }, 1000)
-        return () => {
-            // clearInterval(timer)
+        if (context === null || context.isConnected === false)
+            return
+
+        console.log('update context')
+
+        const handleConnectionUpdated = (infos: NeutronConnectionInfoMessage) => {
+            console.log('connection status updated', infos)
+            setConnectionStatus(infos)
         }
-    }, [])
+
+        const handleRobotStatusUpdated = (infos: RobotStatus) => {
+            console.log('robot status updated', infos)
+            setRobotStatus(infos)
+        }
+
+        context.connectionUpdated.on(handleConnectionUpdated)
+        context.robotUpdated.on(handleRobotStatusUpdated)
+
+        context.pollRobotStatus()
+        return () => {
+            context.connectionUpdated.off(handleConnectionUpdated)
+            context.robotUpdated.off(handleRobotStatusUpdated)
+        }
+    }, [context])
 
     const handleOnMountComponent = (descriptor: IOperationComponentDescriptorWithParts, partId: string) => {
         const newNode: ComponentNode = {
@@ -125,7 +158,7 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
                 y: 100
             },
             data: {
-                connectionId,
+                connectionId: connection._id,
                 partId,
                 settings: descriptor.settings
             },
@@ -159,42 +192,45 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
                     <OperationMenuPanel
                         modules={[]}
                         name={robot.name}
-                        cpu={robotStatus.system?.cpu ?? 0}
-                        ram={robotStatus.system?.memory ?? 0}
-                        operationStartTime={robotStatus.time}
+                        cpu={robotStatus?.system?.cpu ?? 0}
+                        ram={robotStatus?.system?.memory ?? 0}
+                        operationStartTime={connection.createdAt}
                         onShutdownClick={handleOnRobotDisconnect}
                         onModuleSwitchClick={handleOnModuleSwitchState}
                     />
                 </Menu>
                 <div className={classes.iconsMenuVertical}>
-                    <IconButton
-                        size="small"
-                        edge="start"
-                        aria-label="battery-info"
-                        color="inherit"
-                        sx={{ display: 'flex' }}
-                        title={`Battery ${robotStatus.battery?.level === -1 ? 'Unknown' : robotStatus.battery}`}
-                    >
-                        <Battery charging={robotStatus.battery?.charging} value={robotStatus.battery?.level ?? 0} className={classes.batteryIconButton} />
-                    </IconButton>
-                    <IconButton
-                        size="large"
-                        edge="start"
-                        aria-label="wifi-info"
-                        color="inherit"
-                        onClick={handleWifiClick}
-                        sx={{ display: 'flex' }}
-                        title={`Ping ${robotStatus.time}`}
-                    >
-                        <WifiSignal threshold={{
-                            4: 50,
-                            3: 150,
-                            2: 300,
-                            1: 600,
-                        }}
-                            value={robotStatus.time}
-                        />
-                    </IconButton>
+                    {robotStatus?.battery && (
+                        <IconButton
+                            size="small"
+                            edge="start"
+                            aria-label="battery-info"
+                            color="inherit"
+                            sx={{ display: 'flex' }}
+                            title={`Battery ${robotStatus.battery}`}
+                        >
+                            <Battery charging={robotStatus.battery.charging} value={robotStatus.battery.level} className={classes.batteryIconButton} />
+                        </IconButton>
+                    )}
+                    {robotStatus && (
+                        <IconButton
+                            size="large"
+                            edge="start"
+                            aria-label="wifi-info"
+                            color="inherit"
+                            sx={{ display: 'flex' }}
+                            title={`Latency: ${robotStatus.system.latency}`}
+                        >
+                            <WifiSignal threshold={{
+                                4: 50,
+                                3: 150,
+                                2: 300,
+                                1: 600,
+                            }}
+                                value={robotStatus.system.latency}
+                            />
+                        </IconButton>
+                    )}
                 </div>
             </div>
 
@@ -202,60 +238,11 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
             <div className={classes.partIconGroup}>
                 {componentFiltered.map(e => <ComponentMenu key={e.name} robot={robot} mountComponent={handleOnMountComponent} operationCategory={e} />)}
             </div>
+
+            <div>
+                {connectedUsers.map(user => <ConnectedUserMenuIcon key={user.id} user={user} />)}
+            </div>
             <InputHandlerMenu />
-        </div>
-    )
-}
-
-const InputHandlerMenu = () => {
-    const classes = useStyle()
-    const [current, setCurrent] = useState(inputActions.gamepadEnabled ? 'gamepad' : 'keyboard')
-    const [isGamepadAvailable, setIsGamepadAvailable] = useState(gamecontrol.getGamepad(0) ? true : false)
-
-    useEffect(() => {
-        const handleOnGamepadConnect = (gp: GamepadPrototype) => {
-            if (gp.id === 0)
-                setIsGamepadAvailable(true)
-        }
-        const handleOnGamepadDisconnect = (gp: GamepadPrototype) => {
-            if (gp.id === 0)
-                setIsGamepadAvailable(false)
-        }
-        gamecontrol.onConnect.on(handleOnGamepadConnect)
-        gamecontrol.onDisconnect.on(handleOnGamepadDisconnect)
-        return () => {
-            gamecontrol.onConnect.off(handleOnGamepadConnect)
-            gamecontrol.onDisconnect.off(handleOnGamepadDisconnect)
-        }
-    }, [])
-
-    const setInputHandler = (inputHandler: string) => {
-        switch (inputHandler) {
-            case 'keyboard':
-                inputActions.gamepadEnabled = false
-                inputActions.keyboardEnabled = true
-                break;
-            case 'gamepad':
-                inputActions.gamepadEnabled = true
-                inputActions.keyboardEnabled = false
-                break;
-            default:
-                break;
-        }
-        setCurrent(inputHandler)
-    }
-
-    const currentStyle = { backgroundColor: 'rgba(0, 0, 0, 0.5)' }
-    return (
-        <div className={classes.inputHandlers}>
-            {isGamepadAvailable && (
-                <IconButton onClick={() => setInputHandler('gamepad')} color="inherit" style={current === 'gamepad' ? currentStyle : undefined}>
-                    <SportsEsportsIcon />
-                </IconButton>
-            )}
-            <IconButton onClick={() => setInputHandler('keyboard')} color="inherit" style={current === 'keyboard' ? currentStyle : undefined}>
-                <KeyboardIcon />
-            </IconButton>
         </div>
     )
 }

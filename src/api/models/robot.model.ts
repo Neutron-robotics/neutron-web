@@ -63,7 +63,6 @@ export interface IRobotStatus {
   time: number;
   status: "Online" | "Operating" | "Offline" | "Unknown";
   battery?: IBatteryStatus;
-  connection?: INeutronConnection;
   system?: IRobotSystemStatus;
   location?: IRobotLocationStatus;
   processes?: IRobotProcess[]

@@ -11,8 +11,8 @@ export default function useCachedState<T>(
     if (cachedStateFromStore) {
       setCachedState(JSON.parse(cachedStateFromStore));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stateName]);
 
   const setState = (newState: T) => {
     setCachedState(newState);

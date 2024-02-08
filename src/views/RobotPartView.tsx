@@ -152,10 +152,6 @@ const RobotPartView = (props: RobotPartViewProps) => {
 
         await partApi.update(robot._id, part._id!, updateModel);
         setPart((prev) => ({ ...prev, ...updateModel }));
-        setRobot((prev) => prev ? ({
-            ...robot,
-            parts: prev.parts.map(e => e._id === part._id ? { ...e, updateModel } : e)
-        }) : null)
     };
 
     const handleNameUpdate = async (data: onSaveProps) => {
@@ -191,7 +187,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
             try {
                 await updatePart({ category: event.target.value as RobotPartCategory });
             } catch (err) {
-                alert.error("An error has occured while updating robot description");
+                alert.error("An error has occured while updating part category");
             }
         }
     };
@@ -200,16 +196,16 @@ const RobotPartView = (props: RobotPartViewProps) => {
         event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         if (isNewPart) {
+            setPart((prev) => ({
+                ...prev,
+                ros2Package: event.target.value,
+            }));
         }
-        setPart((prev) => ({
-            ...prev,
-            ros2Package: event.target.value as RobotPartCategory,
-        }));
         if (!isNewPart && part._id) {
             try {
                 await updatePart({ ros2Package: event.target.value });
             } catch (err) {
-                alert.error("An error has occured while updating robot description");
+                alert.error("An error has occured while updating part ros package");
             }
         }
     };
@@ -217,16 +213,17 @@ const RobotPartView = (props: RobotPartViewProps) => {
     const handleRos2NodeUpdate = async (
         event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
+        const value = event.target.value
         if (isNewPart)
             setPart((prev) => ({
                 ...prev,
-                ros2Node: event.target.value as RobotPartCategory,
+                ros2Node: value,
             }));
-        if (!isNewPart && part._id) {
+        else if (!isNewPart && part._id) {
             try {
-                await updatePart({ ros2Node: event.target.value });
+                await updatePart({ ros2Node: value });
             } catch (err) {
-                alert.error("An error has occured while updating robot description");
+                alert.error("An error has occured while updating part ros node");
             }
         }
     };
@@ -353,7 +350,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
                             required
                             label="ROS Package"
                             fullWidth
-                            defaultValue={part.ros2Package}
+                            value={part.ros2Package}
                             onChange={handleRos2PackageUpdate}
                         />
                         <TextField
@@ -361,7 +358,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
                             required
                             label="ROS Node"
                             fullWidth
-                            defaultValue={part.ros2Node}
+                            value={part.ros2Node}
                             onChange={handleRos2NodeUpdate}
                         />
                     </div>

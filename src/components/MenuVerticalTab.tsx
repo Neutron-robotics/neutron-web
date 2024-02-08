@@ -13,6 +13,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import RobotConnectionSubMenu, { RobotConnectionSubMenuProps } from './Connection/RobotConnectionSubMenu';
 import { ConnectionContext } from '../contexts/ConnectionContext';
+import * as connectionApi from '../api/connection'
+import * as robotApi from '../api/robot'
 
 const drawerMaxWidth = 240;
 
@@ -127,10 +129,27 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
             connectionId: connection.connectionId,
             title: connection.robot.name
         }))
-
-        setViews(prev => prev.map(view => view.title === 'Connection' ? { ...view, subItems: connectionSubMenus } : view))
-
+        setConnectionsSubMenu(connectionSubMenus)
     }, [connections])
+
+    useEffect(() => {
+        connectionApi.getMyConnections('active').then(async (connections) => {
+            const connectionSubMenus: RobotConnectionSubMenuProps[] = await Promise.all(connections.map(async e => {
+                const robot = await robotApi.getRobot(e.robotId)
+                return {
+                    title: robot.name,
+                    connectionId: e._id
+                }
+            }))
+            setConnectionsSubMenu(connectionSubMenus, true)
+        })
+    }, [])
+
+    const setConnectionsSubMenu = (connections: RobotConnectionSubMenuProps[], flush?: boolean) => {
+        setViews(prev => prev.map(view => view.title === 'Connection' ?
+            { ...view, subItems: flush ? connections : [...view.subItems ?? [], ...connections] }
+            : view))
+    }
 
     const handleDrawerOpen = () => {
         setOpen(true);

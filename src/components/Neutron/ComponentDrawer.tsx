@@ -74,7 +74,8 @@ const ComponentDrawer = (props: ComponentDrawerProps) => {
 
     useEffect(() => {
         const filteredData = Object.keys(nodesData).reduce<Record<string, INodeData[]>>((acc, cur) => {
-            const filteredItems = (nodesData as Record<string, INodeData[]>)[cur].filter((e) => e.supportedGraphTypes.includes(graphType) && e.name.toLowerCase().includes(nodeFilter.toLowerCase()));
+            const filteredItems = (nodesData as Record<string, INodeData[]>)[cur]
+                .filter((e) => e.supportedGraphTypes.includes(graphType) && e.name.toLowerCase().includes(nodeFilter.toLowerCase()));
             if (filteredItems.length > 0) {
                 acc[cur] = filteredItems;
             }

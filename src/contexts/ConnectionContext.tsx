@@ -1,9 +1,11 @@
 import { Dispatch, SetStateAction, createContext, useContext, useState } from "react";
 import { Node } from "reactflow";
 import { IRobot, defaultRobot } from "../api/models/robot.model";
-import { BaseNode, ConnectorGraph, INodeBuilder, RosContext } from "neutron-core";
+import { BaseNode, INodeBuilder, RosContext, makeConnectionContext } from "neutron-core";
 import { INeutronGraph } from "../api/models/graph.model";
 import { sleep } from "../utils/time";
+import * as connectionApi from '../api/connection'
+import * as robotStartUtils from '../utils/robotStartUtils'
 import { v4 } from "uuid";
 import OperationalConnectorGraph from "../utils/ConnectorGraph";
 
@@ -40,15 +42,7 @@ type ContextProps = {
 export const ConnectionContext = createContext<ContextProps>({} as any)
 
 export function ConnectionProvider({ children }: { children: React.ReactNode }) {
-    const [connections, setConnections] = useState<IConnectionSessionStore>({
-        "totototooto": {
-            nodes: [],
-            context: null as any,
-            robot: defaultRobot,
-            graphs: [],
-            connectionId: 'totototooto'
-        }
-    })
+    const [connections, setConnections] = useState<IConnectionSessionStore>({})
 
     const makeConnection = async (robot: IRobot, graphs: INeutronGraph[], opts: IConnectionSessionBuilderOptions) => {
         if (opts.partsIdToConnect)
@@ -58,61 +52,62 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
         const connectorGraphs = graphs.map(graph => new OperationalConnectorGraph(graph.nodes, graph.edges, graph.robot, graph.part ?? ''))
 
         opts.onConnectionProgress && opts.onConnectionProgress(RobotConnectionStep.SpawningContext)
-        // const startPromise = connectionApi.connectRobotAndCreateConnection(robot._id, opts.partsIdToConnect)
-        // await robotStartUtils.waitForContextToSpawn(robot._id, 500, 30_000)
-        await sleep(500)
+        const startPromise = connectionApi.connectRobotAndCreateConnection(robot._id, opts.partsIdToConnect)
+        await robotStartUtils.waitForContextToSpawn(robot._id, 500, 30_000)
+        // await sleep(500)
 
         opts.onConnectionProgress && opts.onConnectionProgress(RobotConnectionStep.SpawningParts)
-        // const partsConnectionPromise = robotStartUtils.waitForProcessesToSpawn(
-        //     robot._id,
-        //     opts.partsIdToConnect ?? robot.parts.map(e => e._id),
-        //     500,
-        //     30_000)
-        // for (const promise of partsConnectionPromise) {
-        //     promise.then((id) => {
-        //         opts.onPartConnect && opts.onPartConnect(id)
-        //         return
-        //     })
-        // }
-        // await Promise.all(partsConnectionPromise)
-        // const connectionInfos = await startPromise
+        const partsConnectionPromise = robotStartUtils.waitForProcessesToSpawn(
+            robot._id,
+            opts.partsIdToConnect ?? robot.parts.map(e => e._id),
+            500,
+            30_000)
+        for (const promise of partsConnectionPromise) {
+            promise.then((id) => {
+                opts.onPartConnect && opts.onPartConnect(id)
+                return
+            })
+        }
+        await Promise.all(partsConnectionPromise)
+        const connectionInfos = await startPromise
 
-        // const context = makeConnectionContext(robot.context, {
-        //     hostname: connectionInfos.hostname,
-        //     port: connectionInfos.port,
-        //     clientId: connectionInfos.registerId,
-        // })
-        // await context.connect()
+        const context = makeConnectionContext(robot.context, {
+            hostname: connectionInfos.hostname,
+            port: connectionInfos.port,
+            clientId: connectionInfos.registerId,
+        })
+        var res = await context.connect()
+        console.log("RES CONN", res)
 
-        // connectorGraphs.forEach(graph => graph.useContext(context))
+        connectorGraphs.forEach(graph => graph.useContext(context))
 
-        // setConnections({
-        //     ...connections,
-        //     [connectionInfos.connectionId]: {
-        //         connectionId: connectionInfos.connectionId,
-        //         nodes: [],
-        //         robot,
-        //         graphs: connectorGraphs,
-        //         context: context as RosContext
-        //     }
-        // })
-        await sleep(500)
-
-        opts.onConnectionProgress && opts.onConnectionProgress(RobotConnectionStep.Done)
-
-        const connectionId = v4()
         setConnections({
             ...connections,
-            [connectionId]: {
-                connectionId: connectionId,
+            [connectionInfos.connectionId]: {
+                connectionId: connectionInfos.connectionId,
                 nodes: [],
                 robot,
                 graphs: connectorGraphs,
-                context: null as unknown as RosContext
+                context: context as RosContext
             }
         })
+        // await sleep(500)
 
-        return connectionId
+        opts.onConnectionProgress && opts.onConnectionProgress(RobotConnectionStep.Done)
+
+        // const connectionId = v4()
+        // setConnections({
+        //     ...connections,
+        //     [connectionId]: {
+        //         connectionId: connectionId,
+        //         nodes: [],
+        //         robot,
+        //         graphs: connectorGraphs,
+        //         context: context
+        //     }
+        // })
+        // return connectionId
+        return connectionInfos.connectionId
     }
 
     return (
@@ -169,11 +164,6 @@ export const useConnection = (connectionId: string): ConnectionContextHook => {
                 nodes: prev[connectionId].nodes.filter(e => e.id !== nodeId),
             }
         }))
-    }
-
-    const getRelatedGraphs = (partId: string): OperationalConnectorGraph[] => {
-        return connections[connectionId]?.graphs
-            .filter(e => e.partId === partId)
     }
 
     const getRelatedNodes = <TNode extends BaseNode,>(nodeType: {

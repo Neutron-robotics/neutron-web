@@ -5,7 +5,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import TurnRightIcon from '@mui/icons-material/TurnRight';
 import TurnLeftIcon from '@mui/icons-material/TurnLeft';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import React from "react";
 import inputActions from "hotkeys-inputs-js";
 import { v4 } from "uuid";
@@ -41,6 +41,7 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
     const [rotateFactor, setRotateFactor] = useState(0)
     const [direction, setDirection] = useState(0)
     const [speed, setSpeed] = useState(30)
+    const firstUpdate = useRef(true);
 
     const handleStop = useCallback(() => {
         setRotateFactor(0)
@@ -48,6 +49,10 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
     }, [])
 
     useEffect(() => {
+        if (firstUpdate.current) {
+            firstUpdate.current = false;
+            return;
+        }
         if (!onControl)
             return
 
@@ -56,7 +61,7 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
             matrix: [direction, 0, 0, 0, 0, rotateFactor / 10]
         }
         onControl(controls)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [direction, rotateFactor, speed])
 
     useEffect(() => {
@@ -114,7 +119,6 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
                     aria-label="forward-cmd"
                     color="primary"
                     onClick={handleForward}
-                    iconStrokeWidth={0.5}
                     opacity={direction > 0 ? direction : 0}
                 >
                     <ArrowUpwardIcon />
@@ -123,7 +127,6 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
                     aria-label="backward-cmd"
                     color="primary"
                     onClick={handleBackward}
-                    iconStrokeWidth={0.5}
                     opacity={direction < 0 ? Math.abs(direction) : 0}
                 >
                     <ArrowDownwardIcon />
@@ -132,7 +135,6 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
                     aria-label="left-cmd"
                     color="primary"
                     onClick={handleLeft}
-                    iconStrokeWidth={0.5}
                     opacity={rotateFactor < 0 ? Math.abs(rotateFactor / 10) : 0}
                 >
                     <TurnLeftIcon />
@@ -141,7 +143,6 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
                     aria-label="right-cmd"
                     color="primary"
                     onClick={handleRight}
-                    iconStrokeWidth={0.5}
                     opacity={rotateFactor > 0 ? (rotateFactor / 10) : 0}
                 >
                     <TurnRightIcon />

@@ -5,6 +5,9 @@ import { useConnection } from "../contexts/ConnectionContext"
 import ConnectionToolBar from "../components/Connection/ConnectionToolbar"
 import { componentType } from "../components/Connection/components/componentType"
 import useGraphNotifications from "../components/controls/useGraphNotifications"
+import useAsync from "../utils/useAsync"
+import { INeutronConnection } from "../api/models/connection.model"
+import * as connectionApi from "../api/connection"
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -29,16 +32,26 @@ const ConnectionView = (props: IConnectionViewProps) => {
         connectors
     } = useConnection(connectionId)
     useGraphNotifications(connectors)
+    const [connection, _, isConnectionLoading, connectionError] = useAsync<INeutronConnection>(
+        undefined,
+        () => connectionApi.getById(connectionId)
+    )
 
     function onNodesChange(changes: NodeChange[]): void {
         setNodes(applyNodeChanges(changes, nodes))
     }
 
+    if (connectionError)
+        return <div>An error happenned here</div>
+
+    if (isConnectionLoading || !connection)
+        return <div></div>
+
     return (
         <div className={classes.root}>
             <ReactFlowProvider>
                 <ConnectionToolBar
-                    connectionId={connectionId}
+                    connection={connection}
                 />
                 <ReactFlow
                     nodes={nodes}

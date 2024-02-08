@@ -4,6 +4,8 @@ import { ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/mat
 import CircleIcon from '@mui/icons-material/Circle';
 import { useLocation, useNavigate } from "react-router-dom";
 import { ViewType } from "../../contexts/ViewProvider";
+import { useContext } from "react";
+import { ConnectionContext } from "../../contexts/ConnectionContext";
 
 const useStyles = makeStyles(() => ({
 
@@ -19,6 +21,7 @@ const RobotConnectionSubMenu = (props: RobotConnectionSubMenuProps) => {
     const location = useLocation()
     const isSelectedSubView = `${ViewType.ConnectionView}/${connectionId}` === location.pathname
     const navigate = useNavigate();
+    const { connections } = useContext(ConnectionContext)
 
     const handleSubMenuSelected = () => {
         navigate(`${ViewType.ConnectionView}/${connectionId}`, { replace: true });
@@ -28,7 +31,7 @@ const RobotConnectionSubMenu = (props: RobotConnectionSubMenuProps) => {
         <ListItemButton sx={{ pl: 4 }} onClick={handleSubMenuSelected}>
             <ListItemIcon>
                 <CircleIcon sx={{
-                    color: 'green'
+                    color: connections[connectionId] ? 'green' : '#b5040f'
                 }} />
             </ListItemIcon>
             <ListItemText

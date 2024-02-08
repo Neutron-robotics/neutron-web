@@ -5,12 +5,12 @@ export interface INeutronConnectionDescriptor {
 }
 
 export interface INeutronConnection {
+  _id: string
   robotId: string;
   isActive: boolean;
   createdBy: string
-  createdAt: Date
-  closedAt: Date
-  pid: string
+  createdAt: string
+  closedAt: string
   port: number
 }
 

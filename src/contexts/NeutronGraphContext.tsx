@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useContext, useRef, useState } from "react"
-import { ConnectorGraph, FlowGraph, IConnectionContext, NeutronEdgeDB, NeutronGraphType, NeutronNodeDB, NodeMessage, makeConnectionContext } from "neutron-core"
+import { ConnectorGraph, FlowGraph, IConnectionContext, NeutronConnectionContext, NeutronEdgeDB, NeutronGraphType, NeutronNodeDB, NodeMessage, makeConnectionContext } from "neutron-core"
 import { sleep } from "../utils/time"
 import { useAlert } from "./AlertContext"
 import * as connectionApi from "../api/connection"
@@ -98,7 +98,7 @@ export const NeutronGraphProvider = ({ children }: { children: ReactNode }) => {
         return graph;
     };
 
-    const createRobotConnection = async (robot: IRobot): Promise<IConnectionContext> => {
+    const createRobotConnection = async (robot: IRobot): Promise<NeutronConnectionContext> => {
         const connectionInfos = await connectionApi.connectRobotAndCreateConnection(robot._id)
         const context = makeConnectionContext(robot.context, {
             hostname: connectionInfos.hostname,

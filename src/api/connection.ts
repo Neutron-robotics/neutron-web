@@ -2,6 +2,7 @@ import api from "./api";
 import {
   ConnectionRegistrationInfos,
   CreateConnectionBody,
+  INeutronConnection,
 } from "./models/connection.model";
 import { IRobot } from "./models/robot.model";
 import * as robotApi from "./robot";
@@ -36,6 +37,24 @@ const close = async (connectionId: string): Promise<void> => {
     throw new Error("Could not close the connection");
   }
 };
+
+const getById = async (connectionId: string): Promise<INeutronConnection> => {
+  const res = await api.get(`connection/${connectionId}`)
+
+    if (res.status !== 200) {
+        throw new Error("Could not get the connection")
+    }
+    return res.data.connection as INeutronConnection
+}
+
+const getMyConnections = async (status?: 'active' | 'inactive'): Promise<INeutronConnection[]> => {
+  const res = await api.get(`connection/${status ? `?status=${status}` : ''}`)
+
+    if (res.status !== 200) {
+        throw new Error("Could not get connections")
+    }
+    return res.data.connections as INeutronConnection[]
+}
 
 const connectRobotAndCreateConnection = async (robotId: string, partsId?: string[]) => {
   let robot: IRobot | undefined;
@@ -90,4 +109,4 @@ const connectRobotAndCreateConnection = async (robotId: string, partsId?: string
   return registrationInfos;
 };
 
-export { create, join, close, connectRobotAndCreateConnection };
+export { create, join, getById, getMyConnections, close, connectRobotAndCreateConnection };

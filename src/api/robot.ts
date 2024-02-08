@@ -33,7 +33,7 @@ const getRobot = async (robotId: string, includeStatus: boolean = false): Promis
     const res = await api.get(`robot/${robotId}${includeStatus ? '?includeStatus=true' : ''}`)
 
     if (res.status !== 200) {
-        throw new Error("Could not delete the robot")
+        throw new Error("Could not get the robot")
     }
     return res.data.robot as IRobot
 }
@@ -42,7 +42,7 @@ const getLatestRobotStatus = async (robotId: string): Promise<IRobotStatus> => {
     const res = await api.get(`robot/status/${robotId}`)
 
     if (res.status !== 200) {
-        throw new Error("Could not delete the robot")
+        throw new Error("Could not get the latest robot status")
     }
     return res.data.status as IRobotStatus
 }
@@ -51,7 +51,7 @@ const getMyRobots = async (includeStatus: boolean): Promise<IRobotWithStatus[]> 
     const res = await api.get(`user/me/robots${includeStatus ? '?includeStatus=true' : ''}`)
 
     if (res.status !== 200) {
-        throw new Error("Could not delete the robot")
+        throw new Error("Could not get my robots")
     }
     return res.data.robots as IRobotWithStatus[]
 }
@@ -68,7 +68,7 @@ const stop = async (robotId: string) => {
     const res = await api.post(`robot/stop/${robotId}`)
 
     if (res.status !== 200) {
-        throw new Error("Could not start the robot")
+        throw new Error("Could not stop the robot")
     }
 }
 

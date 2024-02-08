@@ -72,7 +72,7 @@ interface OperationMenuPanelProps {
     name: string,
     cpu: number
     ram: number
-    operationStartTime: number
+    operationStartTime: string
     onShutdownClick: () => void
     onModuleSwitchClick: (id: string, value: boolean) => Promise<boolean>
 }
@@ -88,16 +88,31 @@ const OperationMenuPanel = (props: OperationMenuPanelProps) => {
 
     useEffect(() => {
         const timer = setInterval(() => {
-            const diff = moment(moment().diff(moment(operationStartTime)))
-            if (diff.hours() > 1)
-                setTime(moment(diff).format("hh:mm:ss"))
-            else
-                setTime(moment(diff).format("mm:ss"))
-        }, 1000)
+            const diff = moment.duration(moment().diff(moment(operationStartTime)));
+            const formattedTime = formatTime(diff);
+            setTime(formattedTime);
+        }, 1000);
+
         return () => {
-            clearInterval(timer)
+            clearInterval(timer);
+        };
+    }, [operationStartTime]);
+
+    const formatTime = (duration: moment.Duration) => {
+        const hours = duration.hours();
+        const minutes = duration.minutes();
+        const seconds = duration.seconds();
+
+        if (hours > 0) {
+            return `${hours.toString().padStart(2, "0")}:${minutes
+                .toString()
+                .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+        } else {
+            return `${minutes.toString().padStart(2, "0")}:${seconds
+                .toString()
+                .padStart(2, "0")}`;
         }
-    }, [operationStartTime])
+    };
 
     const handleModuleSwitch = async (id: string) => {
         const enable = !modulesStatus[id].enabled
