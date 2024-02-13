@@ -18,42 +18,45 @@ const useStyles = makeStyles(() => ({
     properties: {
         display: 'flex',
         justifyContent: 'space-around',
-        flexWrap: 'wrap'
+        flexWrap: 'wrap',
+        "& > div": {
+            display: 'flex',
+            alignItems: 'center'
+        }
     }
 }))
 
-interface RobotStatusDisplayProps extends HTMLAttributes<HTMLDivElement> {
-    status: IRobotStatus
-    fullWidth?: boolean
+const colors = {
+    'Online': neutronMuiThemeDefault.palette.success.main,
+    'Operating': neutronMuiThemeDefault.palette.primary.main,
+    'Offline': '#CDCDCD',
+    'Unknown': '#CDCDCD'
 }
 
-const RobotStatusDisplay = (props: RobotStatusDisplayProps) => {
-    const { status, fullWidth, ...otherProps } = props
+interface RobotStatusPropertiesDisplayProps extends HTMLAttributes<HTMLDivElement> {
+    status: IRobotStatus
+    displayStatus?: boolean
+    propertiesStyle?: React.CSSProperties
+}
+
+export const RobotStatusPropertiesDisplay = (props: RobotStatusPropertiesDisplayProps) => {
+    const { status, displayStatus, propertiesStyle, ...otherProps } = props
     const classes = useStyles()
 
-    const colors = {
-        'Online': neutronMuiThemeDefault.palette.success.main,
-        'Operating': neutronMuiThemeDefault.palette.primary.main,
-        'Offline': '#CDCDCD',
-        'Unknown': '#CDCDCD'
-    }
-
     return (
-        <div {...otherProps} className={classes.root} style={{
-            width: fullWidth ? '100%' : 'auto'
-        }}>
-            <div className={classes.status} style={{ color: colors[status.status] }}>{status.status}</div>
-            <div className={classes.properties}>
+        <div {...otherProps} className={classes.root}>
+            {displayStatus && <RobotStatusDisplay status={status.status} />}
+            <div className={classes.properties} style={propertiesStyle}>
                 {status.battery && (
                     <div style={{ minWidth: '60px' }}>
                         {status.battery.charging ? <BatteryCharging90Icon /> : <Battery90Icon />}
-                        <span>{`${status.battery.level} %${status.battery.charging ? ' (In charge)' : ''}`}</span>
+                        <div>{`${status.battery.level} %${status.battery.charging ? ' (In charge)' : ''}`}</div>
                     </div>
                 )}
                 {status.location && (
                     <div style={{ minWidth: '120px' }}>
                         <PlaceIcon />
-                        <span>{status.location.name}</span>
+                        <div>{status.location.name}</div>
                     </div>
                 )}
             </div>
@@ -61,4 +64,15 @@ const RobotStatusDisplay = (props: RobotStatusDisplayProps) => {
     )
 }
 
-export default RobotStatusDisplay
+interface RobotStatusDisplayProps extends HTMLAttributes<HTMLDivElement> {
+    status: "Online" | "Operating" | "Offline" | "Unknown"
+}
+
+export const RobotStatusDisplay = (props: RobotStatusDisplayProps) => {
+    const { status, ...otherProps } = props
+    const classes = useStyles()
+
+    return (
+        <div {...otherProps} className={classes.status} style={{ color: colors[status] }}>{status}</div>
+    )
+}

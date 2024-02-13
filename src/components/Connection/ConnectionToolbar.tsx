@@ -9,15 +9,20 @@ import OperationMenuPanel from "../Header/OperationPanel";
 import { useConnection } from "../../contexts/ConnectionContext";
 import { v4 } from "uuid";
 import { ComponentNode } from "./components/componentType";
-import ComponentMenu from "./ComponentMenu";
+import ComponentMenu from "./components/ComponentMenu";
 import { NeutronConnectionInfoMessage, RobotStatus } from "neutron-core";
-import { INeutronConnection } from "../../api/models/connection.model";
+import { INeutronConnectionDTO } from "../../api/models/connection.model";
 import * as userApi from "../../api/user"
+import * as connectionApi from "../../api/connection"
 import { UserDTO } from "../../api/models/user.model";
 import InputHandlerMenu from "./InputHandlerMenu";
 import ConnectedUserMenuIcon from "./ConnectedUserMenuIcon";
 import { loadOperationComponentsWithPartDependancies } from "./components/ComponentFactory";
 import { IOperationComponentDescriptorWithParts } from "./components/types";
+import useConfirmationDialog from "../controls/useConfirmationDialog";
+import { useNavigate } from "react-router-dom";
+import { ViewType } from "../../utils/viewtype";
+import useGraphNotifications from "../controls/useGraphNotifications";
 
 const useStyle = makeStyles((theme: any) => ({
     root: {
@@ -73,15 +78,20 @@ const useStyle = makeStyles((theme: any) => ({
         width: '200px',
         marginLeft: '20px'
     },
+    iconsEnd: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 'auto',
+    }
 }))
 
 export interface ConnectionUser extends UserDTO {
     isLeader: boolean
 }
 
-
 interface ConnectionToolBarProps {
-    connection: INeutronConnection
+    connection: INeutronConnectionDTO
 }
 
 const ConnectionToolBar = (props: ConnectionToolBarProps) => {
@@ -100,14 +110,25 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
     const [robotStatus, setRobotStatus] = useState<RobotStatus>()
     const [connectionStatus, setConnectionStatus] = useState<NeutronConnectionInfoMessage>()
     const [connectedUsers, setConnectedUsers] = useState<ConnectionUser[]>([])
+    const [Dialog, prompt] = useConfirmationDialog()
+    const navigate = useNavigate();
+    useGraphNotifications(connectors)
 
-    const handleOnRobotDisconnect = async () => {
-        // context.quit()
-        // context.disconnect()
+    const handleOnConnectionShutdown = async () => {
+        prompt('Are you sure you want to shutdown the connection ? Other users will be disconnected', async (confirmed: boolean) => {
+            if (confirmed) {
+                context.quit()
+                context.disconnect()
+                await connectionApi.close(connection._id)
+                navigate(`${ViewType.Home}`, { replace: true });
+            }
+        })
     }
 
-    const handleOnModuleSwitchState = async (moduleId: string, connect: boolean) => {
-        return true
+    const handleOnConnectionQuit = async () => {
+        context.quit()
+        context.disconnect()
+        navigate(`${ViewType.Home}`, { replace: true });
     }
 
     useEffect(() => {
@@ -143,6 +164,7 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
         context.robotUpdated.on(handleRobotStatusUpdated)
 
         context.pollRobotStatus()
+        context.getInfo()
         return () => {
             context.connectionUpdated.off(handleConnectionUpdated)
             context.robotUpdated.off(handleRobotStatusUpdated)
@@ -190,13 +212,13 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
                     }}
                 >
                     <OperationMenuPanel
-                        modules={[]}
+                        processes={robotStatus?.processes ?? []}
                         name={robot.name}
                         cpu={robotStatus?.system?.cpu ?? 0}
                         ram={robotStatus?.system?.memory ?? 0}
                         operationStartTime={connection.createdAt}
-                        onShutdownClick={handleOnRobotDisconnect}
-                        onModuleSwitchClick={handleOnModuleSwitchState}
+                        onShutdownClick={handleOnConnectionShutdown}
+                        onQuitClick={handleOnConnectionQuit}
                     />
                 </Menu>
                 <div className={classes.iconsMenuVertical}>
@@ -239,10 +261,12 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
                 {componentFiltered.map(e => <ComponentMenu key={e.name} robot={robot} mountComponent={handleOnMountComponent} operationCategory={e} />)}
             </div>
 
-            <div>
+            <div className={classes.iconsEnd}>
                 {connectedUsers.map(user => <ConnectedUserMenuIcon key={user.id} user={user} />)}
+                <Divider sx={{ marginLeft: '15px', marginRight: '15px' }} orientation="vertical" flexItem />
+                <InputHandlerMenu />
             </div>
-            <InputHandlerMenu />
+            {Dialog}
         </div>
     )
 }

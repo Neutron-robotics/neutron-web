@@ -42,12 +42,12 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-interface RobotCardProps {
+interface RichRobotCardProps {
     robot: IRobot
     onClick: (robot: IRobot) => void
 }
 
-const RobotCard = (props: RobotCardProps) => {
+const RichRobotCard = (props: RichRobotCardProps) => {
     const { robot, onClick } = props
     const classes = useStyles()
 
@@ -82,4 +82,4 @@ const RobotCard = (props: RobotCardProps) => {
     )
 }
 
-export default RobotCard
+export default RichRobotCard

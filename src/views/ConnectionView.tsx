@@ -6,8 +6,9 @@ import ConnectionToolBar from "../components/Connection/ConnectionToolbar"
 import { componentType } from "../components/Connection/components/componentType"
 import useGraphNotifications from "../components/controls/useGraphNotifications"
 import useAsync from "../utils/useAsync"
-import { INeutronConnection } from "../api/models/connection.model"
+import { INeutronConnection, INeutronConnectionDTO } from "../api/models/connection.model"
 import * as connectionApi from "../api/connection"
+import JoinRobotConnection from "../components/Connection/JoinRobotConnection"
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -29,10 +30,9 @@ const ConnectionView = (props: IConnectionViewProps) => {
     const {
         nodes,
         setNodes,
-        connectors
+        context
     } = useConnection(connectionId)
-    useGraphNotifications(connectors)
-    const [connection, _, isConnectionLoading, connectionError] = useAsync<INeutronConnection>(
+    const [connection, _, isConnectionLoading, connectionError] = useAsync<INeutronConnectionDTO>(
         undefined,
         () => connectionApi.getById(connectionId)
     )
@@ -46,6 +46,11 @@ const ConnectionView = (props: IConnectionViewProps) => {
 
     if (isConnectionLoading || !connection)
         return <div></div>
+
+    if (!context)
+        return <JoinRobotConnection connection={connection} />
+
+    console.log(connection)
 
     return (
         <div className={classes.root}>

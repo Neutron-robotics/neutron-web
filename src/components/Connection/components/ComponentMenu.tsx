@@ -1,9 +1,9 @@
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import { useMemo, useState } from "react";
 import { makeStyles } from "@mui/styles";
-import NestedMenuItem from "../controls/NestedMenuItem";
-import { IRobot } from "../../api/models/robot.model";
-import { IOperationCategoryFiltered, IOperationComponentDescriptorWithParts } from "./components/types";
+import NestedMenuItem from "../../controls/NestedMenuItem";
+import { IRobot } from "../../../api/models/robot.model";
+import { IOperationCategoryFiltered, IOperationComponentDescriptorWithParts } from "./types";
 
 const useStyle = makeStyles((theme: any) => ({
     headerPartCard: {

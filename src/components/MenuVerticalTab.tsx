@@ -135,7 +135,7 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
     useEffect(() => {
         connectionApi.getMyConnections('active').then(async (connections) => {
             const connectionSubMenus: RobotConnectionSubMenuProps[] = await Promise.all(connections.map(async e => {
-                const robot = await robotApi.getRobot(e.robotId)
+                const robot = await robotApi.getRobot(e.robot as string)
                 return {
                     title: robot.name,
                     connectionId: e._id
@@ -147,7 +147,19 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
 
     const setConnectionsSubMenu = (connections: RobotConnectionSubMenuProps[], flush?: boolean) => {
         setViews(prev => prev.map(view => view.title === 'Connection' ?
-            { ...view, subItems: flush ? connections : [...view.subItems ?? [], ...connections] }
+            {
+                ...view,
+                subItems: flush
+                    ? connections
+                    : [
+                        ...(view.subItems ?? []),
+                        ...connections.filter(newConnection =>
+                            !(view.subItems ?? []).some(existingConnection =>
+                                (existingConnection as RobotConnectionSubMenuProps).connectionId === newConnection.connectionId
+                            )
+                        )
+                    ]
+            }
             : view))
     }
 

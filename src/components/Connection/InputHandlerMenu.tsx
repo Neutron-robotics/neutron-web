@@ -56,7 +56,7 @@ const InputHandlerMenu = () => {
 
     const currentStyle = { backgroundColor: 'rgba(0, 0, 0, 0.5)' }
     return (
-        <div className={classes.inputHandlers}>
+        <>
             {isGamepadAvailable && (
                 <IconButton onClick={() => setInputHandler('gamepad')} color="inherit" style={current === 'gamepad' ? currentStyle : undefined}>
                     <SportsEsportsIcon />
@@ -65,7 +65,7 @@ const InputHandlerMenu = () => {
             <IconButton onClick={() => setInputHandler('keyboard')} color="inherit" style={current === 'keyboard' ? currentStyle : undefined}>
                 <KeyboardIcon />
             </IconButton>
-        </div>
+        </>
     )
 }
 

@@ -1,3 +1,5 @@
+import { IRobot } from "./robot.model";
+
 export interface INeutronConnectionDescriptor {
   id: string;
   timeStarted: number;
@@ -7,6 +9,16 @@ export interface INeutronConnectionDescriptor {
 export interface INeutronConnection {
   _id: string
   robotId: string;
+  isActive: boolean;
+  createdBy: string
+  createdAt: string
+  closedAt: string
+  port: number
+}
+
+export interface INeutronConnectionDTO {
+  _id: string
+  robot: string | IRobot;
   isActive: boolean;
   createdBy: string
   createdAt: string

@@ -1,6 +1,6 @@
 import { makeStyles } from "@mui/styles"
 import { IRobotStatus } from "../../api/models/robot.model"
-import RobotStatusDisplay from "./RobotStatusDisplay"
+import { RobotStatusDisplay, RobotStatusPropertiesDisplay } from "./RobotStatusDisplay"
 import { Button } from "@mui/material"
 
 const useStyles = makeStyles(() => ({
@@ -19,7 +19,7 @@ const RobotConnectionMenu = (props: RobotConnectionMenuProps) => {
 
     return (
         <div className={classes.robotStatusContainer}>
-            <RobotStatusDisplay status={status} fullWidth />
+            <RobotStatusPropertiesDisplay status={status} displayStatus style={{ width: '100%' }} />
             {(status.status === 'Online' || status.status === 'Operating') && (
                 <Button
                     color="primary"

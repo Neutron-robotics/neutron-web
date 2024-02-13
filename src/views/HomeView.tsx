@@ -3,25 +3,17 @@ import { makeStyles } from "@mui/styles"
 import { useEffect, useState } from "react"
 import { getMyRobots } from "../api/robot"
 import { IRobotWithStatus } from "../api/models/robot.model"
-import RobotStatusDisplay from "../components/Robot/RobotStatusDisplay"
-import { IconButton } from "@mui/material"
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import RobotConnectionModal from "../components/Connection/RobotConnectionModal"
+import RobotCard from "../components/Home/RobotCard"
 
 const useStyles = makeStyles(() => ({
-    robotPreview: {
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    thumbnail: {
-        maxWidth: '65px',
-        maxHeight: '65px',
-        borderRadius: '5px'
-    },
     robotWidget: {
         padding: '30px'
+    },
+    robotList: {
+        display: 'flex',
+        gap: '10px',
+        flexDirection: 'column',
     }
 }))
 
@@ -42,7 +34,7 @@ const HomeView = (props: HomeViewProps) => {
     const filterAndLimitRobots = (robots: IRobotWithStatus[]) => {
         return robots
             .filter(e => e.status != undefined)
-            .sort(e => e.status.time)
+            .sort((a, b) => new Date(b.status.time).getTime() - new Date(a.status.time).getTime())
             .slice(0, 5)
     }
 
@@ -59,29 +51,9 @@ const HomeView = (props: HomeViewProps) => {
             {robotToConnect && <RobotConnectionModal robot={robotToConnect} open={robotToConnect !== undefined} onClose={handleCloseConnectionModal} />}
             <div className={classes.robotWidget}>
                 <h2>Robots</h2>
-                {robots.map((robot) => (
-                    <div className={classes.robotPreview} key={robot._id}>
-                        <img
-                            src={robot.imgUrl ?? ""}
-                            alt={"robot-icon"}
-                            className={classes.thumbnail}
-                        />
-                        <RobotStatusDisplay status={robot.status} />
-                        {(robot.status.status === 'Online' || robot.status.status === 'Operating') && (
-                            <IconButton
-                                onClick={() => handleConnectButtonClick(robot)}
-                                color="primary"
-                                style={{
-                                    display: 'block',
-                                    marginLeft: 'auto',
-                                    marginRight: 'auto'
-                                }}
-                            >
-                                <PlayCircleOutlineIcon />
-                            </IconButton>
-                        )}
-                    </div>
-                ))}
+                <div className={classes.robotList}>
+                    {robots.map((robot) => <RobotCard key={robot._id} robot={robot} onConnectButtonClick={handleConnectButtonClick} />)}
+                </div>
             </div>
         </div>
     )

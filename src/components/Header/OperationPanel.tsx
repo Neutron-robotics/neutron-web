@@ -1,11 +1,10 @@
 import { Button, Switch } from "@mui/material";
 import { makeStyles } from "@mui/styles"
 import moment from "moment";
-import { ICoreModule } from "neutron-core";
 import { useEffect, useState } from "react";
 import CircularProgressWithLabel from "../controls/CircularProgressWithLabel";
 import Dot from "../controls/Dot";
-import RobotModuleIcon from "../RobotModuleIcon";
+import { IRobotProcess } from "../../api/models/robot.model";
 
 const useStyle = makeStyles((theme: any) => ({
     root: {
@@ -25,9 +24,11 @@ const useStyle = makeStyles((theme: any) => ({
     panelBodyLeft: {
         width: '50%',
         overflowY: 'auto',
+        paddingLeft: '10px',
         '& div': {
             display: 'flex',
             alignItems: 'center',
+            gap: '10px',
             "& span": {
                 marginLeft: 'auto'
             }
@@ -68,22 +69,18 @@ const useStyle = makeStyles((theme: any) => ({
 }))
 
 interface OperationMenuPanelProps {
-    modules: ICoreModule[];
+    processes: IRobotProcess[];
     name: string,
     cpu: number
     ram: number
     operationStartTime: string
     onShutdownClick: () => void
-    onModuleSwitchClick: (id: string, value: boolean) => Promise<boolean>
+    onQuitClick: () => void
 }
-
-type ModulesState = Record<string, { enabled: boolean, loading: boolean }>
 
 const OperationMenuPanel = (props: OperationMenuPanelProps) => {
     const classes = useStyle()
-    const { modules, name, cpu, ram, operationStartTime, onModuleSwitchClick, onShutdownClick } = props
-    const [modulesStatus, setModuleStatus] = useState(modules.reduce<ModulesState>((acc, cur) =>
-        ({ ...acc, [cur.id]: { enabled: cur.process?.active ?? false, loading: false } }), {}))
+    const { processes, name, cpu, ram, operationStartTime, onShutdownClick, onQuitClick } = props
     const [time, setTime] = useState(moment(moment().diff(moment(operationStartTime))).format('mm:ss'))
 
     useEffect(() => {
@@ -114,36 +111,15 @@ const OperationMenuPanel = (props: OperationMenuPanelProps) => {
         }
     };
 
-    const handleModuleSwitch = async (id: string) => {
-        const enable = !modulesStatus[id].enabled
-        setModuleStatus(e => ({
-            ...e, [id]: {
-                enabled: enable,
-                loading: true
-            }
-        }))
-        const success = await onModuleSwitchClick(id, enable)
-        const moduleEnabled = success ? enable : !enable
-        setModuleStatus(e => ({
-            ...e, [id]: {
-                enabled: moduleEnabled,
-                loading: false
-            }
-        }))
-    }
-
-
     return (
         <div className={classes.root}>
             <h4>{name}</h4>
             <div className={classes.panelBody}>
                 <div className={classes.panelBodyLeft}>
-                    {modules.map(e => (
+                    {processes.map(e => (
                         <div key={e.id}>
-                            <Dot success={e.process?.active ?? false} />
-                            <RobotModuleIcon type={e.type} width={24} height={24} title={e.name} key={module.id} />
+                            <Dot success={e.active ?? false} />
                             <div className={classes.moduleTitle}>{e.name}</div>
-                            <Switch disabled={modulesStatus[e.id].loading} checked={modulesStatus[e.id].enabled ?? false} onChange={() => handleModuleSwitch(e.id)} />
                         </div>
                     ))}
                 </div>
@@ -160,13 +136,21 @@ const OperationMenuPanel = (props: OperationMenuPanelProps) => {
             </div>
             <div className={classes.footer}>
                 <div>{time}</div>
-                <Button
-                    variant="contained"
-                    color="error"
-                    onClick={onShutdownClick}
-                >
-                    SHUT DOWN
-                </Button>
+                <div>
+                    <Button
+                        variant="contained"
+                        onClick={onQuitClick}
+                    >
+                        Quit
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="error"
+                        onClick={onShutdownClick}
+                    >
+                        Close
+                    </Button>
+                </div>
             </div>
         </div>
     )

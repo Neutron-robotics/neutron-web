@@ -8,7 +8,7 @@ import ButtonDialog from "../controls/ButtonDialog";
 import { Fab } from "@mui/material";
 import AddRobotDialog from "./AddRobotDialog";
 import AddIcon from '@mui/icons-material/Add';
-import RobotCard from "../Robot/RobotCard";
+import RichRobotCard from "../Robot/RichRobotCard";
 
 interface RobotTableProps {
     user: UserModel
@@ -42,7 +42,7 @@ const RobotTable = (props: RobotTableProps) => {
     return (
         <div>
             {robots.map((robot) => (
-                <RobotCard key={robot._id} robot={robot} onClick={handleRobotCardClick} />
+                <RichRobotCard key={robot._id} robot={robot} onClick={handleRobotCardClick} />
             ))}
             <ButtonDialog
                 onConfirm={() => handleAddRobot()}

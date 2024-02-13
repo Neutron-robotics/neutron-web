@@ -29,13 +29,13 @@ const deleteRobot = async (robotId: string) => {
     }
 }
 
-const getRobot = async (robotId: string, includeStatus: boolean = false): Promise<IRobot> => {
+const getRobot = async (robotId: string, includeStatus: boolean = false): Promise<IRobot | IRobotWithStatus> => {
     const res = await api.get(`robot/${robotId}${includeStatus ? '?includeStatus=true' : ''}`)
 
     if (res.status !== 200) {
         throw new Error("Could not get the robot")
     }
-    return res.data.robot as IRobot
+    return res.data.robot as IRobot | IRobotWithStatus
 }
 
 const getLatestRobotStatus = async (robotId: string): Promise<IRobotStatus> => {

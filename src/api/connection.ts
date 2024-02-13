@@ -2,7 +2,7 @@ import api from "./api";
 import {
   ConnectionRegistrationInfos,
   CreateConnectionBody,
-  INeutronConnection,
+  INeutronConnectionDTO,
 } from "./models/connection.model";
 import { IRobot } from "./models/robot.model";
 import * as robotApi from "./robot";
@@ -38,25 +38,25 @@ const close = async (connectionId: string): Promise<void> => {
   }
 };
 
-const getById = async (connectionId: string): Promise<INeutronConnection> => {
+const getById = async (connectionId: string): Promise<INeutronConnectionDTO> => {
   const res = await api.get(`connection/${connectionId}`)
 
     if (res.status !== 200) {
         throw new Error("Could not get the connection")
     }
-    return res.data.connection as INeutronConnection
+    return res.data.connection as INeutronConnectionDTO
 }
 
-const getMyConnections = async (status?: 'active' | 'inactive'): Promise<INeutronConnection[]> => {
+const getMyConnections = async (status?: 'active' | 'inactive'): Promise<INeutronConnectionDTO[]> => {
   const res = await api.get(`connection/${status ? `?status=${status}` : ''}`)
 
     if (res.status !== 200) {
         throw new Error("Could not get connections")
     }
-    return res.data.connections as INeutronConnection[]
+    return res.data.connections as INeutronConnectionDTO[]
 }
 
-const connectRobotAndCreateConnection = async (robotId: string, partsId?: string[]) => {
+const connectRobotAndCreateConnection = async (robotId: string, partsId?: string[]): Promise<ConnectionRegistrationInfos> => {
   let robot: IRobot | undefined;
 
   try {

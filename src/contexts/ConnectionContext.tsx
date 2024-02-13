@@ -6,7 +6,6 @@ import { INeutronGraph } from "../api/models/graph.model";
 import { sleep } from "../utils/time";
 import * as connectionApi from '../api/connection'
 import * as robotStartUtils from '../utils/robotStartUtils'
-import { v4 } from "uuid";
 import OperationalConnectorGraph from "../utils/ConnectorGraph";
 
 export enum RobotConnectionStep {
@@ -37,6 +36,7 @@ type ContextProps = {
     connections: IConnectionSessionStore
     setConnections: Dispatch<SetStateAction<IConnectionSessionStore>>
     makeConnection: (robot: IRobot, graphs: INeutronGraph[], opts: IConnectionSessionBuilderOptions) => Promise<string>
+    joinConnection: (connectionId: string, robot: IRobot, graphs: INeutronGraph[], opts: IConnectionSessionBuilderOptions) => Promise<string>
 }
 
 export const ConnectionContext = createContext<ContextProps>({} as any)
@@ -54,7 +54,6 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
         opts.onConnectionProgress && opts.onConnectionProgress(RobotConnectionStep.SpawningContext)
         const startPromise = connectionApi.connectRobotAndCreateConnection(robot._id, opts.partsIdToConnect)
         await robotStartUtils.waitForContextToSpawn(robot._id, 500, 30_000)
-        // await sleep(500)
 
         opts.onConnectionProgress && opts.onConnectionProgress(RobotConnectionStep.SpawningParts)
         const partsConnectionPromise = robotStartUtils.waitForProcessesToSpawn(
@@ -76,8 +75,7 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
             port: connectionInfos.port,
             clientId: connectionInfos.registerId,
         })
-        var res = await context.connect()
-        console.log("RES CONN", res)
+        await context.connect()
 
         connectorGraphs.forEach(graph => graph.useContext(context))
 
@@ -91,27 +89,50 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
                 context: context as RosContext
             }
         })
-        // await sleep(500)
 
         opts.onConnectionProgress && opts.onConnectionProgress(RobotConnectionStep.Done)
 
-        // const connectionId = v4()
-        // setConnections({
-        //     ...connections,
-        //     [connectionId]: {
-        //         connectionId: connectionId,
-        //         nodes: [],
-        //         robot,
-        //         graphs: connectorGraphs,
-        //         context: context
-        //     }
-        // })
-        // return connectionId
         return connectionInfos.connectionId
     }
 
+    const joinConnection = async (connectionId: string, robot: IRobot, graphs: INeutronGraph[], opts: IConnectionSessionBuilderOptions): Promise<string> => {
+        if (opts.partsIdToConnect)
+            robot.parts = robot.parts.filter(e => opts.partsIdToConnect!.includes(e._id))
+
+        opts.onConnectionProgress && opts.onConnectionProgress(RobotConnectionStep.CompilingGraph)
+        const connectorGraphs = graphs.map(graph => new OperationalConnectorGraph(graph.nodes, graph.edges, graph.robot, graph.part ?? ''))
+        await sleep(5000)
+
+        opts.onConnectionProgress && opts.onConnectionProgress(RobotConnectionStep.SpawningContext)
+
+        const connectionInfos = await connectionApi.join(connectionId)
+        const context = makeConnectionContext(robot.context, {
+            hostname: connectionInfos.hostname,
+            port: connectionInfos.port,
+            clientId: connectionInfos.registerId,
+        })
+        await context.connect()
+
+        connectorGraphs.forEach(graph => graph.useContext(context))
+
+        setConnections({
+            ...connections,
+            [connectionInfos.connectionId]: {
+                connectionId: connectionInfos.connectionId,
+                nodes: [],
+                robot,
+                graphs: connectorGraphs,
+                context: context as RosContext
+            }
+        })
+
+        opts.onConnectionProgress && opts.onConnectionProgress(RobotConnectionStep.Done)
+
+        return connectionId
+    }
+
     return (
-        <ConnectionContext.Provider value={{ connections, setConnections, makeConnection }}>
+        <ConnectionContext.Provider value={{ connections, setConnections, makeConnection, joinConnection }}>
             {children}
         </ConnectionContext.Provider>
     );
