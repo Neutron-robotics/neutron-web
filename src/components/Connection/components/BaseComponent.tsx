@@ -14,10 +14,12 @@ const useStyles = makeStyles((theme: any) => ({
         borderRadius: '5px',
         background: 'white',
         height: '100%',
-        width: '100%'
+        width: '100%',
+        overflow: 'hidden'
     },
     component: {
-        padding: '5px'
+        width: '100%',
+        height: 'calc(100% - 20px)'
     },
     handle: {
         height: '20px',
@@ -54,9 +56,11 @@ const BaseComponent = (props: PropsWithChildren<ComponentNode>) => {
                 minHeight={data.settings?.minSize?.height}
                 maxWidth={data.settings?.maxSize?.width}
                 maxHeight={data.settings?.maxSize?.height}
+                keepAspectRatio={data.settings?.conserveSizeRatio}
                 style={{
                     background: 'transparent',
                     border: 'none',
+                    zIndex: 100
                 }}
             >
                 {data.settings?.resizable && (

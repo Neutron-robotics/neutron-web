@@ -245,7 +245,29 @@
             "supportedGraphTypes": [
                 "Connector"
             ],
-            "description": "This node implements the IRTCCameraComponent interface that will render an image each time the connector is updated with a new image."
+            "description": "This node will attempt to negociate a RTCPeerConnection with the given host. If the connection succeed, the camera will render images."
+        },
+        {
+            "name": "camera frame",
+            "backgroundColor": "#BD00FF",
+            "inputHandles": 1,
+            "outputHandles": 0,
+            "icon": "component.svg",
+            "supportedGraphTypes": [
+                "Connector"
+            ],
+            "description": "This node will render an image each time the connector is updated with a new image in base 64 format."
+        },
+        {
+            "name": "camera controller",
+            "backgroundColor": "#BD00FF",
+            "inputHandles": 0,
+            "outputHandles": 1,
+            "icon": "component.svg",
+            "supportedGraphTypes": [
+                "Connector"
+            ],
+            "description": "This node implements the ICameraController interface that describes the event that will be triggered when a UI component that implements this connector is getting interacted by the user."
         }
     ]
 }

@@ -148,15 +148,11 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
         if (context === null || context.isConnected === false)
             return
 
-        console.log('update context')
-
         const handleConnectionUpdated = (infos: NeutronConnectionInfoMessage) => {
-            console.log('connection status updated', infos)
             setConnectionStatus(infos)
         }
 
         const handleRobotStatusUpdated = (infos: RobotStatus) => {
-            console.log('robot status updated', infos)
             setRobotStatus(infos)
         }
 
@@ -184,6 +180,11 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
                 partId,
                 settings: descriptor.settings
             },
+            style: descriptor.settings?.defaultSize ? {
+                width: `${descriptor.settings.defaultSize.width}px`,
+                height: `${descriptor.settings.defaultSize.height}px`,
+            } : undefined,
+            resizing: true,
             dragHandle: '.custom-drag-handle'
         };
         addNode(newNode)

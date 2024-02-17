@@ -34,6 +34,26 @@
                 "controllerDependancies": [
                     "base controller"
                 ]
+            },
+            {
+                "name": "Camera Controller",
+                "icon": "camera.svg",
+                "component": "CameraComponent",
+                "controllerDependancies": [
+                    "camera controller",
+                    "camera frame"
+                ],
+                "settings": {
+                    "defaultSize": {
+                        "width": 640,
+                        "height": 360
+                    },
+                    "resizable": true,
+                    "maxSize": {
+                        "width": 1080,
+                        "height": 720
+                    }
+                }
             }
         ]
     }

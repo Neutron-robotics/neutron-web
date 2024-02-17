@@ -19,7 +19,10 @@ const useStyles = makeStyles((theme: any) => ({
     nodeTitle: {
         position: 'relative',
         textAlign: 'center',
-        width: '100%'
+        width: '100%',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
     },
     nodeIcon: {
         width: '50px',

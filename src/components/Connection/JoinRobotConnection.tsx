@@ -14,6 +14,7 @@ import { ConnectionContext, RobotConnectionStep } from "../../contexts/Connectio
 import { useNavigate } from "react-router-dom"
 import { ViewType } from "../../utils/viewtype"
 import RobotConnectionStepStatusDisplay from "./RobotConnectionStepStatusDisplay"
+import { useAlert } from "../../contexts/AlertContext"
 
 const useStyles = makeStyles(() => ({
     groupStatus: {
@@ -85,6 +86,7 @@ const JoinRobotConnection = (props: JoinRobotConnectionProps) => {
     const [connectionStep, setConnectionStep] = useState<RobotConnectionStep>(RobotConnectionStep.Start)
     const { joinConnection } = useContext(ConnectionContext)
     const navigate = useNavigate();
+    const alert = useAlert()
 
     const getRobotGraphs = useCallback(async () => {
         if (!robot)
@@ -127,13 +129,20 @@ const JoinRobotConnection = (props: JoinRobotConnectionProps) => {
         if (!robot)
             return
 
+        const enabledGraphs = optionalGraphs.filter(e => e.enabled)
+
         try {
-            await joinConnection(connection._id, robot, optionalGraphs, {
-                onConnectionProgress: (step) => setConnectionStep(step)
+            await joinConnection(connection._id, robot, enabledGraphs, {
+                onConnectionProgress: (step) => {
+                    console.log("step", step)
+                    setConnectionStep(step)
+                }
             })
             navigate(`${ViewType.ConnectionView}/${connection._id}`, { replace: true });
         }
         catch (e) {
+            console.log("ERROR", e)
+            alert.error("Failed to join the connection")
             setConnectionStep(RobotConnectionStep.Start)
         }
     }

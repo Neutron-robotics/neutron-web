@@ -3,7 +3,6 @@ import { Node } from "reactflow";
 import { IRobot, defaultRobot } from "../api/models/robot.model";
 import { BaseNode, INodeBuilder, RosContext, makeConnectionContext } from "neutron-core";
 import { INeutronGraph } from "../api/models/graph.model";
-import { sleep } from "../utils/time";
 import * as connectionApi from '../api/connection'
 import * as robotStartUtils from '../utils/robotStartUtils'
 import OperationalConnectorGraph from "../utils/ConnectorGraph";
@@ -101,7 +100,6 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
 
         opts.onConnectionProgress && opts.onConnectionProgress(RobotConnectionStep.CompilingGraph)
         const connectorGraphs = graphs.map(graph => new OperationalConnectorGraph(graph.nodes, graph.edges, graph.robot, graph.part ?? ''))
-        await sleep(5000)
 
         opts.onConnectionProgress && opts.onConnectionProgress(RobotConnectionStep.SpawningContext)
 

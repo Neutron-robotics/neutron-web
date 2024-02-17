@@ -4,9 +4,8 @@ import ReactFlow, { Background, BackgroundVariant, NodeChange, ReactFlowProvider
 import { useConnection } from "../contexts/ConnectionContext"
 import ConnectionToolBar from "../components/Connection/ConnectionToolbar"
 import { componentType } from "../components/Connection/components/componentType"
-import useGraphNotifications from "../components/controls/useGraphNotifications"
 import useAsync from "../utils/useAsync"
-import { INeutronConnection, INeutronConnectionDTO } from "../api/models/connection.model"
+import { INeutronConnectionDTO } from "../api/models/connection.model"
 import * as connectionApi from "../api/connection"
 import JoinRobotConnection from "../components/Connection/JoinRobotConnection"
 
@@ -49,8 +48,6 @@ const ConnectionView = (props: IConnectionViewProps) => {
 
     if (!context)
         return <JoinRobotConnection connection={connection} />
-
-    console.log(connection)
 
     return (
         <div className={classes.root}>
