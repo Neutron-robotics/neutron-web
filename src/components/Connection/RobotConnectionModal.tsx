@@ -15,6 +15,7 @@ import { INeutronGraph } from "../../api/models/graph.model";
 import { useNavigate } from "react-router-dom";
 import { ViewType } from "../../utils/viewtype";
 import RobotConnectionStepStatusDisplay from "./RobotConnectionStepStatusDisplay";
+import { RobotStatusDisplay, robotStatusColorDict } from "../Robot/RobotStatusDisplay";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -55,17 +56,21 @@ const useStyles = makeStyles(() => ({
         }
     },
     rows: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        "& h4": {
-            width: '150px',
-            marginLeft: '50px',
+        maxHeight: '300px',
+        overflowY: 'auto',
+        "& div": {
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            "& h4": {
+                width: '150px',
+                marginLeft: '50px',
+            }
         }
     },
     statusBadge: {
         '& span': {
-            transform: 'translate(-40px, -15px);'
+            transform: 'translate(-40px, -5px);'
         }
     },
     buttons: {
@@ -248,8 +253,17 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
                 <Paper elevation={3} className={classes.paper}>
                     <h2 style={{ marginTop: 0 }}>{robot.name}</h2>
                     <div className={classes.groupStatus}>
-                        <Badge className={classes.statusBadge} badgeContent=" " color="success" anchorOrigin={{ horizontal: "left", vertical: "bottom" }}>
-                            <p>{robot.status.status}</p>
+                        <Badge
+                            className={classes.statusBadge}
+                            badgeContent=" "
+                            anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
+                            sx={{
+                                "& .MuiBadge-badge": {
+                                    backgroundColor: robotStatusColorDict[robot.status.status]
+                                }
+                            }}
+                        >
+                            <RobotStatusDisplay status={robot.status.status} />
                         </Badge>
                         <div>
                             <Battery80Icon />
@@ -277,9 +291,9 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
                         navigationCount === 0 && (
                             <>
                                 <h2>Robot parts</h2>
-                                <div>
+                                <div className={classes.rows}>
                                     {parts.map((part) => (
-                                        <div key={part._id} className={classes.rows}>
+                                        <div key={part._id}>
                                             <RobotModuleIcon type={part.category} title={part.name} width={24} height={24} />
                                             <h4>{part.name}</h4>
                                             <Switch checked={part.enabled} onChange={(e) => handleTogglePartsSwitch(e, part._id)} />
@@ -293,16 +307,18 @@ const RobotConnectionModal = (props: RobotConnectionModalProps) => {
                         navigationCount === 1 && (
                             <>
                                 <h2>Robot graphs</h2>
-                                <div>
-                                    {optionalGraphs.map((graph) => (
-                                        <div key={graph._id} className={classes.rows}>
-                                            <img src={`${process.env.PUBLIC_URL}/assets/node.svg`} width={25} alt="node-icon" />
-                                            <h4>{graph.title}</h4>
-                                            <h4>{graph.moduleName}</h4>
-                                            <Switch checked={graph.enabled} onChange={(e) => handleToggleGraphSwitch(e, graph._id)} />
-                                        </div>
-                                    )
-                                    )}
+                                <div className={classes.rows}>
+                                    {optionalGraphs
+                                        .filter(graph => parts.some(p => p.enabled && p._id === graph.part))
+                                        .map((graph) => (
+                                            <div key={graph._id}>
+                                                <img src={`${process.env.PUBLIC_URL}/assets/node.svg`} width={25} alt="node-icon" />
+                                                <h4>{graph.title}</h4>
+                                                <h4>{graph.moduleName}</h4>
+                                                <Switch checked={graph.enabled} onChange={(e) => handleToggleGraphSwitch(e, graph._id)} />
+                                            </div>
+                                        )
+                                        )}
                                 </div>
                             </>
                         )

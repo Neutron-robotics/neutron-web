@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { useRef, useState } from "react";
 import { makeStyles } from "@mui/styles"
-import { WebRTC } from "neutron-core";
+// import { WebRTC } from "neutron-core";
 import { NodeProps } from "reactflow"
 
 const useStyles = makeStyles(() => ({
@@ -27,7 +27,7 @@ function RTCCameraViewer(props: NodeProps<IRTCCameraViewerSpecifics>) {
     const media = useRef<HTMLVideoElement>(null)
     // const connection = useConnection(connectionId ?? "")
     // const webRTC = connection?.modules.find(m => m.id === moduleId) as WebRTC | undefined
-    const webRTC = null as any as WebRTC
+    const webRTC = null as any as any// WebRTC
     const [connected, setConnected] = useState(false)
 
     const connect = async () => {

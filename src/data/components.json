@@ -21,19 +21,6 @@
                         "height": 800
                     }
                 }
-            }
-        ]
-    },
-    "Controller": {
-        "icon": "transform.svg",
-        "components": [
-            {
-                "name": "Base Controller",
-                "icon": "base.svg",
-                "component": "RobotBaseComponent",
-                "controllerDependancies": [
-                    "base controller"
-                ]
             },
             {
                 "name": "Camera Controller",
@@ -54,6 +41,19 @@
                         "height": 720
                     }
                 }
+            }
+        ]
+    },
+    "Controller": {
+        "icon": "transform.svg",
+        "components": [
+            {
+                "name": "Base Controller",
+                "icon": "base.svg",
+                "component": "RobotBaseComponent",
+                "controllerDependancies": [
+                    "base controller"
+                ]
             }
         ]
     }

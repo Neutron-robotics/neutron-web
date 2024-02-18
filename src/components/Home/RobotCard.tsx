@@ -43,7 +43,7 @@ const RobotCard = (props: RobotCardProps) => {
                 <RobotStatusDisplay status={robot.status.status} />
                 <span className={classes.robotName}>{robot.name}</span>
             </div>
-            <RobotStatusPropertiesDisplay status={robot.status} propertiesStyle={{ display: 'flex', flexDirection: 'column' }} />
+            <RobotStatusPropertiesDisplay robot={robot} status={robot.status} propertiesStyle={{ display: 'flex', flexDirection: 'column' }} />
             {(robot.status.status === 'Online' || robot.status.status === 'Operating') && (
                 <div className={classes.robotConnectButton}>
                     <IconButton

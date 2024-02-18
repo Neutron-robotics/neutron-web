@@ -1,10 +1,14 @@
 /* eslint-disable eqeqeq */
 import { makeStyles } from "@mui/styles"
-import { useEffect, useState } from "react"
+import { useContext, useState } from "react"
 import { getMyRobots } from "../api/robot"
 import { IRobotWithStatus } from "../api/models/robot.model"
 import RobotConnectionModal from "../components/Connection/RobotConnectionModal"
 import RobotCard from "../components/Home/RobotCard"
+import { useNavigate } from "react-router-dom"
+import { ConnectionContext } from "../contexts/ConnectionContext"
+import { ViewType } from "../utils/viewtype"
+import { useShortPolling } from "../components/controls/useShortPolling"
 
 const useStyles = makeStyles(() => ({
     robotWidget: {
@@ -24,12 +28,12 @@ const HomeView = (props: HomeViewProps) => {
     const classes = useStyles()
     const [robots, setRobots] = useState<IRobotWithStatus[]>([])
     const [robotToConnect, setRobotToConnect] = useState<IRobotWithStatus | undefined>()
+    const navigate = useNavigate()
+    const { connections } = useContext(ConnectionContext)
 
-    useEffect(() => {
-        getMyRobots(true).then((res) => {
-            setRobots(filterAndLimitRobots(res))
-        })
-    }, [])
+    useShortPolling(10_000, () => getMyRobots(true), (robotsWithStatus) => {
+        setRobots(filterAndLimitRobots(robotsWithStatus))
+    })
 
     const filterAndLimitRobots = (robots: IRobotWithStatus[]) => {
         return robots
@@ -39,6 +43,12 @@ const HomeView = (props: HomeViewProps) => {
     }
 
     function handleConnectButtonClick(robot: IRobotWithStatus): void {
+        const existingConnection = Object.values(connections).find(e => e.robot._id === robot._id)
+        if (existingConnection) {
+            navigate(`${ViewType.ConnectionView}/${existingConnection.connectionId}`, { replace: true })
+            return
+        }
+
         setRobotToConnect(robot)
     }
 

@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom"
 import { ViewType } from "../../utils/viewtype"
 import RobotConnectionStepStatusDisplay from "./RobotConnectionStepStatusDisplay"
 import { useAlert } from "../../contexts/AlertContext"
+import { RobotStatusDisplay, robotStatusColorDict } from "../Robot/RobotStatusDisplay"
 
 const useStyles = makeStyles(() => ({
     groupStatus: {
@@ -24,7 +25,7 @@ const useStyles = makeStyles(() => ({
     },
     statusBadge: {
         '& span': {
-            transform: 'translate(-40px, -15px);'
+            transform: 'translate(-40px, -5px);'
         }
     },
     image: {
@@ -48,12 +49,16 @@ const useStyles = makeStyles(() => ({
         }
     },
     rows: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        "& h4": {
-            width: '150px',
-            marginLeft: '50px',
+        maxHeight: '350px',
+        overflowY: 'auto',
+        "& div": {
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            "& h4": {
+                width: '150px',
+                marginLeft: '50px',
+            }
         }
     },
     joinConnectionRoot: {
@@ -151,8 +156,17 @@ const JoinRobotConnection = (props: JoinRobotConnectionProps) => {
         <div className={classes.joinConnectionRoot}>
             <h1 className={classes.centered}>{robot.name}</h1>
             <div className={classes.groupStatus}>
-                <Badge className={classes.statusBadge} badgeContent=" " color="success" anchorOrigin={{ horizontal: "left", vertical: "bottom" }}>
-                    <p>{robot.status.status}</p>
+                <Badge
+                    className={classes.statusBadge}
+                    badgeContent=" "
+                    anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
+                    sx={{
+                        "& .MuiBadge-badge": {
+                            backgroundColor: robotStatusColorDict[robot.status.status]
+                        }
+                    }}
+                >
+                    <RobotStatusDisplay status={robot.status.status} />
                 </Badge>
                 <div>
                     <Battery80Icon />
@@ -178,16 +192,18 @@ const JoinRobotConnection = (props: JoinRobotConnectionProps) => {
             </div>
             <h3 className={classes.centered}>Robot graphs</h3>
             {connectionStep === RobotConnectionStep.Start && (
-                <div>
-                    {optionalGraphs.map((graph) => (
-                        <div key={graph._id} className={classes.rows}>
-                            <img src={`${process.env.PUBLIC_URL}/assets/node.svg`} width={25} alt="node-icon" />
-                            <h4>{graph.title}</h4>
-                            <h4>{graph.moduleName}</h4>
-                            <Switch checked={graph.enabled} onChange={(e) => handleToggleGraphSwitch(e, graph._id)} />
-                        </div>
-                    )
-                    )}
+                <div className={classes.rows}>
+                    {optionalGraphs
+                        .filter(graph => robot.status.processes?.some(p => p.id === graph.part))
+                        .map((graph) => (
+                            <div key={graph._id}>
+                                <img src={`${process.env.PUBLIC_URL}/assets/node.svg`} width={25} alt="node-icon" />
+                                <h4>{graph.title}</h4>
+                                <h4>{graph.moduleName}</h4>
+                                <Switch checked={graph.enabled} onChange={(e) => handleToggleGraphSwitch(e, graph._id)} />
+                            </div>
+                        )
+                        )}
                 </div>
             )}
             {

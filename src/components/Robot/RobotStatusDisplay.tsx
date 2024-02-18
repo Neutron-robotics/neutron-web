@@ -1,5 +1,5 @@
 import { makeStyles } from "@mui/styles"
-import { IRobotStatus } from "../../api/models/robot.model"
+import { IRobot, IRobotStatus } from "../../api/models/robot.model"
 import { HTMLAttributes } from "react"
 import BatteryCharging90Icon from '@mui/icons-material/BatteryCharging90';
 import Battery90Icon from '@mui/icons-material/Battery90';
@@ -26,7 +26,7 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-const colors = {
+export const robotStatusColorDict: Record<"Online" | "Operating" | "Offline" | "Unknown", string> = {
     'Online': neutronMuiThemeDefault.palette.success.main,
     'Operating': neutronMuiThemeDefault.palette.primary.main,
     'Offline': '#CDCDCD',
@@ -35,12 +35,14 @@ const colors = {
 
 interface RobotStatusPropertiesDisplayProps extends HTMLAttributes<HTMLDivElement> {
     status: IRobotStatus
+    robot: IRobot
+    displayHostname?: boolean
     displayStatus?: boolean
     propertiesStyle?: React.CSSProperties
 }
 
 export const RobotStatusPropertiesDisplay = (props: RobotStatusPropertiesDisplayProps) => {
-    const { status, displayStatus, propertiesStyle, ...otherProps } = props
+    const { robot, status, displayStatus, displayHostname, propertiesStyle, ...otherProps } = props
     const classes = useStyles()
 
     return (
@@ -59,6 +61,11 @@ export const RobotStatusPropertiesDisplay = (props: RobotStatusPropertiesDisplay
                         <div>{status.location.name}</div>
                     </div>
                 )}
+                {displayHostname && (
+                    <div style={{ minWidth: '120px' }}>
+                        <div>{robot.hostname}</div>
+                    </div>
+                )}
             </div>
         </div>
     )
@@ -73,6 +80,6 @@ export const RobotStatusDisplay = (props: RobotStatusDisplayProps) => {
     const classes = useStyles()
 
     return (
-        <div {...otherProps} className={classes.status} style={{ color: colors[status] }}>{status}</div>
+        <div {...otherProps} className={classes.status} style={{ color: robotStatusColorDict[status] }}>{status}</div>
     )
 }

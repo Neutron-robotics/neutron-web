@@ -29,7 +29,8 @@ const ConnectionView = (props: IConnectionViewProps) => {
     const {
         nodes,
         setNodes,
-        context
+        context,
+        connected
     } = useConnection(connectionId)
     const [connection, _, isConnectionLoading, connectionError] = useAsync<INeutronConnectionDTO>(
         undefined,
@@ -46,7 +47,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
     if (isConnectionLoading || !connection)
         return <div></div>
 
-    if (!context)
+    if (!connected || !context)
         return <JoinRobotConnection connection={connection} />
 
     return (

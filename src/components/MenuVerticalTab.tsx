@@ -11,10 +11,12 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import RobotConnectionSubMenu, { RobotConnectionSubMenuProps } from './Connection/RobotConnectionSubMenu';
-import { ConnectionContext } from '../contexts/ConnectionContext';
+import { ConnectionContext, IConnectionSession, IConnectionSessionStore } from '../contexts/ConnectionContext';
 import * as connectionApi from '../api/connection'
 import * as robotApi from '../api/robot'
 import { ViewType } from '../utils/viewtype';
+import { useShortPolling } from './controls/useShortPolling';
+import { INeutronConnectionDTO } from '../api/models/connection.model';
 
 const drawerMaxWidth = 240;
 
@@ -122,7 +124,7 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
     const [drawerWidth, setDrawerWidth] = useState("50px")
     const [open, setOpen] = React.useState(false);
     const navigate = useNavigate();
-    const { connections } = useContext(ConnectionContext)
+    const { connections, setConnections } = useContext(ConnectionContext)
 
     useEffect(() => {
         const connectionSubMenus = Object.values(connections).map<RobotConnectionSubMenuProps>(connection => ({
@@ -132,33 +134,46 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
         setConnectionsSubMenu(connectionSubMenus)
     }, [connections])
 
-    useEffect(() => {
-        connectionApi.getMyConnections('active').then(async (connections) => {
-            const connectionSubMenus: RobotConnectionSubMenuProps[] = await Promise.all(connections.map(async e => {
-                const robot = await robotApi.getRobot(e.robot as string)
-                return {
-                    title: robot.name,
-                    connectionId: e._id
+    useShortPolling(10_000, () => connectionApi.getMyConnections('active'), async (connections: INeutronConnectionDTO[]) => {
+        const fetchedConnections = await Promise.all(connections.map(async e => {
+            const robot = await robotApi.getRobot(e.robot as string)
+            return {
+                robot,
+                connection: e
+            }
+        }))
+        setConnections((prev) => {
+            const newPrevConnections: IConnectionSessionStore = Object.entries(prev).reduce<IConnectionSessionStore>((acc, [key, obj]) => {
+                if (obj.connected) {
+                    acc[key] = obj;
                 }
-            }))
-            setConnectionsSubMenu(connectionSubMenus, true)
-        })
-    }, [])
+                return acc;
+            }, {});
 
-    const setConnectionsSubMenu = (connections: RobotConnectionSubMenuProps[], flush?: boolean) => {
+            const otherConnections: IConnectionSessionStore = fetchedConnections.reduce<IConnectionSessionStore>((acc, cur) => {
+                if (newPrevConnections[cur.connection._id])
+                    return acc
+
+                const inactiveConnection: IConnectionSession = {
+                    connectionId: cur.connection._id,
+                    nodes: [],
+                    robot: cur.robot,
+                    graphs: [],
+                    connected: false,
+                    context: undefined as any
+                }
+                return { ...acc, [cur.connection._id]: inactiveConnection }
+            }, {})
+
+            return { ...newPrevConnections, ...otherConnections }
+        })
+    })
+
+    const setConnectionsSubMenu = (connections: RobotConnectionSubMenuProps[]) => {
         setViews(prev => prev.map(view => view.title === 'Connection' ?
             {
                 ...view,
-                subItems: flush
-                    ? connections
-                    : [
-                        ...(view.subItems ?? []),
-                        ...connections.filter(newConnection =>
-                            !(view.subItems ?? []).some(existingConnection =>
-                                (existingConnection as RobotConnectionSubMenuProps).connectionId === newConnection.connectionId
-                            )
-                        )
-                    ]
+                subItems: connections
             }
             : view))
     }

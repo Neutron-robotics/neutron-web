@@ -254,7 +254,7 @@ const RobotView = (props: RobotViewProps) => {
                             <RobotSynchronization onRobotChange={(robot) => setRobot(robot)} robot={robot} />
                         ) : (
 
-                            <RobotConnectionMenu status={robotStatus} />
+                            <RobotConnectionMenu robot={robot} status={robotStatus} />
                         )
                     )
                 }

@@ -97,7 +97,7 @@ interface ConnectionToolBarProps {
 const ConnectionToolBar = (props: ConnectionToolBarProps) => {
     const { connection } = props
     const classes = useStyle()
-    const { robot, connectors, addNode, context } = useConnection(connection._id)
+    const { robot, connectors, addNode, context, quitConnection } = useConnection(connection._id)
     const componentFiltered = useMemo(() => loadOperationComponentsWithPartDependancies(robot.parts.map(e => e._id), connectors), [robot, connectors])
     const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(menuAnchorEl);
@@ -117,17 +117,14 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
     const handleOnConnectionShutdown = async () => {
         prompt('Are you sure you want to shutdown the connection ? Other users will be disconnected', async (confirmed: boolean) => {
             if (confirmed) {
-                context.quit()
-                context.disconnect()
-                await connectionApi.close(connection._id)
+                await quitConnection(true)
                 navigate(`${ViewType.Home}`, { replace: true });
             }
         })
     }
 
     const handleOnConnectionQuit = async () => {
-        context.quit()
-        context.disconnect()
+        quitConnection()
         navigate(`${ViewType.Home}`, { replace: true });
     }
 

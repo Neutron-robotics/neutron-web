@@ -30,7 +30,7 @@ export const loadOperationComponentsWithPartDependancies = (partsId: string[], c
                         settings: component.settings,
                         parts: loadComponentParts(component, connectors, partsId)
                     }
-                })
+                }).filter(e => e.parts.length > 0)
             }
             return categoryFiltered
         }).filter(category => category.components.find(e => e.parts.length > 0) !== undefined)

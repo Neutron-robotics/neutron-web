@@ -31,7 +31,7 @@ const RobotConnectionSubMenu = (props: RobotConnectionSubMenuProps) => {
         <ListItemButton sx={{ pl: 4 }} onClick={handleSubMenuSelected}>
             <ListItemIcon>
                 <CircleIcon sx={{
-                    color: connections[connectionId] ? 'green' : '#b5040f'
+                    color: connections[connectionId]?.connected ? 'green' : '#b5040f'
                 }} />
             </ListItemIcon>
             <ListItemText
