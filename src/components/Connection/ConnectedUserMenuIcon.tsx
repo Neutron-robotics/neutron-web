@@ -24,7 +24,7 @@ const ConnectedUserMenuIcon = (props: ConnectedUserMenuIconProps) => {
     return (
         <IconButton>
             {user.isLeader && (
-                <img height={15} width={15} className={classes.crown} alt={'crown-icon'} src={`${process.env.PUBLIC_URL}/assets/crown.svg`} />
+                <img height={15} width={15} className={classes.crown} alt={'crown-icon'} src={`/assets/crown.svg`} />
             )}
             <img className={classes.userIcon} height={35} width={35} src={user.imgUrl} alt="user-icon" />
         </IconButton>

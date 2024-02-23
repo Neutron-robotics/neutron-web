@@ -48,10 +48,6 @@ const useStyles = makeStyles(() => ({
 }))
 
 interface ILoginViewProps {
-    // onLogin: (username: string, password: string) => Promise<void>
-    // onForgetPasswordClick: () => void
-    // onSignUpClick: () => void
-    // onContinueLocalyClick: () => void
 }
 
 interface ILoginModel {
@@ -60,7 +56,6 @@ interface ILoginModel {
 }
 
 const LoginView = (props: ILoginViewProps) => {
-    // const { onLogin, onForgetPasswordClick, onSignUpClick, onContinueLocalyClick } = props
     const { login, user } = useAuth()
 
     const classes = useStyles()
@@ -101,7 +96,7 @@ const LoginView = (props: ILoginViewProps) => {
 
     return (
         <div className={classes.root} >
-            <object className={classes.centered} aria-label="robot-icon" data={`${process.env.PUBLIC_URL}/assets/icon.svg`} width={200} />
+            <img className={classes.centered} aria-label="robot-icon" src="/assets/animated-logo.svg" width={200} />
             <form onSubmit={handleLoginClick}>
                 <TextField
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => {

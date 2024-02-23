@@ -87,7 +87,7 @@ const PanelBottomTable = (props: PanelBottomTableProps) => {
     return (
         <div className={classes.panelRoot}>
             <div className={classes.title}>
-                <img src={`${process.env.PUBLIC_URL}/assets/${icon}`} width={25} alt="node-icon" />
+                <img src={`/assets/${icon}`} width={25} alt="node-icon" />
                 <div style={{ marginLeft: '10px' }}>{title}</div>
             </div>
             <div>

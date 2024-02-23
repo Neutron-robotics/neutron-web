@@ -134,7 +134,8 @@ const OrganizationView = (props: OrganizationViewProps) => {
         setOrganizations((prev) => {
             if (!prev) return null
 
-            const activeOrganizationIndex = prev.findIndex((e) => e._id === updateModel._id ?? activeOrganization?._id ?? '')
+            const activeOrganizationId = updateModel?._id ?? (activeOrganization?._id ?? '')
+            const activeOrganizationIndex = prev.findIndex((e) => e._id === activeOrganizationId)
             const updatedOrganizations = prev.map((org, index) =>
                 index === activeOrganizationIndex
                     ? { ...org, ...updateModel }

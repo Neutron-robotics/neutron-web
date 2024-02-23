@@ -135,7 +135,7 @@ const DebugMenuSidePanel = (props: DebugMenuSidePanelProps, ref: ForwardedRef<an
                 <div className={classes.nodePreviewContainer}>
                     {nodes.map((node) => (
                         <div key={node.id} className={classes.nodePreview}>
-                            <img src={`${process.env.PUBLIC_URL}/assets/nodes/${node.data.icon}`} width={20} alt="node-icon" />
+                            <img src={`/assets/nodes/${node.data.icon}`} width={20} alt="node-icon" />
                             <span>{node.data.name}</span>
                             <NodeStatusIcon status={nodeStatus[node.id] ?? 'pending'} />
                         </div>

@@ -67,7 +67,7 @@ const InfoMenuSidePanel = (props: InfoMenuSidePanelProps, ref: ForwardedRef<any>
                 >
                     <ListItemButton selected={!selectedNode} onClick={handleCollapseButtonClick}>
                         <ListItemIcon style={{ minWidth: '25px' }}>
-                            <img src={`${process.env.PUBLIC_URL}/assets/node.svg`} width={25} alt="node-icon" />
+                            <img src={`/assets/node.svg`} width={25} alt="node-icon" />
                         </ListItemIcon>
                         {collapseOpen ? <ExpandLess /> : <ExpandMore />}
                         <ListItemText primary={title ? title : "New graphnode"} />
@@ -77,7 +77,7 @@ const InfoMenuSidePanel = (props: InfoMenuSidePanelProps, ref: ForwardedRef<any>
                             {nodes.map((node) => (
                                 <ListItemButton key={node.id} onClick={() => handleNodeClick(node)} selected={selectedNode?.id === node.id} sx={{ pl: 4 }}>
                                     <ListItemIcon >
-                                        <img src={`${process.env.PUBLIC_URL}/assets/nodes/${node.data.icon}`} width={25} alt="node-icon" />
+                                        <img src={`/assets/nodes/${node.data.icon}`} width={25} alt="node-icon" />
                                     </ListItemIcon>
                                     <ListItemText primary={node.data.name} />
                                 </ListItemButton>

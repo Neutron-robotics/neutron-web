@@ -137,7 +137,7 @@ const FlowNode = (props: NodeProps<FlowNodeProps>) => {
             )}
             <div className={classes.containerNode} style={{ flexDirection: iconSide === 'left' ? 'row' : 'row-reverse' }}>
                 <div className={classes.nodeIcon} style={{ left: 0 }}>
-                    <img alt="node-icon" src={`${process.env.PUBLIC_URL}/assets/nodes/${icon}`} />
+                    <img alt="node-icon" src={`/assets/nodes/${icon}`} />
                 </div>
                 <div className={classes.nodeTitle}>{name}</div>
             </div>

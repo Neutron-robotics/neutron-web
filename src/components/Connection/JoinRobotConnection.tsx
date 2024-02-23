@@ -197,7 +197,7 @@ const JoinRobotConnection = (props: JoinRobotConnectionProps) => {
                         .filter(graph => robot.status.processes?.some(p => p.id === graph.part))
                         .map((graph) => (
                             <div key={graph._id}>
-                                <img src={`${process.env.PUBLIC_URL}/assets/node.svg`} width={25} alt="node-icon" />
+                                <img src={`/assets/node.svg`} width={25} alt="node-icon" />
                                 <h4>{graph.title}</h4>
                                 <h4>{graph.moduleName}</h4>
                                 <Switch checked={graph.enabled} onChange={(e) => handleToggleGraphSwitch(e, graph._id)} />

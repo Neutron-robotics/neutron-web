@@ -105,7 +105,7 @@ const ValueField = (props: ValueFieldProps) => {
                                     <div>{icon.label}</div>
                                     :
                                     <img
-                                        src={`${process.env.PUBLIC_URL}/assets/types/${icon.icon}`}
+                                        src={`/assets/types/${icon.icon}`}
                                         alt={'select-icon'}
                                         height={20}
                                         width={20} />
@@ -116,7 +116,7 @@ const ValueField = (props: ValueFieldProps) => {
                                     <div style={{ display: 'flex' }}>
                                         {option.icon && (
                                             <img
-                                                src={`${process.env.PUBLIC_URL}/assets/types/${option.icon}`}
+                                                src={`/assets/types/${option.icon}`}
                                                 alt={'select-icon'}
                                                 height={20}
                                                 width={20} />

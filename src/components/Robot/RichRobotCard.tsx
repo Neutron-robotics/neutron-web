@@ -58,7 +58,7 @@ const RichRobotCard = (props: RichRobotCardProps) => {
             onClick={() => onClick(robot)}
         >
             <div className={classes.robotInfos}>
-                <img alt="robot-avatar" src={robot.imgUrl?.length ? robot.imgUrl : `${process.env.PUBLIC_URL}/assets/default-robot.svg`} />
+                <img alt="robot-avatar" src={robot.imgUrl?.length ? robot.imgUrl : `/assets/default-robot.svg`} />
                 <div>
                     <div className={classes.title}>{robot.name}</div>
                     <div className={classes.partGrid}>

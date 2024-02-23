@@ -50,7 +50,7 @@ const ComponentMenu = (props: ComponentMenuProps) => {
                 sx={{ display: 'flex' }}
                 onClick={handleCategoryClick}
             >
-                <img src={`${process.env.PUBLIC_URL}/assets/components/${icon}`} width={25} alt="component-icon" />
+                <img src={`/assets/components/${icon}`} width={25} alt="component-icon" />
             </IconButton>
             <Menu
                 anchorEl={anchorEl}

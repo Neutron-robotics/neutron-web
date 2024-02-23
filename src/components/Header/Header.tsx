@@ -37,7 +37,7 @@ interface HeaderProps {
 }
 
 const Header = (props: HeaderProps) => {
-    const title = `${process.env.REACT_APP_NAME} - ${process.env.REACT_APP_VERSION}`;
+    const title = `${import.meta.env.VITE_APP_NAME} - ${import.meta.env.VITE_APP_VERSION}`;
     const classes = useStyle();
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
     const { user, logout } = useAuth()

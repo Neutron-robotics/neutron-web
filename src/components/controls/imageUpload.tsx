@@ -33,7 +33,7 @@ function ClickableImageUpload(props: ClickableImageUploadProps) {
                 onClick={handleImageClick}
                 style={{ display: "block", cursor: "pointer" }}
             >
-                <img src={src.length ? src : `${process.env.PUBLIC_URL}/assets/${defaultImg}`} alt={alt} />
+                <img src={src.length ? src : `/assets/${defaultImg}`} alt={alt} />
             </ButtonBase>
             <input
                 type="file"

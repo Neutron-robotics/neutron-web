@@ -121,7 +121,7 @@ const NodePreview = (props: NodePreviewProps) => {
             <div className={classes.containerNode} style={{ flexDirection: iconSide === 'left' ? 'row' : 'row-reverse' }}>
                 <div className={classes.nodeIcon}
                     style={{ left: 0, background: node.backgroundColor, borderRadius: iconSide === 'left' ? '5px 0px 0px 5px' : '0px 5px 5px 0px' }}>
-                    <img alt="node-icon" src={`${process.env.PUBLIC_URL}/assets/nodes/${node.icon}`} />
+                    <img alt="node-icon" src={`/assets/nodes/${node.icon}`} />
                 </div>
                 <div className={classes.nodeTitle}>{node.name}</div>
             </div>

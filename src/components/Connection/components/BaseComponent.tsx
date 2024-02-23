@@ -64,7 +64,7 @@ const BaseComponent = (props: PropsWithChildren<ComponentNode>) => {
                 }}
             >
                 {data.settings?.resizable && (
-                    <img className={classes.resizeHandle} src={`${process.env.PUBLIC_URL}/assets/resize.svg`} width={25} alt="node-icon" />
+                    <img className={classes.resizeHandle} src={`/assets/resize.svg`} width={25} alt="node-icon" />
                 )}
             </NodeResizeControl>
             <div className={`${classes.handle} custom-drag-handle`}>

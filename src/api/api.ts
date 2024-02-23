@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL, 
+  baseURL: import.meta.env.VITE_NEUTRON_SERVER_URL, 
   headers: {
     timeout : 1000,
   }

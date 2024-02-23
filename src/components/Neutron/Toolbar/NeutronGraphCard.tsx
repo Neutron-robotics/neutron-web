@@ -23,7 +23,7 @@ const NeutronGraphCard = (props: NeutronGraphCardProps) => {
                 <CardMedia
                     component="img"
                     height="100"
-                    image={graph.imgUrl ?? `${process.env.PUBLIC_URL}/assets/no-thumbnail.png`}
+                    image={graph.imgUrl ?? `/assets/no-thumbnail.png`}
                     alt="graph view"
                 />
                 <CardContent>

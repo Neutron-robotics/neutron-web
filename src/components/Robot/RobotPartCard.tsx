@@ -38,7 +38,7 @@ const RobotPartCard = (props: RobotCardProps) => {
             className={classes.partCard}
             onClick={() => onClick(robotPart)}
         >
-            <img alt="part-avatar" src={robotPart.imgUrl?.length ? robotPart.imgUrl : `${process.env.PUBLIC_URL}/assets/default-robotpart.png`} />
+            <img alt="part-avatar" src={robotPart.imgUrl?.length ? robotPart.imgUrl : `/assets/default-robotpart.png`} />
             <div className={classes.cardContent}>
                 <span>{robotPart.name}</span>
                 <span>{capitalize(robotPart.type)}</span>
