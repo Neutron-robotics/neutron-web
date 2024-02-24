@@ -1,4 +1,4 @@
-import { ConnectorGraph, NeutronEdgeDB, NeutronNodeDB } from "neutron-core"
+import { ConnectorGraph, NeutronEdgeDB, NeutronNodeDB } from "@hugoperier/neutron-core"
 
 export default class OperationalConnectorGraph extends ConnectorGraph {
     public partId: string

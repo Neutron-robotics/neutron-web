@@ -3,7 +3,7 @@ import { ChangeEvent, useRef, useState } from "react";
 import { makeStyles } from "@mui/styles"
 import { parseRos2ActionMessageContent } from "../../../utils/ros2";
 import { v4 } from "uuid";
-import { IRos2ActionMessage } from "neutron-core";
+import { IRos2ActionMessage } from "@hugoperier/neutron-core";
 
 const useStyles = makeStyles(() => ({
     textfield: {

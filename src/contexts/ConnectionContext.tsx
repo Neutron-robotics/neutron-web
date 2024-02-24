@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, createContext, useContext, useState } from "react";
 import { Node } from "reactflow";
 import { IRobot, defaultRobot } from "../api/models/robot.model";
-import { BaseNode, INodeBuilder, RosContext, makeConnectionContext } from "neutron-core";
+import { BaseNode, INodeBuilder, RosContext, makeConnectionContext } from "@hugoperier/neutron-core";
 import { INeutronGraph } from "../api/models/graph.model";
 import * as connectionApi from '../api/connection'
 import * as robotStartUtils from '../utils/robotStartUtils'

@@ -1,4 +1,4 @@
-import { IRos2System } from "neutron-core";
+import { IRos2System } from "@hugoperier/neutron-core";
 import api from "./api";
 import {
   CreateActionModel,

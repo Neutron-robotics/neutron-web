@@ -26,7 +26,7 @@ import ButtonDialog from "../../controls/ButtonDialog";
 import * as ros2Api from '../../../api/ros2'
 import { useAlert } from "../../../contexts/AlertContext";
 import useCachedState from "../../../utils/useCachedState";
-import { IMessageType, IRos2Message, IRos2Topic } from "neutron-core";
+import { IMessageType, IRos2Message, IRos2Topic } from "@hugoperier/neutron-core";
 import AddMessageTypeDialog from "./AddMessageTypeDialog";
 
 interface ITopicTableProps {

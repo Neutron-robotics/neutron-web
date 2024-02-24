@@ -6,7 +6,7 @@ import useNodeSpecifics from "../../../../../utils/useNodeSpecifics"
 import SettingsIcon from '@mui/icons-material/Settings';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import MessageField from "../MessageField"
-import { FilterNodeSpecifics, IFilterNodeChange } from "neutron-core"
+import { FilterNodeSpecifics, IFilterNodeChange } from "@hugoperier/neutron-core"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {

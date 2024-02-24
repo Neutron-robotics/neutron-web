@@ -8,7 +8,7 @@ import MessageField from "../MessageField"
 import SettingsIcon from '@mui/icons-material/Settings';
 import InputIcon from '@mui/icons-material/Input';
 import OutputIcon from '@mui/icons-material/Output';
-import { RangeNodeSpecifics } from "neutron-core"
+import { RangeNodeSpecifics } from "@hugoperier/neutron-core"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {

@@ -1,6 +1,6 @@
 import { RobotBaseControls } from "../Controller/BaseController"
 import { useConnection } from "../../../../contexts/ConnectionContext"
-import { BaseControllerNode } from "neutron-core"
+import { BaseControllerNode } from "@hugoperier/neutron-core"
 import { useMemo } from "react"
 
 const useRobotBaseComponent = (connectionId: string, partId: string) => {

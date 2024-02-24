@@ -1,4 +1,4 @@
-import { Logger } from "neutron-core";
+import { Logger } from "@hugoperier/neutron-core";
 import { useContext, useEffect, useState } from "react";
 import { LoggerContext } from "../contexts/LoggerProvider";
 

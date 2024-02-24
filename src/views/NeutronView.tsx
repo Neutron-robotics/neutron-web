@@ -8,7 +8,7 @@ import * as organization from "../api/organization";
 import { IRobot, IRobotPart } from "../api/models/robot.model";
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { VisualNode, nodeType } from "../components/Neutron/Nodes";
-import { IRos2PartSystem, IRos2System, NeutronGraphType } from "neutron-core";
+import { IRos2PartSystem, IRos2System, NeutronGraphType } from "@hugoperier/neutron-core";
 import { getRos2System } from "../api/ros2";
 import { useAlert } from "../contexts/AlertContext";
 import { toPartSystem } from "../utils/ros2";

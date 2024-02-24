@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useContext, useRef, useState } from "react"
-import { ConnectorGraph, FlowGraph, NeutronConnectionContext, NeutronEdgeDB, NeutronGraphType, NeutronNodeDB, NodeMessage, makeConnectionContext } from "neutron-core"
+import { ConnectorGraph, FlowGraph, NeutronConnectionContext, NeutronEdgeDB, NeutronGraphType, NeutronNodeDB, NodeMessage, makeConnectionContext } from "@hugoperier/neutron-core"
 import { sleep } from "../utils/time"
 import { useAlert } from "./AlertContext"
 import * as connectionApi from "../api/connection"

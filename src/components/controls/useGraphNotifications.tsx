@@ -1,4 +1,4 @@
-import { ConnectorGraph, DebugNode, ErrorNode, IDebugEvent, IErrorEvent, IInfoEvent, ISuccessEvent, IWarningEvent, InfoNode, SuccessNode, WarningNode } from "neutron-core"
+import { ConnectorGraph, DebugNode, ErrorNode, IDebugEvent, IErrorEvent, IInfoEvent, ISuccessEvent, IWarningEvent, InfoNode, SuccessNode, WarningNode } from "@hugoperier/neutron-core"
 import { useEffect } from "react"
 import { useAlert } from "../../contexts/AlertContext"
 

@@ -9,7 +9,7 @@ import {
   IRos2System,
   IRos2Topic,
   hasDuplicates,
-} from "neutron-core";
+} from "@hugoperier/neutron-core";
 
 export const cacheRos2System = (robot: IRobot, system: IRos2System) => {
   for (const part of robot.parts) {

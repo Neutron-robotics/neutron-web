@@ -25,7 +25,7 @@ import { v4 } from "uuid";
 import * as ros2Api from '../../../api/ros2'
 import { useAlert } from "../../../contexts/AlertContext";
 import useCachedState from "../../../utils/useCachedState";
-import { IRos2Publisher, IRos2Topic } from "neutron-core";
+import { IRos2Publisher, IRos2Topic } from "@hugoperier/neutron-core";
 
 interface IPublisherTableProps {
     robotId: string

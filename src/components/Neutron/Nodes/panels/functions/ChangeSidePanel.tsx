@@ -7,7 +7,7 @@ import { v4 } from "uuid"
 import MessageField from "../MessageField"
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
-import { ChangeField, ChangeNodeSpecifics } from "neutron-core"
+import { ChangeField, ChangeNodeSpecifics } from "@hugoperier/neutron-core"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {

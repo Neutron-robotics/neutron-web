@@ -1,4 +1,4 @@
-import { LiteEvent } from "neutron-core"
+import { LiteEvent } from "@hugoperier/neutron-core"
 import { getLatestRobotStatus } from "../api/robot"
 
 const waitForContextToSpawn = async (robotId: string, refreshInterval: number, timeout: number) => {

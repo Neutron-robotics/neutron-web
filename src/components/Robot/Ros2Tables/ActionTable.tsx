@@ -25,7 +25,7 @@ import { v4 } from "uuid";
 import * as ros2Api from '../../../api/ros2'
 import { useAlert } from "../../../contexts/AlertContext";
 import useCachedState from "../../../utils/useCachedState";
-import { IRos2Action, IRos2ActionMessage } from "neutron-core";
+import { IRos2Action, IRos2ActionMessage } from "@hugoperier/neutron-core";
 import ButtonDialog from "../../controls/ButtonDialog";
 import AddActionTypeDialog from "./AddActionTypeDialog";
 

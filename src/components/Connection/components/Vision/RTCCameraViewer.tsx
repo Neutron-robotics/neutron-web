@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { useRef, useState } from "react";
 import { makeStyles } from "@mui/styles"
-// import { WebRTC } from "neutron-core";
+// import { WebRTC } from "@hugoperier/neutron-core";
 import { NodeProps } from "reactflow"
 
 const useStyles = makeStyles(() => ({

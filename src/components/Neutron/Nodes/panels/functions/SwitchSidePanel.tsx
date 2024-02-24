@@ -11,7 +11,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import MessageField from "../MessageField"
 import { useReactFlow } from "reactflow"
-import { SwitchField, SwitchNodeSpecifics, comparisonOperators } from "neutron-core"
+import { SwitchField, SwitchNodeSpecifics, comparisonOperators } from "@hugoperier/neutron-core"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {

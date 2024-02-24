@@ -10,9 +10,6 @@ export default defineConfig({
         viteTsconfigPaths(),
         react()
     ],
-    build: {
-      outDir: "build",
-    },
     optimizeDeps: {
         include: ['neutron-core'],
     },

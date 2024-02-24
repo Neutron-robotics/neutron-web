@@ -1,4 +1,4 @@
-import { IRos2Action, IRos2ActionMessage, IRos2Publisher, IRos2Service, IRos2ServiceMessage, IRos2Subscriber, IRos2Topic } from "neutron-core"
+import { IRos2Action, IRos2ActionMessage, IRos2Publisher, IRos2Service, IRos2ServiceMessage, IRos2Subscriber, IRos2Topic } from "@hugoperier/neutron-core"
 import { IDBObject } from "./common"
 
 export interface CreateTopicModel {
