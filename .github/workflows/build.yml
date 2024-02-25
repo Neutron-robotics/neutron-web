@@ -1,11 +1,6 @@
 name: Neutron Web CI
 
-# on: [push]
-
-on:
-  release:
-    types: [created]
-
+on: [push]
 
 jobs:
   build:

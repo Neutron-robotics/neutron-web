@@ -1,9 +1,7 @@
 name: Build, test and publish neutron web
-# on:
-#   release:
-#     types: [created]
-
-on: [push]
+on:
+  release:
+    types: [created]
 
 env:
   REGISTRY: registry.hugosoft.dev/
