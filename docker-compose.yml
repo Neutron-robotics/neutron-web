@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  neutron-web:
+    build:
+      context: .
+    container_name: neutron-web
+    image: neutron-web-1
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - VITE_NEUTRON_SERVER_URL=http://localhost:8999
+      - VITE_APP_NAME=neutron-web
+      - VITE_APP_VERSION=1.0.0
+    ports:
+      - "3000:80"
