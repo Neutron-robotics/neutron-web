@@ -1,46 +1,41 @@
-# Getting Started with Create React App
+# Neutron Web
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+The Neutron web interface is a client application designed to power the Neutron platform, which focuses on research and development in the fields of robotics and Industry 4.0 products. Neutron offers custom solutions tailored to the requirements of companies and individuals, as well as generic products developed by the company. In addition to robotics products, Neutron emphasizes a powerful platform for real-time control and autonomous monitoring of robotic solutions. The platform also includes analytics functionalities to facilitate the iteration on new features.
 
-In the project directory, you can run:
+## Setup and Installation
 
-### `yarn start`
+To set up and run the Neutron web project locally, follow these steps:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+2. Start the development server:
+   ```bash
+   npm run start
+   ```
 
-### `yarn test`
+   OR
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+   Build the project:
+   ```bash
+   npm run build
+   ```
 
-### `yarn build`
+## Usage
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- The Neutron web interface provides access to the Neutron platform, enabling users to control robotic solutions, monitor real-time data, and utilize analytics functionalities.
+- Detailed usage instructions and documentation can be found within the project's source code or through external documentation provided by Neutron.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Support
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+For help or support with the Neutron web interface, please open an issue or contact me on X or Github.
 
-### `yarn eject`
+## Additional Resources
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+- [Neutron Website](https://www.hugosoft.dev)
+- [Neutron Documentation](https://www.hugosoft.dev/docs)
+- [Neutron GitHub Repository](https://github.com/hugoperier/neutron-web)
