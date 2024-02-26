@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -18,12 +14,15 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": ["vite/client"]
   },
   "include": [
     "src",
     "../../node_modules/cypress",
     "cypress/*/*.ts",
-    "cypress/*/*.tsx"
-, "cypress/component/App2.cy.tsx", "cypress/component/App.cy.tsx"  ],
+    "cypress/*/*.tsx",
+    "cypress/component/App2.cy.tsx",
+    "cypress/component/App.cy.tsx"
+  ]
 }

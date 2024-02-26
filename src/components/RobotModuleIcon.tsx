@@ -8,6 +8,8 @@ import LightIcon from '@mui/icons-material/Light';
 import LinkIcon from '@mui/icons-material/Link';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import React from 'react';
+import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
+import { RobotPartCategory } from '../api/models/robot.model';
 
 export interface IRobotModuleIconProps {
     type: string
@@ -20,9 +22,10 @@ const RobotModuleIcon = (props: IRobotModuleIconProps) => {
     const { type, title, width, height } = props
 
     const typeIconDict: Record<string, JSX.Element> = {
-        'base': <DirectionsCarIcon />,
+        [RobotPartCategory.Base]: <DirectionsCarIcon />,
+        [RobotPartCategory.Vison]: <CameraAltIcon />,
+        [RobotPartCategory.Actuator]: <PrecisionManufacturingIcon />,
         'service': <MemoryIcon />,
-        'camera': <CameraAltIcon />,
         'ptz': <VideocamIcon />,
         'ultasonic': <WavesIcon />,
         'lidar': <FlareIcon />,

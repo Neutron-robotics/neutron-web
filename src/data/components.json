@@ -1,0 +1,60 @@
+{
+    "Vision": {
+        "icon": "camera.svg",
+        "components": [
+            {
+                "name": "Web RTC Camera",
+                "icon": "webrtc.svg",
+                "component": "WebRTCCamera",
+                "controllerDependancies": [
+                    "RTC camera controller",
+                    "camera canvas"
+                ],
+                "settings": {
+                    "resizable": true,
+                    "minSize": {
+                        "width": 100,
+                        "height": 100
+                    },
+                    "maxSize": {
+                        "width": 800,
+                        "height": 800
+                    }
+                }
+            },
+            {
+                "name": "Camera Controller",
+                "icon": "camera.svg",
+                "component": "CameraComponent",
+                "controllerDependancies": [
+                    "camera controller",
+                    "camera frame"
+                ],
+                "settings": {
+                    "defaultSize": {
+                        "width": 640,
+                        "height": 360
+                    },
+                    "resizable": true,
+                    "maxSize": {
+                        "width": 1080,
+                        "height": 720
+                    }
+                }
+            }
+        ]
+    },
+    "Controller": {
+        "icon": "transform.svg",
+        "components": [
+            {
+                "name": "Base Controller",
+                "icon": "base.svg",
+                "component": "RobotBaseComponent",
+                "controllerDependancies": [
+                    "base controller"
+                ]
+            }
+        ]
+    }
+}

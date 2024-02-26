@@ -1,44 +1,58 @@
-import { AppBar, Box, IconButton, Slide, Toolbar, Typography } from "@mui/material"
+import { AppBar, Button, IconButton, Popover, Toolbar, Typography } from "@mui/material"
 import HomeIcon from '@mui/icons-material/Home';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { makeStyles } from "@mui/styles";
-import { ViewContext, ViewType } from "../../contexts/ViewProvider";
-import { useContext, useRef } from "react";
-import TabHeader from "./TabHeader";
-import { IOperationTab, useTabsDispatch } from "../../contexts/TabContext";
 import React from "react";
+import { capitalize } from "../../utils/string";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { ViewType } from "../../utils/viewtype";
 
 const useStyle = makeStyles((theme: any) => ({
     header: {
-        minHeight: '48px !important',
+        height: '56px !important',
+        minHeight: '56px !important',
         background: theme.palette.primary.main
     },
     accountIcon: {
         marginLeft: 'auto !important',
+    },
+    icon: {
+        width: "30px",
+        borderRadius: "50%",
+        border: '1px solid black'
+    },
+    largerIcon: {
+        width: "100px",
+        borderRadius: "50%",
+        border: '1px solid black'
+    },
+    popover: {
+        margin: '10px',
+        textAlign: 'center'
     }
 }));
 
 interface HeaderProps {
-    headerTabs: IOperationTab[];
     activeTabId?: string;
-    headerBody?: JSX.Element;
 }
 
 const Header = (props: HeaderProps) => {
-    const title = `${process.env.REACT_APP_NAME} - ${process.env.REACT_APP_VERSION}`;
+    const title = `${import.meta.env.VITE_APP_NAME} - ${import.meta.env.VITE_APP_VERSION}`;
     const classes = useStyle();
-    const { headerTabs, headerBody } = props;
-    const { setViewType } = useContext(ViewContext);
-    const tabDispatch = useTabsDispatch()
-    const headerRef = useRef(null);
+    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+    const { user, logout } = useAuth()
+    const navigate = useNavigate();
+
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
 
     const handleHomeButtonClick = () => {
-        tabDispatch({
-            type: 'set-active',
-            tabId: 'all',
-            active: false
-        })
-        setViewType(ViewType.Home);
+        navigate(ViewType.Home, { replace: true });
     }
 
     return (
@@ -59,35 +73,33 @@ const Header = (props: HeaderProps) => {
                     <Typography variant="caption" component="div" sx={{ display: 'flex' }}>
                         {title}
                     </Typography>
-                    {headerTabs.map(e => (
-                        <Box key={e.title} sx={{ display: 'flex' }} >
-                            <TabHeader {...e} />
-                        </Box>
-                    ))}
                     <IconButton
                         size="large"
                         edge="end"
                         color="inherit"
-                        aria-label="menu"
+                        aria-label="user-icon"
                         className={classes.accountIcon}
+                        onClick={handleClick}
                     >
-                        <AccountCircleIcon />
+                        <img className={classes.icon} src={user?.imgUrl} alt={"usericon"} />
                     </IconButton>
+                    <Popover
+                        open={Boolean(anchorEl)}
+                        anchorEl={anchorEl}
+                        onClose={handleClose}
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                        }}
+                    >
+                        <div className={classes.popover}>
+                            <img className={classes.largerIcon} src={`${user?.imgUrl}`} alt={"usericon"} />
+                            <p>{`${capitalize(user?.firstName ?? "")} ${capitalize(user?.lastName ?? "")}`}</p>
+                            <Button color="error" onClick={logout} variant="contained">Disconnect</Button>
+                        </div>
+                    </Popover>
                 </Toolbar>
             </AppBar>
-            <div ref={headerRef} style={{ overflow: 'hidden' }}>
-                <Slide
-                    direction="down"
-                    in={headerBody !== undefined}
-                    mountOnEnter
-                    unmountOnExit
-                    container={headerRef.current}
-                >
-                    <div>
-                        {headerBody}
-                    </div>
-                </Slide>
-            </div>
         </>
     )
 }

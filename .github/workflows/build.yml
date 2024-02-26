@@ -5,29 +5,30 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    name: Build using Node v18
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          ref: ${{ github.head_ref }}
-      - name: Clone Neutron Core
-        run: |
-          ls
-          pwd
-          cd ..
-          git clone https://hugoperier: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@github.com/hugoperier/neutron-core
+          node-version: 18
+          registry-url: 'https://npm.pkg.github.com'
+      - run: npm install --legacy-peer-deps   
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: npm run build
 
-      - name: Build and install Neutron Core
-        run: |
-          ls
-          pwd
-          cd ../neutron-core
-          yarn
-          yarn tsc
-          cd ../neutron-web
-          echo Install neutron-web
-          yarn
-          echo Linking neutron core
-          yarn add ../neutron-core
-      - name: Run Tests
-        run: |
-          yarn test
+  test:
+    runs-on: ubuntu-latest
+    name: Test using Node v18
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: 'https://npm.pkg.github.com'
+      - run: npm install --legacy-peer-deps   
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: npm run test
+        env:
+          CI: true

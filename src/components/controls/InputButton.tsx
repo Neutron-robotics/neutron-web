@@ -8,7 +8,6 @@ interface InputButtonProps extends ButtonProps {
 
 interface InputIconButtonProps extends IconButtonProps {
     opacity: number,
-    iconStrokeWidth: number,
 }
 
 const InputButton = styled(Button)<InputButtonProps>(({ theme, opacity }) => ({
@@ -18,7 +17,7 @@ const InputButton = styled(Button)<InputButtonProps>(({ theme, opacity }) => ({
     }
 }));
 
-const InputIconButton = styled(IconButton)<InputIconButtonProps>(({ theme, opacity, iconStrokeWidth }) => ({
+const InputIconButton = styled(IconButton)<InputIconButtonProps>(({ theme, opacity }) => ({
     "&.MuiIconButton-root": {
         border: `2px solid`,
         borderColor: theme.palette.primary.main
@@ -30,7 +29,6 @@ const InputIconButton = styled(IconButton)<InputIconButtonProps>(({ theme, opaci
     "& .MuiSvgIcon-root": {
         stroke: 'black',
         fill: 'white',
-        strokeWidth: `${iconStrokeWidth}px`,
         zIndex: 2
     }
 }));
