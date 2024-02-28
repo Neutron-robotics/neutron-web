@@ -1,4 +1,4 @@
-import { Breadcrumbs, Link, SpeedDial, SpeedDialAction, SpeedDialIcon, Tab, Tabs, Typography } from "@mui/material"
+import { Breadcrumbs, IconButton, Link, SpeedDial, SpeedDialAction, SpeedDialIcon, Tab, Tabs, Tooltip, Typography } from "@mui/material"
 import ClickableImageUpload from "../components/controls/imageUpload"
 import { EditText, EditTextarea, onSaveProps } from "react-edit-text"
 import { makeStyles } from "@mui/styles";
@@ -21,11 +21,19 @@ import useAsyncOrDefault from "../utils/useAsyncOrDefault"
 import useAsync from "../utils/useAsync"
 import { OrganizationModel } from "../api/models/organization.model";
 import ComponentError from "../components/ComponentError";
+import AddRobotPartCard from "../components/Robot/AddRobotPartCard";
+import SaveIcon from '@mui/icons-material/Save';
 
 const useStyles = makeStyles(() => ({
     root: {
         padding: "30px",
         width: "100%",
+    },
+    robotHeader: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingBottom: '30px'
     },
     robotNameTextfield: {
         marginLeft: "auto",
@@ -80,6 +88,7 @@ const RobotView = (props: RobotViewProps) => {
     const [robot, setRobot, isRobotLoading, robotError] = useAsyncOrDefault(
         { model: location.state?.robotModel as IRobot | undefined, defaultModel: defaultRobot, isNew: isNewRobot },
         () => robotApi.getRobot(params.robotId ?? ''))
+    const [robotModel, setRobotModel] = useState(defaultRobot)
     const [activeOrganization, setActiveOrganization, isOrganizationLoading, organizationError] =
         useAsync<OrganizationModel>(location.state?.organization, () => organizationApi.getById(params.organizationId ?? ''))
     const [activeTab, setActiveTab] = useState(0);
@@ -91,11 +100,16 @@ const RobotView = (props: RobotViewProps) => {
     })
     const alert = useAlert()
     const [Dialog, prompt] = useConfirmationDialog()
+    const isRobotUpdated = `${robot.name}-${robot.description}` !== `${robotModel.name}-${robotModel.description}`
 
     useEffect(() => {
-        if (isRobotLoading || isNewRobot || !robot.linked)
+        if (isRobotLoading || isNewRobot)
             return
 
+        setRobotModel(robot)
+
+        if (!robot.linked)
+            return
         robotApi.getLatestRobotStatus(robot._id).then(status => {
             if (status)
                 setRobotStatus(status)
@@ -122,38 +136,10 @@ const RobotView = (props: RobotViewProps) => {
         }
     }
 
-    const handleDescriptionUpdate = async (data: onSaveProps) => {
-        if (isNewRobot)
-            setRobot((prev) => ({ ...prev, description: data.value }))
-        if (!isNewRobot && robot._id) {
-            try {
-                await robotApi.update(robot._id, { description: data.value })
-                setRobot((prev) => ({ ...prev, description: data.value }))
-            }
-            catch (err) {
-                alert.error("An error has occured while updating robot description")
-            }
-        }
-    }
-
-    const handleNameUpdate = async (data: onSaveProps) => {
-        if (isNewRobot)
-            setRobot((prev) => ({ ...prev, name: data.value }))
-        if (!isNewRobot && robot._id) {
-            try {
-                await robotApi.update(robot._id, { name: data.value })
-                setRobot((prev) => ({ ...prev, name: data.value }))
-            }
-            catch (err) {
-                alert.error("An error has occured while updating robot description")
-            }
-        }
-    }
-
     const handleBreadcrumbsClick = () => {
         if (!activeOrganization)
             return
-        if (isNewRobot) {
+        if (isNewRobot && isRobotUpdated) {
             prompt("Do you want to save the robot", async (confirmed: boolean) => {
                 if (confirmed) {
                     try {
@@ -174,43 +160,23 @@ const RobotView = (props: RobotViewProps) => {
                 }
             })
         }
+        else if (isRobotUpdated) {
+            prompt("Do you want to save the robot", async (confirmed: boolean) => {
+                if (confirmed)
+                    await handleOnSaveClick()
+                navigate(`/organization/${activeOrganization._id}`, { replace: true })
+            })
+        }
         else {
             navigate(`/organization/${activeOrganization._id}`, { replace: true })
         }
     }
 
-    const handleSpeedDialClick = (action: RobotSpeedDialActions) => {
+    const handleAddPartClick = () => {
         if (!activeOrganization)
             return
-        switch (action) {
-            case 'Remove':
-                prompt("Are you sure you want to delete this robot ?", async () => {
-                    try {
-                        robot?._id && await robotApi.deleteRobot(robot._id)
-                        navigate(`/organization/${activeOrganization._id}`, { replace: true })
-                    }
-                    catch {
-                        alert.error("An error occured while trying to delete the robot")
-                    }
-                })
-                break;
-            case 'Add Part':
-                navigate(`/organization/${activeOrganization._id}/robot/${robot._id}/part/new`, { replace: true, state: { isNew: true } });
-                break;
-            case 'Add Module':
-                break;
-            case 'Share':
-                navigator.clipboard.writeText(`${window.location.protocol}//${window.location.hostname}/organization/${activeOrganization._id}/robot/${robot._id}/`)
-                alert.info("The link to this robot has been copied to your clipboard")
-                break;
-            default:
-                break;
-        }
+        navigate(`/organization/${activeOrganization._id}/robot/${robot._id}/part/new`, { replace: true, state: { isNew: true } });
     }
-
-    if (isRobotLoading || isOrganizationLoading)
-        return <div />
-
 
     function handleOnPartSelected(robotPart: IRobotPart): void {
         if (!activeOrganization)
@@ -218,23 +184,97 @@ const RobotView = (props: RobotViewProps) => {
         navigate(`/organization/${activeOrganization._id}/robot/${robot._id}/part/${robotPart._id}`, { replace: true });
     }
 
+    const handleDeleteClick = () => {
+        if (!activeOrganization)
+            return
+        prompt("Are you sure you want to delete this robot ?", async (confirmed) => {
+            try {
+                if (confirmed) {
+                    robot?._id && await robotApi.deleteRobot(robot._id)
+                    navigate(`/organization/${activeOrganization._id}`, { replace: true })
+                }
+            }
+            catch {
+                alert.error("An error occured while trying to delete the robot")
+            }
+        })
+    }
+
+    const handleOnSaveClick = async () => {
+        if (!robot || isRobotLoading || robotError || !activeOrganization)
+            return
+
+        try {
+            if (isNewRobot) {
+                const createModel: ICreateRobotModel = {
+                    name: robotModel.name,
+                    description: robotModel.description,
+                    imgUrl: robot.imgUrl === "" ? undefined : robot.imgUrl
+                }
+                const robotId = await robotApi.create(activeOrganization._id, createModel)
+                setRobot(({ ...robot, ...createModel, _id: robotId }))
+                setRobotModel(({ ...robot, ...createModel, _id: robotId }))
+            }
+            else {
+                const updateModel = {
+                    name: robotModel.name,
+                    description: robotModel.description
+                }
+                await robotApi.update(robot._id, updateModel)
+                setRobot((prev) => ({ ...prev, ...updateModel }))
+            }
+        } catch (err) {
+            alert.error(`An error has occured while ${isNewRobot ? 'creating' : 'updating'} the robot`);
+        }
+    }
+
+    function handleShareClick(): void {
+        if (!activeOrganization || !robot)
+            return
+        navigator.clipboard.writeText(`${window.location.protocol}//${window.location.hostname}/organization/${activeOrganization._id}/robot/${robot._id}`)
+        alert.info("The link to this robot has been copied to your clipboard")
+    }
+
+    if (isRobotLoading || isOrganizationLoading)
+        return <div />
+
     if (robotError || organizationError)
         return <ComponentError title="Robot not found" description="An error has occured while fetching the robot" />
 
+
     return (
         <div className={classes.root}>
-            <Breadcrumbs aria-label="breadcrumb">
-                <Link underline="hover" color="inherit" onClick={handleBreadcrumbsClick}>
-                    {activeOrganization?.name}
-                </Link>
-                <Typography color="text.primary">{isNewRobot ? "New Robot" : robot.name}</Typography>
-            </Breadcrumbs>
-            <EditText
-                defaultValue={robot.name}
-                inputClassName={classes.robotNameTextfield}
-                onSave={handleNameUpdate}
-                className={classes.robotNameTextfield}
-            />
+            <div className={classes.robotHeader}>
+                <Breadcrumbs aria-label="breadcrumb">
+                    <Link underline="hover" color="inherit" onClick={handleBreadcrumbsClick}>
+                        {activeOrganization?.name}
+                    </Link>
+                    <Typography color="text.primary">{isNewRobot ? "New Robot" : robot.name}</Typography>
+                </Breadcrumbs>
+                <EditText
+                    defaultValue={robot.name}
+                    inputClassName={classes.robotNameTextfield}
+                    onSave={(e) => setRobotModel({ ...robotModel, name: e.value })}
+                    className={classes.robotNameTextfield}
+                />
+                <div>
+                    <IconButton disabled={!isRobotUpdated} onClick={handleOnSaveClick} color="secondary">
+                        <Tooltip arrow title="Save Robot">
+                            <SaveIcon />
+                        </Tooltip>
+                    </IconButton>
+                    <IconButton onClick={handleDeleteClick} color="secondary">
+                        <Tooltip arrow title="Delete Robot">
+                            <DeleteIcon />
+                        </Tooltip>
+                    </IconButton>
+                    <IconButton onClick={handleShareClick} disabled={isNewRobot} color="secondary">
+                        <Tooltip arrow title="Share Robot">
+                            <ShareIcon />
+                        </Tooltip>
+                    </IconButton>
+                </div>
+            </div>
             <div className={classes.robotsInfos}>
                 <ClickableImageUpload
                     src={robot.imgUrl ?? ""}
@@ -246,7 +286,7 @@ const RobotView = (props: RobotViewProps) => {
                     className={classes.description}
                     defaultValue={robot.description}
                     rows={"auto" as any}
-                    onSave={handleDescriptionUpdate}
+                    onSave={e => setRobotModel({ ...robotModel, description: e.value })}
                 />
                 {
                     !isNewRobot && (
@@ -273,26 +313,12 @@ const RobotView = (props: RobotViewProps) => {
             {
                 activeTab === 0 && (
                     <div>
-                        {robot.parts && robot.parts.length ? robot.parts.map(part => (<RobotPartCard key={part.name} robotPart={part} onClick={handleOnPartSelected} />)) : ''}
+                        {robot.parts && robot.parts.length ? robot.parts.map(part => (<RobotPartCard key={part._id} robotPart={part} onClick={handleOnPartSelected} />)) : ''}
+                        {!isNewRobot && <AddRobotPartCard onClick={handleAddPartClick} />}
                     </div>
                 )
             }
             {Dialog}
-            <SpeedDial
-                ariaLabel="robot action speeddial"
-                sx={{ position: 'absolute', bottom: '10%', right: '10%' }}
-                icon={<SpeedDialIcon />}
-            >
-                {robotSpeedDialActions.map((action) => (
-                    <SpeedDialAction
-                        onClick={() => handleSpeedDialClick(action.name)}
-                        key={action.name}
-                        icon={action.icon}
-                        tooltipTitle={action.name}
-
-                    />
-                ))}
-            </SpeedDial>
         </div >
     )
 }
