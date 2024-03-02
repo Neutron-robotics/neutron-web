@@ -68,7 +68,7 @@ const NeutronView = (props: NeutronViewProps) => {
     const [neutronGraph, setNeutronGraph] = useState<INeutronGraph>()
     const [sidePanels, setSidePanels] = useState<NeutronSidePanel[]>([])
     const [title, setTitle] = useState('')
-    const [graphType, setGraphType] = useState<NeutronGraphType>('Flow')
+    const [graphType, setGraphType] = useState<NeutronGraphType>('Connector')
     const [environmentVariables, setEnvironmentVariable] = useState<Record<string, number | string | undefined>>({ toto: 1, foo: 'haha' })
     const [selectedNode, setSelectedNode] = useState<VisualNode>()
     const { graphStatus } = useNeutronGraph()

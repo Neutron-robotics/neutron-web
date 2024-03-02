@@ -109,7 +109,8 @@ function AddServiceTypeDialog(props: AddServiceTypeDialogProps) {
                 <TextField
                     className={classes.textfield}
                     required
-                    label="Name"
+                    label="Action Type"
+                    placeholder="my_msgs/actions/my_type"
                     fullWidth
                     onChange={handleNameSelect}
                 />

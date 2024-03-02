@@ -60,3 +60,9 @@ export interface IMessageType extends IDBObject {
   name: string,
   fields: Ros2Field[]
 }
+
+export interface Ros2PrimitiveTypes {
+  messages: IMessageType[]
+  services: IRos2ServiceMessage[]
+  actions: IRos2ActionMessage[]
+}

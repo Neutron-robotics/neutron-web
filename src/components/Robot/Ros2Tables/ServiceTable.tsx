@@ -1,4 +1,4 @@
-import { Box, Button, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { Autocomplete, Box, Button, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
 import {
     GridRowsProp,
     GridRowModesModel,
@@ -20,7 +20,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
-import { useEffect, useState } from "react";
+import { SyntheticEvent, useEffect, useState } from "react";
 import { v4 } from "uuid";
 import * as ros2Api from '../../../api/ros2'
 import { useAlert } from "../../../contexts/AlertContext";
@@ -28,6 +28,7 @@ import useCachedState from "../../../utils/useCachedState";
 import { IRos2Service, IRos2ServiceMessage } from "@hugoperier/neutron-core";
 import ButtonDialog from "../../controls/ButtonDialog";
 import AddServiceTypeDialog from "./AddServiceTypeDialog";
+import { getFirstPartBeforeSeparatorOrDefault, getLastPartAfterSeparator } from "../../../utils/string";
 
 interface IServiceTableProps {
     robotId: string
@@ -38,40 +39,59 @@ interface RenderTypeEditProps extends GridRenderCellParams<any, string> {
     serviceTypes: IRos2ServiceMessage[]
 }
 
-interface RenderTypeProps extends GridRenderCellParams<any, string> {
-    serviceTypes: IRos2ServiceMessage[]
-}
-
 const RenderTypeEdit = (props: RenderTypeEditProps) => {
     const { id, field, serviceTypes, row } = props;
     const apiRef = useGridApiContext();
+    const [inputValue, setInputValue] = useState('');
 
-    useEffect(() => {
-        apiRef.current.setEditCellValue({ id, field, value: serviceTypes.length ? row.serviceTypeId ?? serviceTypes[0]?._id : '' });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    // useEffect(() => {
+    //     apiRef.current.setEditCellValue({ id, field, value: serviceTypes.length ? row.serviceTypeId ?? serviceTypes[0]?._id : '' });
+    // }, [])
+
+    const serviceTypesSorted = serviceTypes.sort((a, b) => {
+        if (a.name.includes('/') && !b.name.includes('/')) {
+            return 1; // Place 'b' before 'a'
+        } else if (!a.name.includes('/') && b.name.includes('/')) {
+            return -1; // Place 'a' before 'b'
+        }
+
+        return a.name.localeCompare(b.name);
+    });
 
     function handleSelectChange(event: SelectChangeEvent<string>): void {
         apiRef.current.setEditCellValue({ id, field, value: event.target.value });
     }
 
+    function handleChangeEvent(event: SyntheticEvent<Element, Event>, value: IRos2ServiceMessage | null): void {
+        if (value === null)
+            return
+
+        apiRef.current.setEditCellValue({ id, field, value });
+    }
+
     return (
-        <Select onChange={handleSelectChange} defaultValue={serviceTypes.length ? row.serviceTypeId ?? serviceTypes[0]?._id : ''} value={row.serviceTypeId ?? serviceTypes[0]?._id} fullWidth>
-            {serviceTypes.map((e) => (
-                <MenuItem key={e._id} value={e._id}>
-                    {e.name}
-                </MenuItem>
-            ))}
-        </Select>
-    );
+        <Autocomplete
+            options={serviceTypesSorted}
+            groupBy={(option) => getFirstPartBeforeSeparatorOrDefault(option.name, '/', "Unknown Package")}
+            getOptionLabel={(option) => option.name}
+            isOptionEqualToValue={(opt, value) => opt._id === value._id}
+            fullWidth
+            value={row.type}
+            inputValue={inputValue}
+            onInputChange={(event, newInputValue) => setInputValue(newInputValue)}
+            onChange={handleChangeEvent}
+            renderInput={(params) => <TextField {...params} />}
+        />
+    )
 };
 
-const RenderType = (props: RenderTypeProps) => {
-    const { serviceTypes, row } = props;
+const RenderType = (props: GridRenderCellParams<any, IRos2ServiceMessage | undefined>) => {
+    const { value } = props;
+    const serviceName = value?.name ?? ''
 
     return (
         <div>
-            {serviceTypes.find(e => e._id === row.serviceTypeId)?.name ?? 'Unknown'}
+            {getLastPartAfterSeparator(serviceName, '/')}
         </div>
     )
 }
@@ -79,13 +99,20 @@ const RenderType = (props: RenderTypeProps) => {
 const ServiceTable = (props: IServiceTableProps) => {
     const { robotId, partId } = props
     const [serviceTypes, setServiceType] = useCachedState<IRos2ServiceMessage[]>(`serviceTypes-${robotId}-${partId}`, [])
+    const [standardServiceTypes, setStandardServiceTypes] = useCachedState<IRos2ServiceMessage[]>(`serviceType-standard`, [])
     const [services, setServices] = useCachedState<IRos2Service[]>(`services-${robotId}-${partId}`, [])
     const [rows, setRows] = useState<IRos2Service[]>([]);
     const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
     const alert = useAlert()
 
+    const allServiceTypes = [...serviceTypes, ...standardServiceTypes].reduce<IRos2ServiceMessage[]>((acc, cur) => {
+        if (acc.find(e => e._id === cur._id))
+            return acc
+        return [...acc, cur]
+    }, [])
+
     useEffect(() => {
-        setRows(services.map(e => ({ ...e, id: e._id, serviceTypeId: e.serviceType._id })))
+        setRows(services.map(e => ({ ...e, id: e._id, serviceTypeId: e.serviceType })))
     }, [services])
 
     const handleRowEditStop: GridEventListener<"rowEditStop"> = (
@@ -98,7 +125,7 @@ const ServiceTable = (props: IServiceTableProps) => {
     };
 
     const handleCreateServiceTypeClick = async (data: IRos2ServiceMessage) => {
-        if (serviceTypes.includes(data)) {
+        if (allServiceTypes.includes(data)) {
             alert.warn("The service type already exist...")
         }
 
@@ -150,12 +177,12 @@ const ServiceTable = (props: IServiceTableProps) => {
 
     const processRowUpdate = async (newRow: GridRowModel) => {
         const updatedRow = { ...newRow, isNew: false } as any;
-        const serviceType = serviceTypes.find(e => e._id === updatedRow.serviceTypeId) as IRos2ServiceMessage
+        const serviceType = allServiceTypes.find(e => e._id === updatedRow.serviceType._id) as IRos2ServiceMessage
         if (newRow.isNew) {
             try {
                 const serviceId = await ros2Api.createService(robotId, partId, {
                     name: updatedRow.name,
-                    serviceTypeId: updatedRow.serviceTypeId,
+                    serviceTypeId: updatedRow.serviceType._id,
                 })
                 const service: IRos2Service = {
                     _id: serviceId,
@@ -176,7 +203,7 @@ const ServiceTable = (props: IServiceTableProps) => {
                         _id: updatedRow.id,
                         name: updatedRow.name,
                         serviceType: {
-                            _id: updatedRow.serviceTypeId,
+                            _id: updatedRow.serviceType._id,
                         },
                     }
                 } as any)
@@ -207,16 +234,16 @@ const ServiceTable = (props: IServiceTableProps) => {
             flex: 1,
         },
         {
-            field: "serviceTypeId",
-            headerName: "Action type",
+            field: "serviceType",
+            headerName: "Service type",
             width: 150,
             flex: 1,
             editable: true,
             renderEditCell: (params: GridRenderEditCellParams) => (
-                <RenderTypeEdit {...params} serviceTypes={serviceTypes} />
+                <RenderTypeEdit {...params} serviceTypes={allServiceTypes} />
             ),
             renderCell: (params: GridRenderCellParams) => (
-                <RenderType {...params} serviceTypes={serviceTypes} />
+                <RenderType {...params} />
             )
         },
         {
@@ -300,7 +327,6 @@ const ServiceTable = (props: IServiceTableProps) => {
                         setRows,
                         setRowModesModel,
                         handleCreateServiceTypeClick,
-                        serviceTypesLength: serviceTypes.length
                     },
                 }}
             />
@@ -318,11 +344,11 @@ interface EditToolbarProps {
 }
 
 function EditToolbar(props: EditToolbarProps) {
-    const { serviceTypesLength, setRows, setRowModesModel, handleCreateServiceTypeClick } = props;
+    const { setRows, setRowModesModel, handleCreateServiceTypeClick } = props;
 
     const handleClick = () => {
         const id = v4();
-        setRows((oldRows) => [...oldRows, { id, name: "", age: "", isNew: true }]);
+        setRows((oldRows) => [...oldRows, { id, isNew: true }]);
         setRowModesModel((oldModel) => ({
             ...oldModel,
             [id]: { mode: GridRowModes.Edit, fieldToFocus: "name" },
@@ -333,7 +359,7 @@ function EditToolbar(props: EditToolbarProps) {
         <GridToolbarContainer
             sx={{ display: "flex !important", justifyContent: "space-between" }}
         >
-            <Button color="primary" disabled={serviceTypesLength === 0} startIcon={<AddIcon />} onClick={handleClick}>
+            <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
                 Add record
             </Button>
             <ButtonDialog

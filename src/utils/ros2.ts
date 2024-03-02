@@ -10,6 +10,22 @@ import {
   IRos2Topic,
   hasDuplicates,
 } from "@hugoperier/neutron-core";
+import { Ros2PrimitiveTypes } from "../api/models/ros2.model";
+
+export const cachePrimitiveTypes = (primitiveTypes: Ros2PrimitiveTypes) => {
+  localStorage.setItem(
+    `messageTypes-standard`,
+    JSON.stringify(primitiveTypes.messages)
+  );
+  localStorage.setItem(
+    `serviceType-standard`,
+    JSON.stringify(primitiveTypes.services)
+  );
+  localStorage.setItem(
+    `actionType-standard`,
+    JSON.stringify(primitiveTypes.actions)
+  );
+}
 
 export const cacheRos2System = (robot: IRobot, system: IRos2System) => {
   for (const part of robot.parts) {

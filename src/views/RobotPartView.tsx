@@ -43,7 +43,7 @@ import * as organizationApi from "../api/organization"
 import useAsync from "../utils/useAsync";
 import { OrganizationViewType } from "./OrganizationView";
 import ComponentError from "../components/ComponentError";
-import { cacheRos2System } from "../utils/ros2";
+import { cachePrimitiveTypes, cacheRos2System } from "../utils/ros2";
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ShareIcon from '@mui/icons-material/Share';
@@ -140,7 +140,9 @@ const RobotPartView = (props: RobotPartViewProps) => {
             return
 
         const targetedPart = robot.parts.find(e => e._id === params.partId)
-        ros2Api.getRos2System(robot._id).then((system) => {
+        ros2Api.getRos2System(robot._id).then(async (system) => {
+            const primitiveTypes = await ros2Api.getPrimitiveTypes()
+            cachePrimitiveTypes(primitiveTypes)
             cacheRos2System(robot, system)
             setIsRosSystemLoaded(true)
             return

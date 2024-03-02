@@ -7,7 +7,6 @@ import LinkIcon from '@mui/icons-material/Link';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import SettingsIcon from '@mui/icons-material/Settings';
-import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import RobotConnectionSubMenu, { RobotConnectionSubMenuProps } from './Connection/RobotConnectionSubMenu';
@@ -16,6 +15,7 @@ import * as connectionApi from '../api/connection'
 import * as robotApi from '../api/robot'
 import { ViewType } from '../utils/viewtype';
 import { useShortPolling } from './controls/useShortPolling';
+import ShareIcon from '@mui/icons-material/Share';
 import { INeutronConnectionDTO } from '../api/models/connection.model';
 
 const drawerMaxWidth = 240;
@@ -55,7 +55,7 @@ const defaultMenuViews: MenuOption[] = [
     },
     {
         title: 'Neutron',
-        icon: <SmartToyIcon />,
+        icon: <ShareIcon />,
         viewType: ViewType.Neutron,
     },
     {

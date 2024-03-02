@@ -101,7 +101,8 @@ function AddMessageTypeDialog(props: AddMessageTypeDialogProps) {
                 <TextField
                     className={classes.textfield}
                     required
-                    label="Name"
+                    label="Message Type"
+                    placeholder="my_msgs/msg/my_type"
                     fullWidth
                     onChange={handleNameSelect}
                 />
