@@ -140,13 +140,6 @@ export const NeutronGraphProvider = ({ children }: { children: ReactNode }) => {
             catch {
                 alert.error("Failed to close the connection")
             }
-
-            try {
-                await robotApi.stop(robotConnectionInfos.current.robotId)
-            }
-            catch {
-                alert.error("Failed to stop the robot")
-            }
         }
         setGraph(undefined);
         robotConnectionInfos.current = undefined

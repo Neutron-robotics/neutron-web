@@ -104,6 +104,8 @@ interface FlowNodeProps {
     icon: string
 }
 
+const injectorsNodes = ['inject', 'base controller']
+
 const FlowNode = (props: NodeProps<FlowNodeProps>) => {
     const { data } = props
     const { color, inputHandles, outputHandles, name, icon } = data
@@ -126,13 +128,23 @@ const FlowNode = (props: NodeProps<FlowNodeProps>) => {
         }
     }, [inputHandles, outputHandles])
 
-    function handleInjectClickButton(event: React.MouseEvent<HTMLDivElement, MouseEvent>): void {
-        runInputNode(props.id)
+    function handleInjectClickButton(): void {
+        const debugData = (data as any).specifics?.debugData
+        console.log(debugData)
+
+        if (debugData) {
+            const message = {
+                payload: debugData
+            }
+            runInputNode(props.id, message)
+        }
+        else
+            runInputNode(props.id)
     }
 
     return (
         <div style={{ ...nodeStyle, minHeight: maxHandleCount }} className={classes.nodeRoot}>
-            {data.name === 'inject' && graphStatus === 'ready' && (
+            {injectorsNodes.some(e => e === data.name) && graphStatus === 'ready' && (
                 <div onClick={handleInjectClickButton} className={classes.injectButton} />
             )}
             <div className={classes.containerNode} style={{ flexDirection: iconSide === 'left' ? 'row' : 'row-reverse' }}>

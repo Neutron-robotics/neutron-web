@@ -9,14 +9,8 @@ const useRobotBaseComponent = (connectionId: string, partId: string) => {
     const baseControllerNodes = useMemo(() => getRelatedNodes(BaseControllerNode, partId), [])
 
     const onControl = (controls: RobotBaseControls) => {
-        const message = {
-            x: controls.matrix[0],
-            rotationFactor: controls.matrix[5],
-            speed: controls.speed
-        }
-
         baseControllerNodes.forEach(e => {
-            e.trigger(message)
+            e.trigger(controls)
         })
     }
 

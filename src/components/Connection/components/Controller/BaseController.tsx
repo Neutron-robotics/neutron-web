@@ -11,6 +11,7 @@ import inputActions from "hotkeys-inputs-js";
 import { v4 } from "uuid";
 import { NodeProps } from "reactflow";
 import { InputIconButton } from "../../../controls/InputButton";
+import FocusTrap from "@mui/material/Unstable_TrapFocus";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -20,12 +21,18 @@ const useStyles = makeStyles(() => ({
     buttonGroup: {
         display: "flex",
         justifyContent: "space-between",
+        outline: 'none !important'
     }
 }))
 
 export interface RobotBaseControls {
+    // The speed of the robot, between 0 and 100
     speed: number
-    matrix: number[]
+    // The x velocity ratio of the robot, either 1, 0 (no velocity) or -1 (backward)
+    x: number
+    // The rotation factor is representing, for a two wheeled robot, the wheel that will go faster
+    // than the other. This can be used for yawing the base. The value range is -10 to 10.
+    rotationFactor: number
 }
 
 interface IRobotBaseComponentSpecifics {
@@ -58,8 +65,10 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
 
         const controls: RobotBaseControls = {
             speed,
-            matrix: [direction, 0, 0, 0, 0, rotateFactor / 10]
+            x: direction,
+            rotationFactor: rotateFactor,
         }
+        console.log('controls', controls)
         onControl(controls)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [direction, rotateFactor, speed])
@@ -114,47 +123,49 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
     return (
         <div className={classes.root}>
             <span>Controls</span>
-            <div className={classes.buttonGroup}>
-                <InputIconButton
-                    aria-label="forward-cmd"
-                    color="primary"
-                    onClick={handleForward}
-                    opacity={direction > 0 ? direction : 0}
-                >
-                    <ArrowUpwardIcon />
-                </InputIconButton>
-                <InputIconButton
-                    aria-label="backward-cmd"
-                    color="primary"
-                    onClick={handleBackward}
-                    opacity={direction < 0 ? Math.abs(direction) : 0}
-                >
-                    <ArrowDownwardIcon />
-                </InputIconButton>
-                <InputIconButton
-                    aria-label="left-cmd"
-                    color="primary"
-                    onClick={handleLeft}
-                    opacity={rotateFactor < 0 ? Math.abs(rotateFactor / 10) : 0}
-                >
-                    <TurnLeftIcon />
-                </InputIconButton>
-                <InputIconButton
-                    aria-label="right-cmd"
-                    color="primary"
-                    onClick={handleRight}
-                    opacity={rotateFactor > 0 ? (rotateFactor / 10) : 0}
-                >
-                    <TurnRightIcon />
-                </InputIconButton>
-                <IconButton
-                    aria-label="stop-cmd"
-                    color="primary"
-                    onClick={handleStop}
-                >
-                    <CancelIcon />
-                </IconButton>
-            </div>
+            <FocusTrap open>
+                <div className={classes.buttonGroup}>
+                    <InputIconButton
+                        aria-label="forward-cmd"
+                        color="primary"
+                        onClick={handleForward}
+                        opacity={direction > 0 ? direction : 0}
+                    >
+                        <ArrowUpwardIcon />
+                    </InputIconButton>
+                    <InputIconButton
+                        aria-label="backward-cmd"
+                        color="primary"
+                        onClick={handleBackward}
+                        opacity={direction < 0 ? Math.abs(direction) : 0}
+                    >
+                        <ArrowDownwardIcon />
+                    </InputIconButton>
+                    <InputIconButton
+                        aria-label="left-cmd"
+                        color="primary"
+                        onClick={handleLeft}
+                        opacity={rotateFactor < 0 ? Math.abs(rotateFactor / 10) : 0}
+                    >
+                        <TurnLeftIcon />
+                    </InputIconButton>
+                    <InputIconButton
+                        aria-label="right-cmd"
+                        color="primary"
+                        onClick={handleRight}
+                        opacity={rotateFactor > 0 ? (rotateFactor / 10) : 0}
+                    >
+                        <TurnRightIcon />
+                    </InputIconButton>
+                    <IconButton
+                        aria-label="stop-cmd"
+                        color="primary"
+                        onClick={handleStop}
+                    >
+                        <CancelIcon />
+                    </IconButton>
+                </div>
+            </FocusTrap>
             <p>Speed</p>
             <Slider
                 value={speed}
