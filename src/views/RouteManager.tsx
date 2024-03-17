@@ -13,6 +13,7 @@ import OrganizationView from "./OrganizationView";
 import RobotPartView from "./RobotPartView";
 import { NeutronGraphProvider } from "../contexts/NeutronGraphContext";
 import NotFound from "./NotFound";
+import TitleRoute from "../components/controls/TitleRoute";
 
 interface RouteManagerProps {
 
@@ -21,20 +22,20 @@ interface RouteManagerProps {
 const RouteManager = () => {
     return (
         <Routes>
-            <Route path="/login" element={<LoginView />} />
+            <Route path="/login" element={<TitleRoute title="Login"><LoginView /></TitleRoute>} />
             <Route
                 path="/*"
                 element={
                     <MainLayout>
                         <Routes>
-                            <Route index element={<HomeView />} />
-                            <Route path="/connection/:connectionId" element={<ConnectionView />} />
-                            <Route path="/organization" element={<OrganizationView />} />
-                            <Route path="/organization/:organizationId" element={<OrganizationView />} />
-                            <Route path="/organization/:organizationId/robot/:robotId" element={<RobotView />} />
-                            <Route path="/organization/:organizationId/robot/:robotId/part/:partId" element={<RobotPartView />} />
-                            <Route path="/neutron" element={<NeutronGraphProvider> <NeutronView /></NeutronGraphProvider>} />
-                            <Route path="*" element={<NotFound />} />
+                            <Route index element={<TitleRoute title="Home"><HomeView /></TitleRoute>} />
+                            <Route path="/connection/:connectionId" element={<TitleRoute title="Connection"><ConnectionView /></TitleRoute>} />
+                            <Route path="/organization" element={<TitleRoute title="Organization"><OrganizationView /></TitleRoute>} />
+                            <Route path="/organization/:organizationId" element={<TitleRoute title="Organization"><OrganizationView /></TitleRoute>} />
+                            <Route path="/organization/:organizationId/robot/:robotId" element={<TitleRoute title="Robot"><RobotView /></TitleRoute>} />
+                            <Route path="/organization/:organizationId/robot/:robotId/part/:partId" element={<TitleRoute title="Part"><RobotPartView /></TitleRoute>} />
+                            <Route path="/neutron" element={<TitleRoute title="Graphs"><NeutronGraphProvider> <NeutronView /></NeutronGraphProvider></TitleRoute>} />
+                            <Route path="*" element={<TitleRoute title="Not Found"><NotFound /></TitleRoute>} />
                         </Routes>
                     </MainLayout>
                 }
