@@ -17,6 +17,8 @@ import { ViewType } from '../utils/viewtype';
 import { useShortPolling } from './controls/useShortPolling';
 import ShareIcon from '@mui/icons-material/Share';
 import { INeutronConnectionDTO } from '../api/models/connection.model';
+import { useAuth } from '../contexts/AuthContext';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 const drawerMaxWidth = 240;
 
@@ -64,6 +66,13 @@ const defaultMenuViews: MenuOption[] = [
         viewType: ViewType.Settings,
     }
 ]
+
+const adminView: MenuOption = {
+    title: 'Admin',
+    icon: <AdminPanelSettingsIcon />,
+    viewType: ViewType.Admin,
+}
+
 
 interface MenuOption {
     title: string;
@@ -125,6 +134,7 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
     const [open, setOpen] = React.useState(false);
     const navigate = useNavigate();
     const { connections, setConnections } = useContext(ConnectionContext)
+    const { user } = useAuth()
 
     useEffect(() => {
         const connectionSubMenus = Object.values(connections).map<RobotConnectionSubMenuProps>(connection => ({
@@ -133,6 +143,13 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
         }))
         setConnectionsSubMenu(connectionSubMenus)
     }, [connections])
+
+    useEffect(() => {
+        console.log("USer", user)
+        if (user && user.roles.includes('admin')) {
+            setViews(e => e.find(e => e.title === 'Admin') ? e : [...e, adminView])
+        }
+    }, [user])
 
     useShortPolling(10_000, () => connectionApi.getMyConnections('active'), async (connections: INeutronConnectionDTO[]) => {
         const fetchedConnections = await Promise.all(connections.map(async e => {
