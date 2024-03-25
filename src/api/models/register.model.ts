@@ -3,6 +3,7 @@ interface RegisterModel {
     lastName: string,
     password: string,
     email: string
+    registrationKey: string
 }
 
 export default RegisterModel

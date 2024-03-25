@@ -22,7 +22,7 @@ const isOrganizationUserAdmin = (
   organizationMembers: UserRanked[]
 ) => {
   return (
-    user.roles.includes(OrganizationPermissions.Admin) ||
+    user.role === OrganizationPermissions.Admin ||
     organizationMembers.some(
       (e) =>
         e.id === user.id &&

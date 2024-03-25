@@ -5,7 +5,7 @@ export interface UserModel {
     lastName: string;
     imgUrl: string
     active: boolean;
-    roles: string[];
+    role: string;
 }
 
 export interface UserDTO {

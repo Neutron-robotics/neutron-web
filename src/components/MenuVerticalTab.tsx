@@ -146,7 +146,7 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
 
     useEffect(() => {
         console.log("USer", user)
-        if (user && user.roles.includes('admin')) {
+        if (user && user.role === 'admin') {
             setViews(e => e.find(e => e.title === 'Admin') ? e : [...e, adminView])
         }
     }, [user])

@@ -11,7 +11,7 @@ export default defineConfig({
         react()
     ],
     optimizeDeps: {
-        include: ['neutron-core'],
+        include: ['@hugoperier/neutron-core'],
     },
     define: {
         'process.env': process.env

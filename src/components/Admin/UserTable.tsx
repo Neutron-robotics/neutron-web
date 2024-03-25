@@ -43,15 +43,15 @@ const RenderRoleEdit = (props: GridRenderCellParams<any, string>) => {
     const apiRef = useGridApiContext();
     const classes = useStyles()
 
-    function handleRolesUpdate(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void {
-        const roles = event.target.value.split(',')
-        apiRef.current.setEditCellValue({ id, field, value: roles });
+    function handleRoleUpdate(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void {
+        const role = event.target.value
+        apiRef.current.setEditCellValue({ id, field, value: role });
     }
 
     return (
         <TextField
-            defaultValue={row.roles.join(',')}
-            onChange={handleRolesUpdate}
+            defaultValue={row.role}
+            onChange={handleRoleUpdate}
             fullWidth
             InputProps={{
                 className: classes.roleInput,
@@ -134,7 +134,7 @@ const UserTable = (props: UserTableProps) => {
                     firstName: newRow.firstName,
                     lastName: newRow.lastName,
                     active: newRow.active,
-                    roles: newRow.roles,
+                    role: newRow.role,
                 }
                 await adminApi.updateUser(newRow.id, updateSchema)
                 setRows(rows.map(e => e.id === newRow.id ? newRow as UserModel : e))
@@ -180,7 +180,7 @@ const UserTable = (props: UserTableProps) => {
             editable: true,
         },
         {
-            field: "roles",
+            field: "role",
             headerName: "Role",
             width: 150,
             flex: 1,
@@ -190,7 +190,7 @@ const UserTable = (props: UserTableProps) => {
             ),
             renderCell: (params: GridRenderCellParams) =>
             (
-                <div>{(params as any).row.roles.join(',')}</div>
+                <div>{(params as any).row.role}</div>
             )
         },
         {

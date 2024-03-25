@@ -70,10 +70,9 @@ const DocumentationSidePanel = (props: DocumentationSidePanelProps, ref: Forward
             else
                 setMarkdownContent(text);
         } catch (error) {
-            console.error('Erreur lors du chargement du fichier Markdown :', error);
+            console.error('Erreur while loading Markdown :', error);
             setMarkdownContent('')
         }
-
     }
 
     const nodes = useMemo(() => Object.values(nodesData).reduce((acc, cur) => [...acc, ...cur]), [])

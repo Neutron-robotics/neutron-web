@@ -15,6 +15,9 @@ import { NeutronGraphProvider } from "../contexts/NeutronGraphContext";
 import NotFound from "./NotFound";
 import TitleRoute from "../components/controls/TitleRoute";
 import AdminView from "./AdminView";
+import RegisterView from "./RegisterView";
+import CGUView from "./CGUView";
+import Verify from "./VerifyView";
 
 interface RouteManagerProps {
 
@@ -24,6 +27,9 @@ const RouteManager = () => {
     return (
         <Routes>
             <Route path="/login" element={<TitleRoute title="Login"><LoginView /></TitleRoute>} />
+            <Route path="/verify/:verificationKey" element={<TitleRoute title="Verify"><Verify /></TitleRoute>} />
+            <Route path="/cgu" element={<TitleRoute title="CGU"><CGUView /></TitleRoute>} />
+            <Route path="/register/:registrationKey" element={<TitleRoute title="Register"><RegisterView /></TitleRoute>} />
             <Route
                 path="/*"
                 element={

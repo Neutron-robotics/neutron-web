@@ -26,7 +26,7 @@ const AdminView = (props: AdminViewProps) => {
     const { user } = useAuth()
 
     useEffect(() => {
-        if (!user?.roles.includes('admin'))
+        if (user?.role !== 'admin')
             navigate('/')
     }, [])
 
