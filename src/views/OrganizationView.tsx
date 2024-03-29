@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { UserModel } from "../api/models/user.model";
-import * as organization from "../api/organization";
 import { OrganizationModel } from "../api/models/organization.model";
-import { MenuItem, Select, SelectChangeEvent, Tab, Tabs } from "@mui/material";
+import { Button, MenuItem, Select, SelectChangeEvent, Tab, Tabs } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import OrganizationMemberTable from "../components/Organization/OrganizationMemberTable";
 import "react-edit-text/dist/index.css";
@@ -18,6 +17,9 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import useAsync from "../utils/useAsync";
 import * as organizationApi from "../api/organization"
 import ComponentError from "../components/ComponentError";
+import ButtonDialog from "../components/controls/ButtonDialog";
+import AddUserDialog from "../components/Organization/AddUserDialog";
+import { AddOutlined } from "@mui/icons-material";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -82,14 +84,14 @@ const OrganizationView = (props: OrganizationViewProps) => {
         if (!activeOrganization) return;
         if (members.length > 0) return
         const userPromise = activeOrganization.users.map((usr) => {
-            return organization.getMember(activeOrganization.name, { userId: usr.userId });
+            return organizationApi.getMember(activeOrganization.name, { userId: usr.userId });
         });
 
         Promise.all(userPromise).then((users) => {
             const userRank = users.map((usr) => ({
                 ...usr,
-                rank: (activeOrganization.users.find((rank) => rank.userId === usr.id)
-                    ?.permissions[0] as OrganizationPermissions) ?? OrganizationPermissions.Guest,
+                ranks: (activeOrganization.users.find((rank) => rank.userId === usr.id)
+                    ?.permissions as OrganizationPermissions[]) ?? [OrganizationPermissions.Guest],
             }));
             setMembers(userRank);
         });
@@ -116,7 +118,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
 
     const handleDescriptionUpdate = async (data: onSaveProps) => {
         if (!activeOrganization) return;
-        organization
+        organizationApi
             .update(activeOrganization.name, {
                 description: data.value,
             })
@@ -149,7 +151,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
         if (!activeOrganization) return;
         try {
             const imgUrl = await uploadFile(file)
-            await organization.update(activeOrganization.name, {
+            await organizationApi.update(activeOrganization.name, {
                 imgUrl
             })
             handleOrganizationUpdate({ imgUrl: imgUrl })
@@ -160,17 +162,34 @@ const OrganizationView = (props: OrganizationViewProps) => {
         }
     }
 
-    const handleUserPromotion = async (email: string, role: string) => {
+    const handleOnAddUser = async ({ email, role }: { email: string, role: OrganizationPermissions }) => {
         if (!activeOrganization)
             return
         try {
-            await organization.promote(activeOrganization.name, role, email)
-            const member = await organization.getMember(activeOrganization.name, { email })
+            await organizationApi.promote(activeOrganization.name, role, email)
+            const member = await organizationApi.getMember(activeOrganization.name, { email })
             handleOrganizationUpdate({ ...activeOrganization, users: [...activeOrganization.users, { userId: member.id, permissions: [role] }] })
-            setMembers((e) => ([...e, { ...member, rank: role as OrganizationPermissions }]))
+            setMembers((e) => ([...e, { ...member, ranks: [role] }]))
         }
         catch (err: any) {
             alert.error("An error has occured while promoting a member");
+        }
+    }
+
+    const handlePermissionChanged = async (user: UserRanked, newRoles: OrganizationPermissions[]) => {
+        if (!activeOrganization)
+            return
+
+        try {
+            for (const role of newRoles) {
+                await organizationApi.promote(activeOrganization.name, role, user.email)
+                alert.success(`Added role ${role} for user ${user.email}`)
+            }
+            setMembers(e => e.map(e => e.id === user.id ? user : e))
+            handleOrganizationUpdate({ ...activeOrganization, users: activeOrganization.users.map(e => e.userId === user.id ? ({ ...e, permissions: newRoles }) : e) })
+        }
+        catch {
+            alert.error(`Failed to add role for user ${user.email}`)
         }
     }
 
@@ -178,7 +197,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
         if (!activeOrganization)
             return
         try {
-            await organization.demote(activeOrganization.name, user.email)
+            await organizationApi.demote(activeOrganization.name, user.email)
             setMembers(e => e.filter(e => e.id !== user.id))
             handleOrganizationUpdate({ ...activeOrganization, users: activeOrganization.users.filter(e => e.userId !== user.id) })
         }
@@ -251,12 +270,29 @@ const OrganizationView = (props: OrganizationViewProps) => {
                     <Tab label="Missions" />
                 </Tabs>
                 {activeTab === 0 && (
-                    <OrganizationMemberTable
-                        isAdmin={isAdmin}
-                        organizationMembers={members}
-                        handleUserPromotion={handleUserPromotion}
-                        handleRemoveUser={handleUserRemoved}
-                    />
+                    <div style={{ textAlign: 'center' }}>
+                        <OrganizationMemberTable
+                            isAdmin={isAdmin}
+                            organizationMembers={members}
+                            handleRemoveUser={handleUserRemoved}
+                            allowedPromotionRank={[
+                                OrganizationPermissions.Operator,
+                                OrganizationPermissions.Analyst,
+                                OrganizationPermissions.Guest,
+                            ]}
+                            handlePermissionChanged={handlePermissionChanged} />
+                        <ButtonDialog
+                            onConfirm={(data) => handleOnAddUser(data)}
+                            dialog={AddUserDialog}
+                        >
+                            <Button
+                                variant="contained"
+                                startIcon={<AddOutlined />}
+                            >
+                                Add User
+                            </Button>
+                        </ButtonDialog>
+                    </div>
                 )}
                 {activeTab === 1 && (
                     <>

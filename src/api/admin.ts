@@ -1,4 +1,5 @@
 import api from "./api";
+import { OrganizationModel } from "./models/organization.model";
 import { UserModel } from "./models/user.model";
 
 const getUsers = async (): Promise<UserModel[]> => {
@@ -9,6 +10,16 @@ const getUsers = async (): Promise<UserModel[]> => {
     }
 
     return res.data.users
+}
+
+const getOrganizations = async (): Promise<OrganizationModel[]> => {
+    const res = await api.get(`admin/organizations`)
+
+    if (res.status !== 200) {
+        throw new Error("Failed to fetch organizations");
+    }
+
+    return res.data.organizations as OrganizationModel[]
 }
 
 const updateUser = async (userId: string, updateSchema: Partial<Omit<UserModel, "id">>) => {
@@ -41,6 +52,7 @@ const deleteUser = async (userId: string) => {
 
 export {
     getUsers,
+    getOrganizations,
     updateUser,
     inviteUser,
     deleteUser

@@ -130,7 +130,6 @@ const FlowNode = (props: NodeProps<FlowNodeProps>) => {
 
     function handleInjectClickButton(): void {
         const debugData = (data as any).specifics?.debugData
-        console.log(debugData)
 
         if (debugData) {
             const message = {

@@ -1,8 +1,9 @@
 import { makeStyles } from "@mui/styles"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import { useEffect } from "react"
 import UserTable from "../components/Admin/UserTable"
+import OrganizationAdmin from "../components/Admin/OrganizationAdmin"
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -23,6 +24,7 @@ const AdminView = (props: AdminViewProps) => {
     const { } = props
     const classes = useStyles()
     const navigate = useNavigate();
+    const location = useLocation()
     const { user } = useAuth()
 
     useEffect(() => {
@@ -33,7 +35,8 @@ const AdminView = (props: AdminViewProps) => {
     return (
         <div className={classes.root}>
             <h2 className={classes.title}>Admin</h2>
-            <UserTable />
+            {location.pathname.endsWith('users') && <UserTable />}
+            {location.pathname.endsWith('organizations') && <OrganizationAdmin />}
         </div>
     )
 }

@@ -61,15 +61,6 @@ const useStyles = makeStyles(() => ({
 
 }));
 
-type RobotSpeedDialActions = 'Remove' | 'Add Part' | 'Add Module' | 'Share'
-
-const robotSpeedDialActions: { icon: JSX.Element, name: RobotSpeedDialActions }[] = [
-    { icon: <DeleteIcon color={"error"} />, name: 'Remove' },
-    { icon: <SettingsIcon color={"primary"} />, name: 'Add Part' },
-    { icon: <PsychologyAltIcon color={"primary"} />, name: 'Add Module' },
-    { icon: <ShareIcon color={"primary"} />, name: 'Share' },
-];
-
 interface RobotViewProps {
 
 }
@@ -78,7 +69,6 @@ type RobotViewParams = {
     organizationId: string
     robotId: string
 }
-
 
 const RobotView = (props: RobotViewProps) => {
     const location = useLocation()

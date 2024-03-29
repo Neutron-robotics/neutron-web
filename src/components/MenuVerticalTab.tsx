@@ -19,6 +19,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import { INeutronConnectionDTO } from '../api/models/connection.model';
 import { useAuth } from '../contexts/AuthContext';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import SubMenuList, { SubMenuListProps } from './SubMenuList';
 
 const drawerMaxWidth = 240;
 
@@ -41,12 +42,7 @@ const defaultMenuViews: MenuOption[] = [
         title: 'Connection',
         icon: <LinkIcon />,
         viewType: ViewType.ConnectionView,
-        subItems: [
-            {
-                title: 'OsoyooBot',
-                connectionId: 'totototooto'
-            } as RobotConnectionSubMenuProps
-        ],
+        subItems: [],
         subItemsComponentTemplate: RobotConnectionSubMenu,
         isSubItemsListOpen: false
     },
@@ -71,6 +67,18 @@ const adminView: MenuOption = {
     title: 'Admin',
     icon: <AdminPanelSettingsIcon />,
     viewType: ViewType.Admin,
+    subItems: [
+        {
+            title: 'Users',
+            viewType: ViewType.Admin
+        } as SubMenuListProps,
+        {
+            title: 'Organizations',
+            viewType: ViewType.Admin
+        } as SubMenuListProps
+    ],
+    subItemsComponentTemplate: SubMenuList,
+    isSubItemsListOpen: false
 }
 
 
@@ -145,7 +153,6 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
     }, [connections])
 
     useEffect(() => {
-        console.log("USer", user)
         if (user && user.role === 'admin') {
             setViews(e => e.find(e => e.title === 'Admin') ? e : [...e, adminView])
         }

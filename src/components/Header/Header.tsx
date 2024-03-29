@@ -6,6 +6,8 @@ import { capitalize } from "../../utils/string";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ViewType } from "../../utils/viewtype";
+import { userIconOrGenerated } from "../../utils/thumbnail";
+import { defaultUser } from "../../api/models/user.model";
 
 const useStyle = makeStyles((theme: any) => ({
     header: {
@@ -81,7 +83,7 @@ const Header = (props: HeaderProps) => {
                         className={classes.accountIcon}
                         onClick={handleClick}
                     >
-                        <img className={classes.icon} src={user?.imgUrl} alt={"usericon"} />
+                        <img className={classes.icon} src={userIconOrGenerated(user ?? defaultUser)} alt={"usericon"} />
                     </IconButton>
                     <Popover
                         open={Boolean(anchorEl)}
@@ -93,7 +95,7 @@ const Header = (props: HeaderProps) => {
                         }}
                     >
                         <div className={classes.popover}>
-                            <img className={classes.largerIcon} src={`${user?.imgUrl}`} alt={"usericon"} />
+                            <img className={classes.largerIcon} src={userIconOrGenerated(user ?? defaultUser)} alt={"usericon"} />
                             <p>{`${capitalize(user?.firstName ?? "")} ${capitalize(user?.lastName ?? "")}`}</p>
                             <Button color="error" onClick={logout} variant="contained">Disconnect</Button>
                         </div>
