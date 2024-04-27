@@ -23,6 +23,7 @@ import { OrganizationModel } from "../api/models/organization.model";
 import ComponentError from "../components/ComponentError";
 import AddRobotPartCard from "../components/Robot/AddRobotPartCard";
 import SaveIcon from '@mui/icons-material/Save';
+import ActivityDisplay from "../components/Robot/ActivityDisplay";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -296,15 +297,21 @@ const RobotView = (props: RobotViewProps) => {
                 aria-label="tabs"
             >
                 <Tab label="Parts" />
-                {!isNewRobot && <Tab label="Reports" />}
+                {!isNewRobot && <Tab label="Activity" />}
                 <Tab label="Modules" />
-                {!isNewRobot && <Tab label="History" />}
             </Tabs>
             {
                 activeTab === 0 && (
                     <div>
                         {robot.parts && robot.parts.length ? robot.parts.map(part => (<RobotPartCard key={part._id} robotPart={part} onClick={handleOnPartSelected} />)) : ''}
                         {!isNewRobot && <AddRobotPartCard onClick={handleAddPartClick} />}
+                    </div>
+                )
+            }
+            {
+                activeTab === 1 && (
+                    <div>
+                        {!isNewRobot && <ActivityDisplay robotIds={[robot._id]} />}
                     </div>
                 )
             }

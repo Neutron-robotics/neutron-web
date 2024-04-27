@@ -1,6 +1,6 @@
 import { makeStyles } from "@mui/styles"
 import { ConnectionUser } from "./ConnectionToolbar"
-import { IconButton } from "@mui/material"
+import { IconButton, Tooltip } from "@mui/material"
 
 const useStyles = makeStyles(() => ({
     crown: {
@@ -22,12 +22,14 @@ const ConnectedUserMenuIcon = (props: ConnectedUserMenuIconProps) => {
     const classes = useStyles()
 
     return (
-        <IconButton>
-            {user.isLeader && (
-                <img height={15} width={15} className={classes.crown} alt={'crown-icon'} src={`/assets/crown.svg`} />
-            )}
-            <img className={classes.userIcon} height={35} width={35} src={user.imgUrl} alt="user-icon" />
-        </IconButton>
+        <Tooltip title={`${user.firstName} ${user.lastName}${user.isLeader ? ' (leader)' : ''}`}>
+            <IconButton>
+                {user.isLeader && (
+                    <img height={15} width={15} className={classes.crown} alt={'crown-icon'} src={`/assets/crown.svg`} />
+                )}
+                <img className={classes.userIcon} height={35} width={35} src={user.imgUrl} alt="user-icon" />
+            </IconButton>
+        </Tooltip>
     )
 }
 

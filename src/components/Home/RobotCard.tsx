@@ -19,7 +19,6 @@ const useStyles = makeStyles(() => ({
         fontWeight: 'bold'
     },
     robotConnectButton: {
-        marginLeft: 'auto',
     }
 }))
 

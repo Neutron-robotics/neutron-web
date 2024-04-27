@@ -20,6 +20,7 @@ import ComponentError from "../components/ComponentError";
 import ButtonDialog from "../components/controls/ButtonDialog";
 import AddUserDialog from "../components/Organization/AddUserDialog";
 import { AddOutlined } from "@mui/icons-material";
+import ActivityDisplay from "../components/Robot/ActivityDisplay";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -302,6 +303,11 @@ const OrganizationView = (props: OrganizationViewProps) => {
                             onSelectRobot={handleRobotSelectedClick}
                         />
                     </>
+                )}
+                {activeTab === 2 && (
+                    <div>
+                        <ActivityDisplay robotIds={activeOrganization.robots} />
+                    </div>
                 )}
             </div>
         </>

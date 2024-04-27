@@ -13,6 +13,7 @@ export interface INeutronConnection {
   createdBy: string
   createdAt: string
   closedAt: string
+  participants: string[]
   port: number
 }
 
@@ -23,6 +24,7 @@ export interface INeutronConnectionDTO {
   createdBy: string
   createdAt: string
   closedAt: string
+  participants: string[]
   port: number
 }
 

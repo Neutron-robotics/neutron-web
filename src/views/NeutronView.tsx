@@ -127,7 +127,7 @@ const NeutronView = (props: NeutronViewProps) => {
             const organizations = await organization.me()
             const robots = await organizations.reduce(async (acc, cur) => {
                 const robots = await organization.getOrganizationRobots(cur.name)
-                return { ...acc, [cur.name]: robots }
+                return { ...(await acc), [cur.name]: robots }
             }, {})
             setAvailableRobots(robots)
         }
