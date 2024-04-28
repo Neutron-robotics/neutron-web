@@ -35,11 +35,9 @@ function App() {
       <LoggerProvider>
         <AlertProvider>
           <AuthProvider>
-            <ConnectionProvider>
-              <ThemeProvider theme={neutronMuiThemeDefault}>
-                <RouteManager />
-              </ThemeProvider>
-            </ConnectionProvider>
+            <ThemeProvider theme={neutronMuiThemeDefault}>
+              <RouteManager />
+            </ThemeProvider>
           </AuthProvider>
         </AlertProvider>
       </LoggerProvider>

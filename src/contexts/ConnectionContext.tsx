@@ -4,8 +4,11 @@ import { IRobot, defaultRobot } from "../api/models/robot.model";
 import { BaseNode, INodeBuilder, RosContext, makeConnectionContext } from "@hugoperier/neutron-core";
 import { INeutronGraph } from "../api/models/graph.model";
 import * as connectionApi from '../api/connection'
+import * as robotApi from '../api/robot'
 import * as robotStartUtils from '../utils/robotStartUtils'
 import OperationalConnectorGraph from "../utils/ConnectorGraph";
+import { useShortPolling } from "../components/controls/useShortPolling";
+import { INeutronConnectionDTO } from "../api/models/connection.model";
 
 export enum RobotConnectionStep {
     Start,
@@ -34,6 +37,7 @@ export type IConnectionSessionStore = Record<string, IConnectionSession>
 
 type ContextProps = {
     connections: IConnectionSessionStore
+    closedConnections: INeutronConnectionDTO[]
     setConnections: Dispatch<SetStateAction<IConnectionSessionStore>>
     makeConnection: (robot: IRobot, graphs: INeutronGraph[], opts: IConnectionSessionBuilderOptions) => Promise<string>
     joinConnection: (connectionId: string, robot: IRobot, graphs: INeutronGraph[], opts: IConnectionSessionBuilderOptions) => Promise<string>
@@ -43,6 +47,55 @@ export const ConnectionContext = createContext<ContextProps>({} as any)
 
 export function ConnectionProvider({ children }: { children: React.ReactNode }) {
     const [connections, setConnections] = useState<IConnectionSessionStore>({})
+    const [closedConnections, setClosedConnection] = useState<INeutronConnectionDTO[]>([])
+
+    useShortPolling(10_000, () => connectionApi.getMyConnections('active'), async (connections: INeutronConnectionDTO[]) => {
+        const fetchedConnections = await Promise.all(connections.map(async e => {
+            const robot = await robotApi.getRobot(e.robot as string)
+            return {
+                robot,
+                connection: e
+            }
+        }))
+        setConnections((prev) => {
+            const newPrevConnections: IConnectionSessionStore = Object.entries(prev).reduce<IConnectionSessionStore>((acc, [key, obj]) => {
+                if (obj.connected) {
+                    acc[key] = obj;
+                }
+
+                if (!fetchedConnections.find(e => e.connection._id === obj.connectionId)) {
+                    console.log(`${obj.connectionId} HAS DISCONNECTED AKRT`)
+                    connectionApi.getById(obj.connectionId).then((connection) => {
+                        if (connection.closedAt)
+                            setClosedConnection(prev => [...prev, connection])
+                    })
+                }
+                else {
+                    console.log("non rien")
+                }
+                return acc;
+            }, {});
+
+            const otherConnections: IConnectionSessionStore = fetchedConnections.reduce<IConnectionSessionStore>((acc, cur) => {
+                if (newPrevConnections[cur.connection._id]) {
+                    console.log("return all")
+                    return acc
+                }
+
+                const inactiveConnection: IConnectionSession = {
+                    connectionId: cur.connection._id,
+                    nodes: [],
+                    robot: cur.robot,
+                    graphs: [],
+                    connected: false,
+                    context: undefined as any
+                }
+                return { ...acc, [cur.connection._id]: inactiveConnection }
+            }, {})
+
+            return { ...newPrevConnections, ...otherConnections }
+        })
+    })
 
     const makeConnection = async (robot: IRobot, graphs: INeutronGraph[], opts: IConnectionSessionBuilderOptions) => {
         if (opts.partsIdToConnect)
@@ -133,7 +186,7 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
     }
 
     return (
-        <ConnectionContext.Provider value={{ connections, setConnections, makeConnection, joinConnection }}>
+        <ConnectionContext.Provider value={{ connections, closedConnections, setConnections, makeConnection, joinConnection }}>
             {children}
         </ConnectionContext.Provider>
     );
@@ -152,6 +205,12 @@ interface ConnectionContextHook {
         new(builder: INodeBuilder<any>): TNode;
     }, partId: string) => TNode[]
     quitConnection: (close?: boolean) => Promise<void>
+}
+
+export const useClosedConnection = (connectionId: string) => {
+    const { closedConnections } = useContext(ConnectionContext)
+
+    return closedConnections.find(e => e._id === connectionId)
 }
 
 export const useConnection = (connectionId: string): ConnectionContextHook => {

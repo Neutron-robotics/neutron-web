@@ -18,6 +18,7 @@ import AdminView from "./AdminView";
 import RegisterView from "./RegisterView";
 import CGUView from "./CGUView";
 import Verify from "./VerifyView";
+import { ConnectionProvider } from "../contexts/ConnectionContext";
 
 interface RouteManagerProps {
 
@@ -48,8 +49,8 @@ const RouteManager = () => {
                         </Routes>
                     </MainLayout>
                 }
-            />
-        </Routes>
+/>
+        </Routes >
     );
 };
 
@@ -58,14 +59,16 @@ const MainLayout = (props: PropsWithChildren<RouteManagerProps>) => {
 
     return (
         <ProtectedRoute>
-            <>
-                <Header />
-                <Box sx={{ display: 'flex', height: 'calc(100% - 56px)' }}>
-                    <CssBaseline />
-                    <MenuVerticalTabs />
-                    {children}
-                </Box>
-            </>
+            <ConnectionProvider>
+                <>
+                    <Header />
+                    <Box sx={{ display: 'flex', height: 'calc(100% - 56px)' }}>
+                        <CssBaseline />
+                        <MenuVerticalTabs />
+                        {children}
+                    </Box>
+                </>
+            </ConnectionProvider>
         </ProtectedRoute>
     );
 };

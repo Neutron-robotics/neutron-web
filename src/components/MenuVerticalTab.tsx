@@ -158,41 +158,6 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
         }
     }, [user])
 
-    useShortPolling(10_000, () => connectionApi.getMyConnections('active'), async (connections: INeutronConnectionDTO[]) => {
-        const fetchedConnections = await Promise.all(connections.map(async e => {
-            const robot = await robotApi.getRobot(e.robot as string)
-            return {
-                robot,
-                connection: e
-            }
-        }))
-        setConnections((prev) => {
-            const newPrevConnections: IConnectionSessionStore = Object.entries(prev).reduce<IConnectionSessionStore>((acc, [key, obj]) => {
-                if (obj.connected) {
-                    acc[key] = obj;
-                }
-                return acc;
-            }, {});
-
-            const otherConnections: IConnectionSessionStore = fetchedConnections.reduce<IConnectionSessionStore>((acc, cur) => {
-                if (newPrevConnections[cur.connection._id])
-                    return acc
-
-                const inactiveConnection: IConnectionSession = {
-                    connectionId: cur.connection._id,
-                    nodes: [],
-                    robot: cur.robot,
-                    graphs: [],
-                    connected: false,
-                    context: undefined as any
-                }
-                return { ...acc, [cur.connection._id]: inactiveConnection }
-            }, {})
-
-            return { ...newPrevConnections, ...otherConnections }
-        })
-    })
-
     const setConnectionsSubMenu = (connections: RobotConnectionSubMenuProps[]) => {
         setViews(prev => prev.map(view => view.title === 'Connection' ?
             {

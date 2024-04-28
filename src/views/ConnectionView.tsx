@@ -1,13 +1,14 @@
 import { makeStyles } from "@mui/styles"
 import { useParams } from "react-router-dom"
 import ReactFlow, { Background, BackgroundVariant, NodeChange, ReactFlowProvider, applyNodeChanges } from "reactflow"
-import { useConnection } from "../contexts/ConnectionContext"
+import { useClosedConnection, useConnection } from "../contexts/ConnectionContext"
 import ConnectionToolBar from "../components/Connection/ConnectionToolbar"
 import { componentType } from "../components/Connection/components/componentType"
 import useAsync from "../utils/useAsync"
 import { INeutronConnectionDTO } from "../api/models/connection.model"
 import * as connectionApi from "../api/connection"
 import JoinRobotConnection from "../components/Connection/JoinRobotConnection"
+import ConnectionClosed from "../components/Connection/ConnectionClosed"
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -36,42 +37,48 @@ const ConnectionView = (props: IConnectionViewProps) => {
         undefined,
         () => connectionApi.getById(connectionId)
     )
+    const closedConnection = useClosedConnection(connectionId)
 
     function onNodesChange(changes: NodeChange[]): void {
         setNodes(applyNodeChanges(changes, nodes))
     }
 
-    if (connectionError)
-        return <div>An error happenned here</div>
+    return <ConnectionClosed />
 
-    if (isConnectionLoading || !connection)
-        return <div></div>
+    // if (closedConnection)
+    //     return <div>Ah, on dirait que c'est fini</div>
 
-    if (!connected || !context)
-        return <JoinRobotConnection connection={connection} />
+    // if (connectionError)
+    //     return <div>An error happenned here</div>
 
-    return (
-        <div className={classes.root}>
-            <ReactFlowProvider>
-                <ConnectionToolBar
-                    connection={connection}
-                />
-                <ReactFlow
-                    nodes={nodes}
-                    edges={[]}
-                    onNodesChange={onNodesChange}
-                    nodeTypes={componentType}
-                    zoomOnPinch={false}
-                    zoomOnScroll={false}
-                    panOnScroll={false}
-                    panOnDrag={false}
-                    autoPanOnNodeDrag={false}
-                >
-                    <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-                </ReactFlow>
-            </ReactFlowProvider>
-        </div >
-    )
+    // if (isConnectionLoading || !connection)
+    //     return <div></div>
+
+    // if (!connected || !context)
+    //     return <JoinRobotConnection connection={connection} />
+
+    // return (
+    //     <div className={classes.root}>
+    //         <ReactFlowProvider>
+    //             <ConnectionToolBar
+    //                 connection={connection}
+    //             />
+    //             <ReactFlow
+    //                 nodes={nodes}
+    //                 edges={[]}
+    //                 onNodesChange={onNodesChange}
+    //                 nodeTypes={componentType}
+    //                 zoomOnPinch={false}
+    //                 zoomOnScroll={false}
+    //                 panOnScroll={false}
+    //                 panOnDrag={false}
+    //                 autoPanOnNodeDrag={false}
+    //             >
+    //                 <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+    //             </ReactFlow>
+    //         </ReactFlowProvider>
+        // </div >
+    // )
 }
 
 export default ConnectionView
