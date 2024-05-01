@@ -39,6 +39,7 @@ type ContextProps = {
     connections: IConnectionSessionStore
     closedConnections: INeutronConnectionDTO[]
     setConnections: Dispatch<SetStateAction<IConnectionSessionStore>>
+    setClosedConnection: Dispatch<SetStateAction<INeutronConnectionDTO[]>>
     makeConnection: (robot: IRobot, graphs: INeutronGraph[], opts: IConnectionSessionBuilderOptions) => Promise<string>
     joinConnection: (connectionId: string, robot: IRobot, graphs: INeutronGraph[], opts: IConnectionSessionBuilderOptions) => Promise<string>
 }
@@ -70,15 +71,11 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
                             setClosedConnection(prev => [...prev, connection])
                     })
                 }
-                else {
-                    console.log("non rien")
-                }
                 return acc;
             }, {});
 
             const otherConnections: IConnectionSessionStore = fetchedConnections.reduce<IConnectionSessionStore>((acc, cur) => {
                 if (newPrevConnections[cur.connection._id]) {
-                    console.log("return all")
                     return acc
                 }
 
@@ -186,7 +183,7 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
     }
 
     return (
-        <ConnectionContext.Provider value={{ connections, closedConnections, setConnections, makeConnection, joinConnection }}>
+        <ConnectionContext.Provider value={{ connections, closedConnections, setConnections, setClosedConnection, makeConnection, joinConnection }}>
             {children}
         </ConnectionContext.Provider>
     );
@@ -198,6 +195,7 @@ interface ConnectionContextHook {
     context: RosContext
     connectors: OperationalConnectorGraph[],
     connected: boolean,
+    closedConnection: INeutronConnectionDTO | undefined,
     setNodes: (nodes: Node[]) => void
     addNode: (node: Node) => void
     removeNode: (nodeId: string) => void
@@ -205,16 +203,11 @@ interface ConnectionContextHook {
         new(builder: INodeBuilder<any>): TNode;
     }, partId: string) => TNode[]
     quitConnection: (close?: boolean) => Promise<void>
-}
-
-export const useClosedConnection = (connectionId: string) => {
-    const { closedConnections } = useContext(ConnectionContext)
-
-    return closedConnections.find(e => e._id === connectionId)
+    quitClosedConnection: () => void
 }
 
 export const useConnection = (connectionId: string): ConnectionContextHook => {
-    const { connections, setConnections } = useContext(ConnectionContext)
+    const { connections, closedConnections, setConnections, setClosedConnection } = useContext(ConnectionContext)
 
     const setNodes = (nodes: Node[]) => {
         setConnections((prev) => ({
@@ -274,12 +267,6 @@ export const useConnection = (connectionId: string): ConnectionContextHook => {
         context.disconnect()
         if (close) {
             await connectionApi.close(connectionId)
-            setConnections((prev) => {
-                const newState = { ...prev };
-                delete newState[connectionId];
-                return newState;
-            })
-
             return
         }
         setConnections((prev) => ({
@@ -292,16 +279,27 @@ export const useConnection = (connectionId: string): ConnectionContextHook => {
         }))
     }
 
+    const quitClosedConnection = () => {
+        setConnections((prev) => {
+            const newState = { ...prev };
+            delete newState[connectionId];
+            return newState;
+        })
+        setClosedConnection(prev => prev.filter(e => e._id !== connectionId))
+    }
+
     return {
         nodes: connections[connectionId]?.nodes ?? [],
         robot: connections[connectionId]?.robot ?? defaultRobot,
         context: connections[connectionId]?.context,
         connectors: connections[connectionId]?.graphs,
         connected: connections[connectionId]?.connected,
+        closedConnection: closedConnections.find(e => e._id === connectionId),
         setNodes,
         addNode,
         removeNode,
         getRelatedNodes,
-        quitConnection
+        quitConnection,
+        quitClosedConnection
     }
 }
