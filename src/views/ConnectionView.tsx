@@ -78,6 +78,7 @@ const ConnectionView = (props: IConnectionViewProps) => {
                     zoomOnPinch={false}
                     zoomOnScroll={false}
                     panOnScroll={false}
+                    zoomOnDoubleClick={false}
                     panOnDrag={false}
                     autoPanOnNodeDrag={false}
                 >

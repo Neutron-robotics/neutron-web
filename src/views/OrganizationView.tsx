@@ -83,7 +83,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
 
     const fetchOrganizationMembers = useCallback(() => {
         if (!activeOrganization) return;
-        if (members.length > 0) return
+        // if (members.length > 0) return
         const userPromise = activeOrganization.users.map((usr) => {
             return organizationApi.getMember(activeOrganization.name, { userId: usr.userId });
         });
@@ -236,7 +236,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
                 <Select
                     className={classes.organizationSlider}
                     value={activeOrganization.name}
-                    label="Organization"
+                    variant="outlined"
                     onChange={handleOrganizationChange}
                 >
                     {organizations?.map((e) => (
@@ -247,7 +247,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
                 </Select>
                 <div className={classes.organizationInfos}>
                     <ClickableImageUpload
-                        src={`${activeOrganization.imgUrl}`}
+                        src={activeOrganization.imgUrl ?? '/assets/no-thumbnail.png'}
                         alt={"company-icon"}
                         onImageClick={handleOrganizationImageUpload}
                     />

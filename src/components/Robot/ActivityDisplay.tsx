@@ -1,6 +1,5 @@
 import { makeStyles } from "@mui/styles"
 import { useEffect, useState } from "react"
-import { INeutronConnection } from "../../api/models/connection.model"
 import { getUser } from "../../api/user"
 import { UserDTO } from "../../api/models/user.model"
 import { userIconOrGenerated } from "../../utils/thumbnail"
@@ -13,6 +12,7 @@ import * as connectionApi from '../../api/connection'
 import * as robotApi from '../../api/robot'
 import moment from "moment"
 import { IRobot } from "../../api/models/robot.model"
+import { generateDashboardURL } from "../../utils/elasticsearch"
 
 const useStyles = makeStyles(() => ({
     activity: {
@@ -98,8 +98,10 @@ const ActivityDisplay = (props: ActivityDisplayProps) => {
         fetchConnections()
     }, [])
 
-    function handleOnDashboardClick(): void {
-        const url = "https://kibana.hugosoft.dev/app/dashboards#/view/da0ea105-953e-4e3f-81b1-6ceb5ed71347?_g=(refreshInterval%3A(pause%3A!t%2Cvalue%3A60000)%2Ctime%3A(from%3A'2024-04-18T18%3A06%3A48.528Z'%2Cto%3A'2024-04-18T19%3A48%3A57.064Z'))"
+    function handleOnDashboardClick(connection: INeutronConnectionWithUsers): void {
+
+        const url = generateDashboardURL(connection.robotId, connection.createdAt, connection.closedAt)
+        console.log(url)
 
         window.open(url, '_blank')?.focus();
     }
@@ -167,7 +169,7 @@ const ActivityDisplay = (props: ActivityDisplayProps) => {
                                     </span>
                                 </Tooltip>
                                 <Tooltip title="Open analytics dashboard">
-                                    <IconButton onClick={handleOnDashboardClick} color="primary" aria-label="dashboard">
+                                    <IconButton onClick={() => handleOnDashboardClick(connection)} color="primary" aria-label="dashboard">
                                         <DataThresholdingIcon />
                                     </IconButton>
                                 </Tooltip>

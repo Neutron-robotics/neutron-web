@@ -1,6 +1,6 @@
 import api from "./api";
 
-const uploadFile = async (file: File) => {
+const uploadFile = async (file: File): Promise<string> => {
   const formData = new FormData();
   formData.append("file", file, file.name);
   const config = {

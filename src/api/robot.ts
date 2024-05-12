@@ -1,7 +1,12 @@
 import api from "./api"
 import { ConnectionContextType, ICreateRobotModel, IRobot, IRobotStatus, IRobotWithStatus, IUpdateRobotModel } from "./models/robot.model"
 
-const create = async (organizationId: string, model: ICreateRobotModel): Promise<string>  => {
+interface ICreateRobotResponse {
+    id: string
+    secretKey: string
+}
+
+const create = async (organizationId: string, model: ICreateRobotModel): Promise<ICreateRobotResponse>  => {
     const res = await api.post(`robot/create`, {
         ...model,
          connectionContextType: ConnectionContextType.Ros2,
@@ -11,7 +16,7 @@ const create = async (organizationId: string, model: ICreateRobotModel): Promise
     if (res.status !== 200) {
         throw new Error("Could not create a robot")
     }
-    return res.data.id
+    return {id: res.data.id, secretKey: res.data.secretKey}
 }
 
 const update = async (robotId: string, model: IUpdateRobotModel) => {

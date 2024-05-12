@@ -24,6 +24,7 @@ import ComponentError from "../components/ComponentError";
 import AddRobotPartCard from "../components/Robot/AddRobotPartCard";
 import SaveIcon from '@mui/icons-material/Save';
 import ActivityDisplay from "../components/Robot/ActivityDisplay";
+import { isNullOrEmpty, returnUndefinedIfEmpty } from "../utils/string";
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -48,7 +49,6 @@ const useStyles = makeStyles(() => ({
             maxWidth: "150px",
             marginRight: "40px",
             objectFit: "cover",
-            height: "100%",
         },
         "& textarea": {
             width: "100%",
@@ -75,10 +75,10 @@ const RobotView = (props: RobotViewProps) => {
     const location = useLocation()
     const navigate = useNavigate();
     const params = useParams<RobotViewParams>()
-    const isNewRobot = location.state?.isNew ?? false
     const [robot, setRobot, isRobotLoading, robotError] = useAsyncOrDefault(
-        { model: location.state?.robotModel as IRobot | undefined, defaultModel: defaultRobot, isNew: isNewRobot },
+        { model: location.state?.robotModel as IRobot | undefined, defaultModel: defaultRobot, isNew: location.state?.isNew ?? false },
         () => robotApi.getRobot(params.robotId ?? ''))
+    const isNewRobot = robot._id.length === 0
     const [robotModel, setRobotModel] = useState(defaultRobot)
     const [activeOrganization, setActiveOrganization, isOrganizationLoading, organizationError] =
         useAsync<OrganizationModel>(location.state?.organization, () => organizationApi.getById(params.organizationId ?? ''))
@@ -91,7 +91,7 @@ const RobotView = (props: RobotViewProps) => {
     })
     const alert = useAlert()
     const [Dialog, prompt] = useConfirmationDialog()
-    const isRobotUpdated = `${robot.name}-${robot.description}` !== `${robotModel.name}-${robotModel.description}`
+    const isRobotUpdated = `${robot.name}-${robot.description}-${robot.imgUrl}` !== `${robotModel.name}-${robotModel.description}-${robotModel.imgUrl}`
 
     useEffect(() => {
         if (isRobotLoading || isNewRobot)
@@ -111,11 +111,11 @@ const RobotView = (props: RobotViewProps) => {
         try {
             const imgUrl = await uploadFile(file)
             if (isNewRobot)
-                setRobot((prev => ({ ...prev, imgUrl })))
+                setRobotModel((prev => ({ ...prev, imgUrl })))
+
             else if (!isNewRobot && robot._id) {
                 try {
-                    await robotApi.update(robot._id, { imgUrl })
-                    setRobot((prev) => ({ ...prev, imgUrl }))
+                    setRobotModel((prev) => ({ ...prev, imgUrl }))
                 }
                 catch (err) {
                     alert.error("An error has occured while updating robot description")
@@ -135,9 +135,9 @@ const RobotView = (props: RobotViewProps) => {
                 if (confirmed) {
                     try {
                         const model: ICreateRobotModel = {
-                            name: robot.name,
-                            description: robot.description,
-                            imgUrl: robot.imgUrl === "" ? undefined : robot.imgUrl
+                            name: robotModel.name,
+                            description: robotModel.description,
+                            imgUrl: isNullOrEmpty(robotModel.imgUrl) ? returnUndefinedIfEmpty(robot.imgUrl) : robotModel.imgUrl
                         }
                         await robotApi.create(activeOrganization._id, model)
                     }
@@ -197,19 +197,21 @@ const RobotView = (props: RobotViewProps) => {
 
         try {
             if (isNewRobot) {
+                const imgUrl = isNullOrEmpty(robotModel.imgUrl) ? returnUndefinedIfEmpty(robot.imgUrl) : robotModel.imgUrl
                 const createModel: ICreateRobotModel = {
                     name: robotModel.name,
                     description: robotModel.description,
-                    imgUrl: robot.imgUrl === "" ? undefined : robot.imgUrl
+                    imgUrl
                 }
-                const robotId = await robotApi.create(activeOrganization._id, createModel)
-                setRobot(({ ...robot, ...createModel, _id: robotId }))
-                setRobotModel(({ ...robot, ...createModel, _id: robotId }))
+                const { id: robotId, secretKey } = await robotApi.create(activeOrganization._id, createModel)
+                setRobot(({ ...robot, ...createModel, _id: robotId, imgUrl: imgUrl ?? robotModel.imgUrl, secretKey }))
+                setRobotModel(({ ...robot, ...createModel, _id: robotId, imgUrl: imgUrl ?? robotModel.imgUrl, secretKey }))
             }
             else {
                 const updateModel = {
                     name: robotModel.name,
-                    description: robotModel.description
+                    description: robotModel.description,
+                    imgUrl: isNullOrEmpty(robotModel.imgUrl) ? robot.imgUrl : robotModel.imgUrl
                 }
                 await robotApi.update(robot._id, updateModel)
                 setRobot((prev) => ({ ...prev, ...updateModel }))
@@ -268,7 +270,7 @@ const RobotView = (props: RobotViewProps) => {
             </div>
             <div className={classes.robotsInfos}>
                 <ClickableImageUpload
-                    src={robot.imgUrl ?? ""}
+                    src={robotModel.imgUrl?.length ? robotModel.imgUrl : robot.imgUrl ?? ""}
                     alt={"robot-icon"}
                     onImageClick={handleRobotImageUpload}
                     defaultImg="default-robot.svg"

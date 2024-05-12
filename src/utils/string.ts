@@ -15,3 +15,11 @@ export function getFirstPartBeforeSeparatorOrDefault(input: string, separator: s
         return getFirstPartBeforeSeparator(input, separator)
     return defaultValue
 }
+
+export function isNullOrEmpty(input: string) {
+    return !input || input === ""
+}
+
+export function returnUndefinedIfEmpty(input:string) {
+    return input === "" ? undefined : input
+}
