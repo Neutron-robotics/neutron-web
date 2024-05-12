@@ -3,6 +3,7 @@ export interface UserModel {
     email: string;
     firstName: string;
     lastName: string;
+    elasticUsername: string
     imgUrl: string
     active: boolean;
     role: string;

@@ -60,6 +60,14 @@ const defaultMenuViews: MenuOption[] = [
         title: 'Settings',
         icon: <SettingsIcon />,
         viewType: ViewType.Settings,
+        subItems: [
+            {
+                title: 'Account',
+                viewType: ViewType.Settings
+            } as SubMenuListProps
+        ],
+        subItemsComponentTemplate: SubMenuList,
+        isSubItemsListOpen: false
     }
 ]
 
@@ -80,7 +88,6 @@ const adminView: MenuOption = {
     subItemsComponentTemplate: SubMenuList,
     isSubItemsListOpen: false
 }
-
 
 interface MenuOption {
     title: string;

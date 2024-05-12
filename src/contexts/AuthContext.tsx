@@ -8,6 +8,7 @@ type ContextProps = {
     user: UserModel | null
     loggedIn: boolean
     login: (data: UserModel) => void
+    refresh: () => void
     logout: () => void
 }
 
@@ -55,7 +56,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             loggedIn,
             user,
             login,
-            logout
+            logout,
+            refresh: getUser
         }}
     >
         {children}
