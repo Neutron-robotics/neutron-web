@@ -20,7 +20,7 @@ import TemplateSidePanel, { defaultTemplateSpecifics } from "./functions/Templat
 import DelaySidePanel, { defaultDelaySpecifics } from "./functions/DelaySidePanel"
 import FilterSidePanel, { defaultFilterSpecifics } from "./functions/FilterSidePanel"
 import PublisherSidePanel, { defaultPublisherSpecifics } from "./ros2/PublisherSidePanel"
-import { DebugNode, IDebugEvent, INeutronGraphProcessEvent, IRos2PartSystem, IRos2System, NeutronGraphType } from "@hugoperier/neutron-core"
+import { DebugNode, IDebugEvent, INeutronGraphProcessEvent, IRos2PartSystem, IRos2System, NeutronGraphType } from "@neutron-robotics/neutron-core"
 import SubscriberSidePanel, { defaultSubscriberSpecifics } from "./ros2/SubscriberSidePanel"
 import ServiceSidePanel, { defaultServiceSpecifics } from "./ros2/ServiceSidePanel"
 import ActionSidePanel, { defaultActionSpecifics } from "./ros2/ActionSidePanel"

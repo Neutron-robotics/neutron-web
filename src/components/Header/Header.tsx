@@ -39,7 +39,6 @@ interface HeaderProps {
 }
 
 const Header = (props: HeaderProps) => {
-    const title = `${import.meta.env.VITE_APP_NAME} - ${import.meta.env.VITE_APP_VERSION}`;
     const classes = useStyle();
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
     const { user, logout } = useAuth()
@@ -72,9 +71,6 @@ const Header = (props: HeaderProps) => {
                         <HomeIcon />
                     </IconButton>
 
-                    <Typography variant="caption" component="div" sx={{ display: 'flex' }}>
-                        {title}
-                    </Typography>
                     <IconButton
                         size="large"
                         edge="end"

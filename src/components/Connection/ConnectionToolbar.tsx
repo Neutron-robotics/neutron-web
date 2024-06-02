@@ -10,7 +10,7 @@ import { useConnection } from "../../contexts/ConnectionContext";
 import { v4 } from "uuid";
 import { ComponentNode } from "./components/componentType";
 import ComponentMenu from "./components/ComponentMenu";
-import { NeutronConnectionInfoMessage, RobotStatus } from "@hugoperier/neutron-core";
+import { NeutronConnectionInfoMessage, RobotStatus } from "@neutron-robotics/neutron-core";
 import { INeutronConnectionDTO } from "../../api/models/connection.model";
 import * as userApi from "../../api/user"
 import * as connectionApi from "../../api/connection"

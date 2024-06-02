@@ -47,6 +47,7 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
     const [rotateFactor, setRotateFactor] = useState(0)
     const [direction, setDirection] = useState(0)
     const [speed, setSpeed] = useState(30)
+    const [baseSpeed, setbaseSpeed] = useState<number | undefined>(undefined)
     const firstUpdate = useRef(true);
 
     const handleStop = useCallback(() => {
@@ -63,14 +64,14 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
             return
 
         const controls: RobotBaseControls = {
-            speed,
+            speed: baseSpeed ?? speed,
             x: direction,
             rotationFactor: rotateFactor,
         }
         console.log('controls', controls)
         onControl(controls)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [direction, rotateFactor, speed])
+    }, [direction, rotateFactor, speed, baseSpeed])
 
     useEffect(() => {
         const id = v4()
@@ -90,12 +91,26 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
         if (Math.abs(v) === 1)
             setRotateFactor((prev) => prev + v!)
         else
-            setRotateFactor(v)
+            setRotateFactor(Math.round(v))
     }
 
     const handleDirectionChange = (v?: number) => {
         if (!v) return
-        setDirection(v)
+
+        if (v > 0 && v < 1) {
+            const baseSpeed = v * speed;
+            setbaseSpeed(Math.round(baseSpeed))
+            setDirection(1)
+        }
+        else if (v < 0 && v > -1) {
+            const baseSpeed = Math.abs(v) * speed;
+            setbaseSpeed(Math.round(baseSpeed))
+            setDirection(-1)
+        }
+        else {
+            setbaseSpeed(undefined)
+            setDirection(v)
+        }
     }
 
     const handleForward = async () => {

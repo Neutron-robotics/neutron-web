@@ -6,7 +6,7 @@ import useNodeSpecifics from "../../../../../utils/useNodeSpecifics"
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import MessageField from "../MessageField"
 import { Monaco } from "@monaco-editor/react"
-import { TemplateNodeSpecifics } from "@hugoperier/neutron-core"
+import { TemplateNodeSpecifics } from "@neutron-robotics/neutron-core"
 const Editor = lazy(() => import('@monaco-editor/react'));
 
 const useStyles = makeStyles(() => ({

@@ -3,7 +3,7 @@ import { ChangeEvent, useRef, useState } from "react";
 import { makeStyles } from "@mui/styles"
 import { parseRos2ServiceMessageContent } from "../../../utils/ros2";
 import { v4 } from "uuid";
-import { IRos2ServiceMessage } from "@hugoperier/neutron-core";
+import { IRos2ServiceMessage } from "@neutron-robotics/neutron-core";
 
 const useStyles = makeStyles(() => ({
     textfield: {

@@ -1,5 +1,5 @@
 import { useConnection } from "../../../../contexts/ConnectionContext"
-import { CameraControllerNode, CameraFrameNode, IBaseNodeEvent } from "@hugoperier/neutron-core"
+import { CameraControllerNode, CameraFrameNode, IBaseNodeEvent } from "@neutron-robotics/neutron-core"
 import { useEffect, useMemo, useState } from "react"
 import { CameraControls } from "../Vision/CameraViewer"
 

@@ -5,7 +5,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { VisualNode } from "../..";
 import PanelBottomTable, { TableData } from "../PanelBottomTable";
-import { NeutronGraphType } from "@hugoperier/neutron-core";
+import { NeutronGraphType } from "@neutron-robotics/neutron-core";
 
 const useStyles = makeStyles(() => ({
     panelRoot: {

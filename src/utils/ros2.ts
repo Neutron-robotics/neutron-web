@@ -9,7 +9,7 @@ import {
   IRos2System,
   IRos2Topic,
   hasDuplicates,
-} from "@hugoperier/neutron-core";
+} from "@neutron-robotics/neutron-core";
 import { Ros2PrimitiveTypes } from "../api/models/ros2.model";
 
 export const cachePrimitiveTypes = (primitiveTypes: Ros2PrimitiveTypes) => {

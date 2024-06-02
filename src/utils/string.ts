@@ -23,3 +23,9 @@ export function isNullOrEmpty(input: string) {
 export function returnUndefinedIfEmpty(input:string) {
     return input === "" ? undefined : input
 }
+
+export function sortAlphaOnObjectProperty(a: any, b: any, property: string) {
+    var textA = a[property].toUpperCase();
+    var textB = b[property].toUpperCase();
+    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+}

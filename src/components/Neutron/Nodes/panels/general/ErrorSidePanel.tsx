@@ -5,7 +5,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { VisualNode } from "../..";
 import useNodeSpecifics from "../../../../../utils/useNodeSpecifics";
 import MessageField from "../MessageField";
-import { ErrorNodeSpecifics } from "@hugoperier/neutron-core";
+import { ErrorNodeSpecifics } from "@neutron-robotics/neutron-core";
 
 const useStyles = makeStyles(() => ({
     panelRoot: {

@@ -1,4 +1,4 @@
-import { NeutronGraphType } from "@hugoperier/neutron-core";
+import { NeutronGraphType } from "@neutron-robotics/neutron-core";
 
 export interface INeutronNode {
   width: number;

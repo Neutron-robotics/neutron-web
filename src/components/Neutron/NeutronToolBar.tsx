@@ -5,7 +5,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import SaveIcon from '@mui/icons-material/Save';
 import { EditText } from "react-edit-text";
 import { useCallback } from "react";
-import { IRos2PartSystem, IRos2System, NeutronGraphType } from "@hugoperier/neutron-core";
+import { IRos2PartSystem, IRos2System, NeutronGraphType } from "@neutron-robotics/neutron-core";
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Edge, Node } from "reactflow";

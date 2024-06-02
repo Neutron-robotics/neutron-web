@@ -3,7 +3,7 @@ import { makeStyles } from "@mui/styles"
 import { ForwardedRef, HTMLAttributes, Suspense, forwardRef, lazy, useState } from "react"
 import { VisualNode } from "../.."
 import useNodeSpecifics from "../../../../../utils/useNodeSpecifics"
-import { FunctionNodeSpecifics } from "@hugoperier/neutron-core"
+import { FunctionNodeSpecifics } from "@neutron-robotics/neutron-core"
 import { Monaco } from "@monaco-editor/react"
 
 const Editor = lazy(() => import('@monaco-editor/react'));

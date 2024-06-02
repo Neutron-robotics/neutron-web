@@ -7,6 +7,7 @@ import nodesData from '../../../../../data/nodes.json'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import ResizableDiv from "../../../../controls/ResizableDiv";
+import { sortAlphaOnObjectProperty } from "../../../../../utils/string";
 
 const useStyles = makeStyles(() => ({
     panelRoot: {
@@ -75,7 +76,7 @@ const DocumentationSidePanel = (props: DocumentationSidePanelProps, ref: Forward
         }
     }
 
-    const nodes = useMemo(() => Object.values(nodesData).reduce((acc, cur) => [...acc, ...cur]), [])
+    const nodes = useMemo(() => Object.values(nodesData).reduce((acc, cur) => [...acc, ...cur]).sort((a, b) => sortAlphaOnObjectProperty(a, b, 'name')), [])
 
     return (
         <Paper elevation={3} ref={ref} {...props} className={classes.panelRoot}>

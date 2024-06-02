@@ -7,7 +7,7 @@ import nodesData from '../../data/nodes.json'
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import NodePreview from './Nodes/NodePreview';
-import { NeutronGraphType } from '@hugoperier/neutron-core';
+import { NeutronGraphType } from '@neutron-robotics/neutron-core';
 
 const useStyles = makeStyles(() => ({
     componentDrawer: {

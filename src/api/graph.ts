@@ -1,4 +1,4 @@
-import { NeutronGraphType } from "@hugoperier/neutron-core";
+import { NeutronGraphType } from "@neutron-robotics/neutron-core";
 import api from "./api";
 import { CreateGraphModel, INeutronGraph, INeutronGraphWithOrganization, INeutronGraphWithRobots, UpdateGraphModel } from "./models/graph.model";
 
