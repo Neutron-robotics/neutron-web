@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useContext, useRef, useState } from "react"
-import { ConnectorGraph, FlowGraph, NeutronConnectionContext, NeutronEdgeDB, NeutronGraphType, NeutronNodeDB, NodeMessage, makeConnectionContext } from "@hugoperier/neutron-core"
+import { ConnectorGraph, FlowGraph, NeutronConnectionContext, NeutronEdgeDB, NeutronGraphType, NeutronNodeDB, NodeMessage, makeConnectionContext } from "@neutron-robotics/neutron-core"
 import { sleep } from "../utils/time"
 import { useAlert } from "./AlertContext"
 import * as connectionApi from "../api/connection"
@@ -139,13 +139,6 @@ export const NeutronGraphProvider = ({ children }: { children: ReactNode }) => {
             }
             catch {
                 alert.error("Failed to close the connection")
-            }
-
-            try {
-                await robotApi.stop(robotConnectionInfos.current.robotId)
-            }
-            catch {
-                alert.error("Failed to stop the robot")
             }
         }
         setGraph(undefined);

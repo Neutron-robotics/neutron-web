@@ -17,7 +17,6 @@ const useStyles = makeStyles(() => ({
         },
         "& img": {
             width: "80px",
-            height: 'fit-content'
         }
     },
     robotInfos: {
@@ -63,7 +62,7 @@ const RichRobotCard = (props: RichRobotCardProps) => {
                     <div className={classes.title}>{robot.name}</div>
                     <div className={classes.partGrid}>
                         {robot.parts.map((part) => (
-                            <RobotPartIcon key={part.name} part={part} />
+                            <RobotPartIcon key={part._id} part={part} />
                         ))}
                     </div>
                 </div>

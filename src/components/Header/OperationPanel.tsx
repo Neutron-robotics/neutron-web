@@ -74,13 +74,14 @@ interface OperationMenuPanelProps {
     cpu: number
     ram: number
     operationStartTime: string
+    isConnectionLeader: boolean
     onShutdownClick: () => void
     onQuitClick: () => void
 }
 
 const OperationMenuPanel = (props: OperationMenuPanelProps) => {
     const classes = useStyle()
-    const { processes, name, cpu, ram, operationStartTime, onShutdownClick, onQuitClick } = props
+    const { processes, name, cpu, ram, operationStartTime,isConnectionLeader,  onShutdownClick, onQuitClick } = props
     const [time, setTime] = useState(moment(moment().diff(moment(operationStartTime))).format('mm:ss'))
 
     useEffect(() => {
@@ -147,6 +148,7 @@ const OperationMenuPanel = (props: OperationMenuPanelProps) => {
                         variant="contained"
                         color="error"
                         onClick={onShutdownClick}
+                        disabled={!isConnectionLeader}
                     >
                         Close
                     </Button>

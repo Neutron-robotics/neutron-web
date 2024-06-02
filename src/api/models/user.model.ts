@@ -3,9 +3,10 @@ export interface UserModel {
     email: string;
     firstName: string;
     lastName: string;
+    elasticUsername: string
     imgUrl: string
     active: boolean;
-    roles: string[];
+    role: string;
 }
 
 export interface UserDTO {
@@ -14,6 +15,14 @@ export interface UserDTO {
     firstName: string;
     lastName: string;
     imgUrl: string
+}
+
+export const defaultUser: UserDTO = {
+    id: "default",
+    email: "",
+    firstName: "",
+    lastName: "",
+    imgUrl: ""
 }
 
 export type UserUpdateModel =  Partial<Omit<UserModel, "id">>

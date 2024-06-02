@@ -1,4 +1,4 @@
-import { IRos2System } from "@hugoperier/neutron-core";
+import { IRos2System } from "@neutron-robotics/neutron-core";
 import api from "./api";
 import {
   CreateActionModel,
@@ -7,6 +7,7 @@ import {
   CreateServiceModel,
   CreateSubscriberModel,
   CreateTopicModel,
+  Ros2PrimitiveTypes,
   UpdateSchemaTypeModel,
 } from "./models/ros2.model";
 
@@ -123,6 +124,17 @@ const getRos2System = async (
   return ros2System
 };
 
+const getPrimitiveTypes = async () => {
+  const res = await api.get(`ros2/primitiveTypes/all`);
+
+  if (res.status !== 200) {
+    throw new Error("Could not achieve ros2 operation");
+  }
+
+  const ros2System = res.data.types as Ros2PrimitiveTypes
+  return ros2System 
+}
+
 const updateSchemaType = async (
   robotId: string,
   schemaType: 'publisher' | 'action' | 'service' | 'topic' | 'subscriber',
@@ -219,6 +231,7 @@ export {
   createService,
   createSubscriber,
   getRos2System,
+  getPrimitiveTypes,
   updateSchemaType,
   deleteAction,
   deletePublisher,

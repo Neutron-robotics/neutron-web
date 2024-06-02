@@ -3,7 +3,7 @@ import { ChangeEvent, useRef, useState } from "react";
 import { makeStyles } from "@mui/styles"
 import { parseRos2ServiceMessageContent } from "../../../utils/ros2";
 import { v4 } from "uuid";
-import { IRos2ServiceMessage } from "@hugoperier/neutron-core";
+import { IRos2ServiceMessage } from "@neutron-robotics/neutron-core";
 
 const useStyles = makeStyles(() => ({
     textfield: {
@@ -105,7 +105,8 @@ function AddServiceTypeDialog(props: AddServiceTypeDialogProps) {
                 <TextField
                     className={classes.textfield}
                     required
-                    label="Name"
+                    label="Service Type"
+                    placeholder="my_msgs/srv/my_type"
                     fullWidth
                     onChange={handleNameSelect}
                 />

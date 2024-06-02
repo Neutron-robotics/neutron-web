@@ -10,7 +10,7 @@ import { useConnection } from "../../contexts/ConnectionContext";
 import { v4 } from "uuid";
 import { ComponentNode } from "./components/componentType";
 import ComponentMenu from "./components/ComponentMenu";
-import { NeutronConnectionInfoMessage, RobotStatus } from "@hugoperier/neutron-core";
+import { NeutronConnectionInfoMessage, RobotStatus } from "@neutron-robotics/neutron-core";
 import { INeutronConnectionDTO } from "../../api/models/connection.model";
 import * as userApi from "../../api/user"
 import * as connectionApi from "../../api/connection"
@@ -23,6 +23,8 @@ import useConfirmationDialog from "../controls/useConfirmationDialog";
 import { useNavigate } from "react-router-dom";
 import { ViewType } from "../../utils/viewtype";
 import useGraphNotifications from "../controls/useGraphNotifications";
+import { useAuth } from "../../contexts/AuthContext";
+import { useAlert } from "../../contexts/AlertContext";
 
 const useStyle = makeStyles((theme: any) => ({
     root: {
@@ -97,7 +99,8 @@ interface ConnectionToolBarProps {
 const ConnectionToolBar = (props: ConnectionToolBarProps) => {
     const { connection } = props
     const classes = useStyle()
-    const { robot, connectors, addNode, context, quitConnection } = useConnection(connection._id)
+    const { user: me } = useAuth()
+    const { robot, connectors, addNode, context, quitConnection, quitClosedConnection } = useConnection(connection._id)
     const componentFiltered = useMemo(() => loadOperationComponentsWithPartDependancies(robot.parts.map(e => e._id), connectors), [robot, connectors])
     const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(menuAnchorEl);
@@ -111,14 +114,17 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
     const [connectionStatus, setConnectionStatus] = useState<NeutronConnectionInfoMessage>()
     const [connectedUsers, setConnectedUsers] = useState<ConnectionUser[]>([])
     const [Dialog, prompt] = useConfirmationDialog()
+    const alert = useAlert()
     const navigate = useNavigate();
     useGraphNotifications(connectors)
+    const isConnectionLeader = me?.id === connectedUsers.find(e => e.isLeader)?.id
 
     const handleOnConnectionShutdown = async () => {
         prompt('Are you sure you want to shutdown the connection ? Other users will be disconnected', async (confirmed: boolean) => {
             if (confirmed) {
+                alert.info("Closing connection")
                 await quitConnection(true)
-                navigate(`${ViewType.Home}`, { replace: true });
+                // navigate(`${ViewType.Home}`, { replace: true });
             }
         })
     }
@@ -146,6 +152,7 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
             return
 
         const handleConnectionUpdated = (infos: NeutronConnectionInfoMessage) => {
+            console.log("conneciton updated", infos)
             setConnectionStatus(infos)
         }
 
@@ -153,8 +160,19 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
             setRobotStatus(infos)
         }
 
+        const handlePromotedEvent = () => {
+            console.log("Promoted!")
+        }
+
+        const handleRemovedEvent = () => {
+            alert.warn("You have been removed from the connection")
+            handleOnConnectionQuit()
+        }
+
         context.connectionUpdated.on(handleConnectionUpdated)
         context.robotUpdated.on(handleRobotStatusUpdated)
+        context.removedEvent.on(handleRemovedEvent)
+        context.promotedEvent.on(handlePromotedEvent)
 
         context.pollRobotStatus()
         context.getInfo()
@@ -215,6 +233,7 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
                         cpu={robotStatus?.system?.cpu ?? 0}
                         ram={robotStatus?.system?.memory ?? 0}
                         operationStartTime={connection.createdAt}
+                        isConnectionLeader={isConnectionLeader}
                         onShutdownClick={handleOnConnectionShutdown}
                         onQuitClick={handleOnConnectionQuit}
                     />
@@ -260,7 +279,22 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
             </div>
 
             <div className={classes.iconsEnd}>
-                {connectedUsers.map(user => <ConnectedUserMenuIcon key={user.id} user={user} />)}
+                {connectedUsers.map(user =>
+                (
+                    <ConnectedUserMenuIcon
+                        isLeader={isConnectionLeader}
+                        isMe={me?.id === user.id}
+                        key={user.id}
+                        onExcludeClick={() => {
+                            context.removeUser(user.id)
+                        }}
+                        onPromoteClick={() => {
+                            context.promoteUser(user.id)
+                        }}
+                        user={user}
+                    />
+                )
+                )}
                 <Divider sx={{ marginLeft: '15px', marginRight: '15px' }} orientation="vertical" flexItem />
                 <InputHandlerMenu />
             </div>

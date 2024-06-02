@@ -1,11 +1,14 @@
 import { Dispatch, SetStateAction, createContext, useContext, useState } from "react";
 import { Node } from "reactflow";
 import { IRobot, defaultRobot } from "../api/models/robot.model";
-import { BaseNode, INodeBuilder, RosContext, makeConnectionContext } from "@hugoperier/neutron-core";
+import { BaseNode, INodeBuilder, RosContext, makeConnectionContext } from "@neutron-robotics/neutron-core";
 import { INeutronGraph } from "../api/models/graph.model";
 import * as connectionApi from '../api/connection'
+import * as robotApi from '../api/robot'
 import * as robotStartUtils from '../utils/robotStartUtils'
 import OperationalConnectorGraph from "../utils/ConnectorGraph";
+import { useShortPolling } from "../components/controls/useShortPolling";
+import { INeutronConnectionDTO } from "../api/models/connection.model";
 
 export enum RobotConnectionStep {
     Start,
@@ -34,7 +37,9 @@ export type IConnectionSessionStore = Record<string, IConnectionSession>
 
 type ContextProps = {
     connections: IConnectionSessionStore
+    closedConnections: INeutronConnectionDTO[]
     setConnections: Dispatch<SetStateAction<IConnectionSessionStore>>
+    setClosedConnection: Dispatch<SetStateAction<INeutronConnectionDTO[]>>
     makeConnection: (robot: IRobot, graphs: INeutronGraph[], opts: IConnectionSessionBuilderOptions) => Promise<string>
     joinConnection: (connectionId: string, robot: IRobot, graphs: INeutronGraph[], opts: IConnectionSessionBuilderOptions) => Promise<string>
 }
@@ -43,6 +48,51 @@ export const ConnectionContext = createContext<ContextProps>({} as any)
 
 export function ConnectionProvider({ children }: { children: React.ReactNode }) {
     const [connections, setConnections] = useState<IConnectionSessionStore>({})
+    const [closedConnections, setClosedConnection] = useState<INeutronConnectionDTO[]>([])
+
+    useShortPolling(10_000, () => connectionApi.getMyConnections('active'), async (connections: INeutronConnectionDTO[]) => {
+        const fetchedConnections = await Promise.all(connections.map(async e => {
+            const robot = await robotApi.getRobot(e.robot as string)
+            return {
+                robot,
+                connection: e
+            }
+        }))
+        setConnections((prev) => {
+            const newPrevConnections: IConnectionSessionStore = Object.entries(prev).reduce<IConnectionSessionStore>((acc, [key, obj]) => {
+                if (obj.connected) {
+                    acc[key] = obj;
+                }
+
+                if (!fetchedConnections.find(e => e.connection._id === obj.connectionId)) {
+                    console.log(`${obj.connectionId} HAS DISCONNECTED AKRT`)
+                    connectionApi.getById(obj.connectionId).then((connection) => {
+                        if (connection.closedAt)
+                            setClosedConnection(prev => [...prev, connection])
+                    })
+                }
+                return acc;
+            }, {});
+
+            const otherConnections: IConnectionSessionStore = fetchedConnections.reduce<IConnectionSessionStore>((acc, cur) => {
+                if (newPrevConnections[cur.connection._id]) {
+                    return acc
+                }
+
+                const inactiveConnection: IConnectionSession = {
+                    connectionId: cur.connection._id,
+                    nodes: [],
+                    robot: cur.robot,
+                    graphs: [],
+                    connected: false,
+                    context: undefined as any
+                }
+                return { ...acc, [cur.connection._id]: inactiveConnection }
+            }, {})
+
+            return { ...newPrevConnections, ...otherConnections }
+        })
+    })
 
     const makeConnection = async (robot: IRobot, graphs: INeutronGraph[], opts: IConnectionSessionBuilderOptions) => {
         if (opts.partsIdToConnect)
@@ -133,7 +183,7 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
     }
 
     return (
-        <ConnectionContext.Provider value={{ connections, setConnections, makeConnection, joinConnection }}>
+        <ConnectionContext.Provider value={{ connections, closedConnections, setConnections, setClosedConnection, makeConnection, joinConnection }}>
             {children}
         </ConnectionContext.Provider>
     );
@@ -145,6 +195,7 @@ interface ConnectionContextHook {
     context: RosContext
     connectors: OperationalConnectorGraph[],
     connected: boolean,
+    closedConnection: INeutronConnectionDTO | undefined,
     setNodes: (nodes: Node[]) => void
     addNode: (node: Node) => void
     removeNode: (nodeId: string) => void
@@ -152,10 +203,11 @@ interface ConnectionContextHook {
         new(builder: INodeBuilder<any>): TNode;
     }, partId: string) => TNode[]
     quitConnection: (close?: boolean) => Promise<void>
+    quitClosedConnection: () => void
 }
 
 export const useConnection = (connectionId: string): ConnectionContextHook => {
-    const { connections, setConnections } = useContext(ConnectionContext)
+    const { connections, closedConnections, setConnections, setClosedConnection } = useContext(ConnectionContext)
 
     const setNodes = (nodes: Node[]) => {
         setConnections((prev) => ({
@@ -215,12 +267,6 @@ export const useConnection = (connectionId: string): ConnectionContextHook => {
         context.disconnect()
         if (close) {
             await connectionApi.close(connectionId)
-            setConnections((prev) => {
-                const newState = { ...prev };
-                delete newState[connectionId];
-                return newState;
-            })
-
             return
         }
         setConnections((prev) => ({
@@ -233,16 +279,27 @@ export const useConnection = (connectionId: string): ConnectionContextHook => {
         }))
     }
 
+    const quitClosedConnection = () => {
+        setConnections((prev) => {
+            const newState = { ...prev };
+            delete newState[connectionId];
+            return newState;
+        })
+        setClosedConnection(prev => prev.filter(e => e._id !== connectionId))
+    }
+
     return {
         nodes: connections[connectionId]?.nodes ?? [],
         robot: connections[connectionId]?.robot ?? defaultRobot,
         context: connections[connectionId]?.context,
         connectors: connections[connectionId]?.graphs,
         connected: connections[connectionId]?.connected,
+        closedConnection: closedConnections.find(e => e._id === connectionId),
         setNodes,
         addNode,
         removeNode,
         getRelatedNodes,
-        quitConnection
+        quitConnection,
+        quitClosedConnection
     }
 }

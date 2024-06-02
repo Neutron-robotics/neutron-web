@@ -5,7 +5,7 @@ import { VisualNode } from "../.."
 import useNodeSpecifics from "../../../../../utils/useNodeSpecifics"
 import SettingsIcon from '@mui/icons-material/Settings';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import { DelayNodeSpecifics, IRandomDelayInterval } from "@hugoperier/neutron-core"
+import { DelayNodeSpecifics, IRandomDelayInterval } from "@neutron-robotics/neutron-core"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {

@@ -1,15 +1,15 @@
 import { UserDTO, UserModel } from "../api/models/user.model";
 
 export interface UserRanked extends UserDTO {
-  rank: OrganizationPermissions;
+  ranks: OrganizationPermissions[];
 }
 
 export enum OrganizationPermissions {
-  Guest = "guest",
+  Admin = "admin",
+  Owner = "owner",
   Operator = "operator",
   Analyst = "analyst",
-  Owner = "owner",
-  Admin = "admin",
+  Guest = "guest",
 }
 
 /**
@@ -22,13 +22,11 @@ const isOrganizationUserAdmin = (
   organizationMembers: UserRanked[]
 ) => {
   return (
-    user.roles.includes(OrganizationPermissions.Admin) ||
+    user.role === OrganizationPermissions.Admin ||
     organizationMembers.some(
       (e) =>
         e.id === user.id &&
-        [OrganizationPermissions.Admin, OrganizationPermissions.Owner].includes(
-          e.rank
-        )
+        (e.ranks.includes(OrganizationPermissions.Admin) || e.ranks.includes(OrganizationPermissions.Owner))
     )
   );
 };

@@ -1,4 +1,4 @@
-import { ConnectorGraph } from "@hugoperier/neutron-core";
+import { ConnectorGraph } from "@neutron-robotics/neutron-core";
 import { loadOperationComponentsWithPartDependancies } from "../src/components/Connection/components/ComponentFactory";
 import OperationalConnectorGraph from "../src/utils/ConnectorGraph";
 import {

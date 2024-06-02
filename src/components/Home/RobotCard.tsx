@@ -19,7 +19,6 @@ const useStyles = makeStyles(() => ({
         fontWeight: 'bold'
     },
     robotConnectButton: {
-        marginLeft: 'auto',
     }
 }))
 
@@ -35,7 +34,7 @@ const RobotCard = (props: RobotCardProps) => {
     return (
         <div className={classes.robotPreview} key={robot._id}>
             <img
-                src={robot.imgUrl ?? ""}
+                src={robot.imgUrl?.length ? robot.imgUrl : `/assets/default-robot.svg`}
                 alt={"robot-icon"}
                 className={classes.thumbnail}
             />

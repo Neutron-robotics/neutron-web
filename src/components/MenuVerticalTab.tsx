@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, IconButton, styled, CSSObject, Theme, Collapse } from '@mui/material';
+import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, IconButton, styled, CSSObject, Theme, Collapse, ButtonBase } from '@mui/material';
 import MuiDrawer from '@mui/material/Drawer'
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import HomeIcon from '@mui/icons-material/Home';
@@ -7,16 +7,18 @@ import LinkIcon from '@mui/icons-material/Link';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import SettingsIcon from '@mui/icons-material/Settings';
-import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import RobotConnectionSubMenu, { RobotConnectionSubMenuProps } from './Connection/RobotConnectionSubMenu';
 import { ConnectionContext, IConnectionSession, IConnectionSessionStore } from '../contexts/ConnectionContext';
-import * as connectionApi from '../api/connection'
-import * as robotApi from '../api/robot'
 import { ViewType } from '../utils/viewtype';
-import { useShortPolling } from './controls/useShortPolling';
-import { INeutronConnectionDTO } from '../api/models/connection.model';
+import ShareIcon from '@mui/icons-material/Share';
+import { useAuth } from '../contexts/AuthContext';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import SubMenuList, { SubMenuListProps } from './SubMenuList';
+import InfoIcon from '@mui/icons-material/Info';
+import { ClassNames } from '@emotion/react';
+import ChangelogDialog from './controls/ChangelogDialog';
 
 const drawerMaxWidth = 240;
 
@@ -39,12 +41,7 @@ const defaultMenuViews: MenuOption[] = [
         title: 'Connection',
         icon: <LinkIcon />,
         viewType: ViewType.ConnectionView,
-        subItems: [
-            {
-                title: 'OsoyooBot',
-                connectionId: 'totototooto'
-            } as RobotConnectionSubMenuProps
-        ],
+        subItems: [],
         subItemsComponentTemplate: RobotConnectionSubMenu,
         isSubItemsListOpen: false
     },
@@ -55,15 +52,41 @@ const defaultMenuViews: MenuOption[] = [
     },
     {
         title: 'Neutron',
-        icon: <SmartToyIcon />,
+        icon: <ShareIcon />,
         viewType: ViewType.Neutron,
     },
     {
         title: 'Settings',
         icon: <SettingsIcon />,
         viewType: ViewType.Settings,
+        subItems: [
+            {
+                title: 'Account',
+                viewType: ViewType.Settings
+            } as SubMenuListProps
+        ],
+        subItemsComponentTemplate: SubMenuList,
+        isSubItemsListOpen: false
     }
 ]
+
+const adminView: MenuOption = {
+    title: 'Admin',
+    icon: <AdminPanelSettingsIcon />,
+    viewType: ViewType.Admin,
+    subItems: [
+        {
+            title: 'Users',
+            viewType: ViewType.Admin
+        } as SubMenuListProps,
+        {
+            title: 'Organizations',
+            viewType: ViewType.Admin
+        } as SubMenuListProps
+    ],
+    subItemsComponentTemplate: SubMenuList,
+    isSubItemsListOpen: false
+}
 
 interface MenuOption {
     title: string;
@@ -125,6 +148,9 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
     const [open, setOpen] = React.useState(false);
     const navigate = useNavigate();
     const { connections, setConnections } = useContext(ConnectionContext)
+    const { user } = useAuth()
+    const version = `v${import.meta.env.VITE_APP_VERSION}`;
+    const [showChangelog, setShowChangelog] = useState(false)
 
     useEffect(() => {
         const connectionSubMenus = Object.values(connections).map<RobotConnectionSubMenuProps>(connection => ({
@@ -134,40 +160,11 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
         setConnectionsSubMenu(connectionSubMenus)
     }, [connections])
 
-    useShortPolling(10_000, () => connectionApi.getMyConnections('active'), async (connections: INeutronConnectionDTO[]) => {
-        const fetchedConnections = await Promise.all(connections.map(async e => {
-            const robot = await robotApi.getRobot(e.robot as string)
-            return {
-                robot,
-                connection: e
-            }
-        }))
-        setConnections((prev) => {
-            const newPrevConnections: IConnectionSessionStore = Object.entries(prev).reduce<IConnectionSessionStore>((acc, [key, obj]) => {
-                if (obj.connected) {
-                    acc[key] = obj;
-                }
-                return acc;
-            }, {});
-
-            const otherConnections: IConnectionSessionStore = fetchedConnections.reduce<IConnectionSessionStore>((acc, cur) => {
-                if (newPrevConnections[cur.connection._id])
-                    return acc
-
-                const inactiveConnection: IConnectionSession = {
-                    connectionId: cur.connection._id,
-                    nodes: [],
-                    robot: cur.robot,
-                    graphs: [],
-                    connected: false,
-                    context: undefined as any
-                }
-                return { ...acc, [cur.connection._id]: inactiveConnection }
-            }, {})
-
-            return { ...newPrevConnections, ...otherConnections }
-        })
-    })
+    useEffect(() => {
+        if (user && user.role === 'admin') {
+            setViews(e => e.find(e => e.title === 'Admin') ? e : [...e, adminView])
+        }
+    }, [user])
 
     const setConnectionsSubMenu = (connections: RobotConnectionSubMenuProps[]) => {
         setViews(prev => prev.map(view => view.title === 'Connection' ?
@@ -199,6 +196,14 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
         setOpen(true)
         setDrawerWidth(`${drawerMaxWidth}px`)
         setViews(views.map(e => e.title === menuOption.title ? ({ ...menuOption, isSubItemsListOpen: !menuOption.isSubItemsListOpen }) : e))
+    }
+
+    function handleOnVersionClick(): void {
+        setShowChangelog(true)
+    }
+
+    function handleChangelogClose(): void {
+        setShowChangelog(false)
     }
 
     return (
@@ -258,6 +263,18 @@ const MenuVerticalTabs = (props: MenuVerticalTabsProps) => {
                     </div>
                 ))}
             </List>
+            <Collapse style={{
+                position: 'absolute',
+                bottom: '55px',
+                left: '50%',
+                transform: 'translate(-50%, -50%)'
+            }} in={open} timeout="auto" unmountOnExit>
+                <ButtonBase onClick={handleOnVersionClick}>
+                    <InfoIcon />
+                    <span>{version}</span>
+                </ButtonBase>
+            </Collapse>
+            <ChangelogDialog open={showChangelog} onClose={handleChangelogClose} />
         </Drawer>
     );
 };

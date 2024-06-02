@@ -6,6 +6,8 @@ import { capitalize } from "../../utils/string";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ViewType } from "../../utils/viewtype";
+import { userIconOrGenerated } from "../../utils/thumbnail";
+import { defaultUser } from "../../api/models/user.model";
 
 const useStyle = makeStyles((theme: any) => ({
     header: {
@@ -37,7 +39,6 @@ interface HeaderProps {
 }
 
 const Header = (props: HeaderProps) => {
-    const title = `${import.meta.env.VITE_APP_NAME} - ${import.meta.env.VITE_APP_VERSION}`;
     const classes = useStyle();
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
     const { user, logout } = useAuth()
@@ -70,9 +71,6 @@ const Header = (props: HeaderProps) => {
                         <HomeIcon />
                     </IconButton>
 
-                    <Typography variant="caption" component="div" sx={{ display: 'flex' }}>
-                        {title}
-                    </Typography>
                     <IconButton
                         size="large"
                         edge="end"
@@ -81,7 +79,7 @@ const Header = (props: HeaderProps) => {
                         className={classes.accountIcon}
                         onClick={handleClick}
                     >
-                        <img className={classes.icon} src={user?.imgUrl} alt={"usericon"} />
+                        <img className={classes.icon} src={userIconOrGenerated(user ?? defaultUser)} alt={"usericon"} />
                     </IconButton>
                     <Popover
                         open={Boolean(anchorEl)}
@@ -93,7 +91,7 @@ const Header = (props: HeaderProps) => {
                         }}
                     >
                         <div className={classes.popover}>
-                            <img className={classes.largerIcon} src={`${user?.imgUrl}`} alt={"usericon"} />
+                            <img className={classes.largerIcon} src={userIconOrGenerated(user ?? defaultUser)} alt={"usericon"} />
                             <p>{`${capitalize(user?.firstName ?? "")} ${capitalize(user?.lastName ?? "")}`}</p>
                             <Button color="error" onClick={logout} variant="contained">Disconnect</Button>
                         </div>

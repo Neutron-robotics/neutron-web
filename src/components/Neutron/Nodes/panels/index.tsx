@@ -20,7 +20,7 @@ import TemplateSidePanel, { defaultTemplateSpecifics } from "./functions/Templat
 import DelaySidePanel, { defaultDelaySpecifics } from "./functions/DelaySidePanel"
 import FilterSidePanel, { defaultFilterSpecifics } from "./functions/FilterSidePanel"
 import PublisherSidePanel, { defaultPublisherSpecifics } from "./ros2/PublisherSidePanel"
-import { DebugNode, IDebugEvent, INeutronGraphProcessEvent, IRos2PartSystem, IRos2System, NeutronGraphType } from "@hugoperier/neutron-core"
+import { DebugNode, IDebugEvent, INeutronGraphProcessEvent, IRos2PartSystem, IRos2System, NeutronGraphType } from "@neutron-robotics/neutron-core"
 import SubscriberSidePanel, { defaultSubscriberSpecifics } from "./ros2/SubscriberSidePanel"
 import ServiceSidePanel, { defaultServiceSpecifics } from "./ros2/ServiceSidePanel"
 import ActionSidePanel, { defaultActionSpecifics } from "./ros2/ActionSidePanel"
@@ -28,6 +28,7 @@ import DebugMenuSidePanel, { ILogLine } from "./menu/DebugMenuSidePanel"
 import { NeutronGraphStatus, NeutronNodeRunStatus, useNeutronGraph } from "../../../../contexts/NeutronGraphContext"
 import { useCallback, useEffect, useRef, useState } from "react"
 import moment from "moment"
+import BaseControllerSidePanel from "./controllers/BaseControllerSidePanel"
 
 const useStyles = makeStyles(() => ({
     neutronSidePanelContainer: {
@@ -64,7 +65,9 @@ export enum NeutronSidePanel {
     Publisher = 'publisher',
     Subscriber = 'subscriber',
     Service = 'service',
-    Action = 'action'
+    Action = 'action',
+    // Controllers
+    BaseController = 'base controller'
 }
 
 export const defaultSpecificsValues: Record<NeutronSidePanel, any> = {
@@ -88,7 +91,8 @@ export const defaultSpecificsValues: Record<NeutronSidePanel, any> = {
     [NeutronSidePanel.Publisher]: defaultPublisherSpecifics,
     [NeutronSidePanel.Subscriber]: defaultSubscriberSpecifics,
     [NeutronSidePanel.Service]: defaultServiceSpecifics,
-    [NeutronSidePanel.Action]: defaultActionSpecifics
+    [NeutronSidePanel.Action]: defaultActionSpecifics,
+    [NeutronSidePanel.BaseController]: undefined
 }
 
 interface INeutronNodePanel {
@@ -123,7 +127,7 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
 
         setNodeEventLogs(prev => [...prev, {
             nodeId: event.nodeId,
-            message: `Node ${node?.constructor.name ?? 'INVALID NODE'} has been processed`,
+            message: `Node ${node?.type ?? 'INVALID NODE'} has been processed`,
             date: moment().format('HH:mm:ss.SSS'),
             count: (prev[prev.length - 1]?.count ?? 0) + 1
         }])
@@ -198,6 +202,7 @@ const NeutronNodePanel = (props: INeutronNodePanel) => {
         [NeutronSidePanel.Subscriber]: <SubscriberSidePanel topics={ros2System?.topics ?? []} node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Subscriber)} />,
         [NeutronSidePanel.Service]: <ServiceSidePanel services={ros2System?.services ?? []} node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Service)} />,
         [NeutronSidePanel.Action]: <ActionSidePanel actions={ros2System?.actions ?? []} node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.Action)} />,
+        [NeutronSidePanel.BaseController]: <BaseControllerSidePanel node={selectedNode as any} onComplete={() => panels.removePanel(NeutronSidePanel.BaseController)} />,
     }
 
     const minWidth = (panel: NeutronSidePanel) => {

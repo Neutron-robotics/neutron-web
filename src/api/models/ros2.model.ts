@@ -1,4 +1,4 @@
-import { IRos2Action, IRos2ActionMessage, IRos2Publisher, IRos2Service, IRos2ServiceMessage, IRos2Subscriber, IRos2Topic } from "@hugoperier/neutron-core"
+import { IRos2Action, IRos2ActionMessage, IRos2Publisher, IRos2Service, IRos2ServiceMessage, IRos2Subscriber, IRos2Topic } from "@neutron-robotics/neutron-core"
 import { IDBObject } from "./common"
 
 export interface CreateTopicModel {
@@ -59,4 +59,10 @@ export interface CreateServiceModel {
 export interface IMessageType extends IDBObject {
   name: string,
   fields: Ros2Field[]
+}
+
+export interface Ros2PrimitiveTypes {
+  messages: IMessageType[]
+  services: IRos2ServiceMessage[]
+  actions: IRos2ActionMessage[]
 }

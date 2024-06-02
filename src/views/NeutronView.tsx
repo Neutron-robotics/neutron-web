@@ -8,7 +8,7 @@ import * as organization from "../api/organization";
 import { IRobot, IRobotPart } from "../api/models/robot.model";
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { VisualNode, nodeType } from "../components/Neutron/Nodes";
-import { IRos2PartSystem, IRos2System, NeutronGraphType } from "@hugoperier/neutron-core";
+import { IRos2PartSystem, IRos2System, NeutronGraphType } from "@neutron-robotics/neutron-core";
 import { getRos2System } from "../api/ros2";
 import { useAlert } from "../contexts/AlertContext";
 import { toPartSystem } from "../utils/ros2";
@@ -68,7 +68,7 @@ const NeutronView = (props: NeutronViewProps) => {
     const [neutronGraph, setNeutronGraph] = useState<INeutronGraph>()
     const [sidePanels, setSidePanels] = useState<NeutronSidePanel[]>([])
     const [title, setTitle] = useState('')
-    const [graphType, setGraphType] = useState<NeutronGraphType>('Flow')
+    const [graphType, setGraphType] = useState<NeutronGraphType>('Connector')
     const [environmentVariables, setEnvironmentVariable] = useState<Record<string, number | string | undefined>>({ toto: 1, foo: 'haha' })
     const [selectedNode, setSelectedNode] = useState<VisualNode>()
     const { graphStatus } = useNeutronGraph()
@@ -127,7 +127,7 @@ const NeutronView = (props: NeutronViewProps) => {
             const organizations = await organization.me()
             const robots = await organizations.reduce(async (acc, cur) => {
                 const robots = await organization.getOrganizationRobots(cur.name)
-                return { ...acc, [cur.name]: robots }
+                return { ...(await acc), [cur.name]: robots }
             }, {})
             setAvailableRobots(robots)
         }

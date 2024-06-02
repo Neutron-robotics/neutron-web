@@ -3,7 +3,7 @@ import { ChangeEvent, useRef, useState } from "react";
 import { makeStyles } from "@mui/styles"
 import { parseRos2MessageContent } from "../../../utils/ros2";
 import { v4 } from "uuid";
-import { IRos2Field } from "@hugoperier/neutron-core";
+import { IRos2Field } from "@neutron-robotics/neutron-core";
 
 const useStyles = makeStyles(() => ({
     textfield: {
@@ -101,7 +101,8 @@ function AddMessageTypeDialog(props: AddMessageTypeDialogProps) {
                 <TextField
                     className={classes.textfield}
                     required
-                    label="Name"
+                    label="Message Type"
+                    placeholder="my_msgs/msg/my_type"
                     fullWidth
                     onChange={handleNameSelect}
                 />

@@ -15,7 +15,6 @@ const useStyles = makeStyles(() => ({
         },
         "& img": {
             width: "80px",
-            height: 'fit-content'
         }
     },
     cardContent: {

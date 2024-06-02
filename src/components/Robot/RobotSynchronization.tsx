@@ -38,7 +38,6 @@ const RobotSynchronization = (props: RobotSynchronizationProps) => {
         setIsSync(true)
     }
 
-
     useEffect(() => {
         if (!isSync)
             return

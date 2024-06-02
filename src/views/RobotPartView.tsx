@@ -1,14 +1,15 @@
 import {
     Breadcrumbs,
+    IconButton,
     InputLabel,
     Link,
     MenuItem,
     Select,
-    SelectChangeEvent,
     Slide,
     Tab,
     Tabs,
     TextField,
+    Tooltip,
     Typography,
 } from "@mui/material";
 import { OrganizationModel } from "../api/models/organization.model";
@@ -20,11 +21,12 @@ import {
     defaultRobotPartModel,
 } from "../api/models/robot.model";
 import { makeStyles } from "@mui/styles";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import useConfirmationDialog from "../components/controls/useConfirmationDialog";
 import { useAlert } from "../contexts/AlertContext";
-import { EditText, onSaveProps } from "react-edit-text";
+import { EditText } from "react-edit-text";
 import * as partApi from "../api/robotpart";
+import * as ros2Api from "../api/ros2";
 import ClickableImageUpload from "../components/controls/imageUpload";
 import { uploadFile } from "../api/file";
 import { capitalize } from "../utils/string";
@@ -41,10 +43,15 @@ import * as organizationApi from "../api/organization"
 import useAsync from "../utils/useAsync";
 import { OrganizationViewType } from "./OrganizationView";
 import ComponentError from "../components/ComponentError";
+import { cachePrimitiveTypes, cacheRos2System } from "../utils/ros2";
+import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ShareIcon from '@mui/icons-material/Share';
 
 const useStyles = makeStyles(() => ({
     root: {
-        padding: "30px",
+        paddingLeft: "30px",
+        paddingRight: "30px",
         width: "100%",
     },
     partInfos: {
@@ -67,6 +74,12 @@ const useStyles = makeStyles(() => ({
         "& textarea": {
             width: "100%",
         },
+    },
+    robotPartHeader: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingBottom: '30px'
     },
     partNameTextfield: {
         marginLeft: "auto",
@@ -115,17 +128,25 @@ const RobotPartView = (props: RobotPartViewProps) => {
     const [robot, setRobot, isRobotLoading, robotError] = useAsync<IRobot>(location.state?.organization, () => robotApi.getRobot(params.robotId ?? ''))
     const [organization, _, isOrganizationLoading, organizationError] = useAsync<OrganizationModel>(location.state?.organization, () => organizationApi.getById(params.organizationId ?? ''))
     const [part, setPart] = useState<IRobotPart>(defaultRobotPartModel)
+    const [isRosSystemLoaded, setIsRosSystemLoaded] = useState<boolean>(false)
 
     const alert = useAlert();
     const [Dialog, prompt] = useConfirmationDialog();
     const classes = useStyles();
+    const isPartUpdated = JSON.stringify(robot?.parts.find(e => e._id === part._id)) !== JSON.stringify(part)
 
     useEffect(() => {
         if (isRobotLoading || !robot || params.partId === 'new')
             return
 
         const targetedPart = robot.parts.find(e => e._id === params.partId)
-
+        ros2Api.getRos2System(robot._id).then(async (system) => {
+            const primitiveTypes = await ros2Api.getPrimitiveTypes()
+            cachePrimitiveTypes(primitiveTypes)
+            cacheRos2System(robot, system)
+            setIsRosSystemLoaded(true)
+            return
+        })
         if (targetedPart)
             setPart(targetedPart)
 
@@ -135,98 +156,91 @@ const RobotPartView = (props: RobotPartViewProps) => {
         return <div />
 
     const handleRobotImageUpload = async (file: File) => {
+        if (!robot)
+            return
+
         try {
             const imgUrl = await uploadFile(file);
-            if (isNewPart) setPart((prev) => ({ ...prev, imgUrl }));
-            else if (!isNewPart && part._id) {
-                await updatePart({ imgUrl });
+            setPart((prev) => ({ ...prev, imgUrl }));
+            if (!isNewPart && part._id) {
+                await partApi.update(robot._id, part._id!, { imgUrl });
+                setRobot({
+                    ...robot,
+                    parts: robot.parts.map(e => e._id === part._id ? { ...part, imgUrl } : e)
+                })
             }
         } catch (err: any) {
             alert.error("An error has occured while uploading an image");
         }
     };
 
-    const updatePart = async (updateModel: Partial<CreateRobotPartModel>) => {
+    const handleDeleteClick = async () => {
+        if (!robot || !organization)
+            return
+
+        prompt("Do you want to delete the part", async (confirmed: boolean) => {
+            if (confirmed && !isNewPart) {
+                try {
+                    await partApi.deleteRobotPart(robot?._id, part._id)
+                }
+                catch (err: any) {
+                    alert.error("An error has occured while deleting the part");
+                }
+            }
+            navigate(`/organization/${organization._id}/robot/${robot._id}`)
+        })
+    }
+
+    const onSave = async () => {
         if (!robot)
             return
 
-        await partApi.update(robot._id, part._id!, updateModel);
-        setPart((prev) => ({ ...prev, ...updateModel }));
-    };
-
-    const handleNameUpdate = async (data: onSaveProps) => {
-        if (isNewPart) setPart((prev) => ({ ...prev, name: data.value }));
-        if (!isNewPart && part._id) {
-            try {
-                await updatePart({ name: data.value });
-            } catch (err) {
-                alert.error("An error has occured while updating part name");
+        const updateModel: CreateRobotPartModel = {
+            type: part.type,
+            category: part.category,
+            name: part.name,
+            imgUrl: part.imgUrl,
+            ros2Package: part.ros2Package,
+            ros2Node: part.ros2Node
+        }
+        try {
+            if (isNewPart) {
+                const createModel: CreateRobotPartModel = {
+                    type: part.type,
+                    category: part.category,
+                    name: part.name,
+                    imgUrl: part.imgUrl === "" ? undefined : part.imgUrl,
+                    ros2Package: part.ros2Package,
+                    ros2Node: part.ros2Node
+                }
+                const id = await partApi.create(robot._id, createModel);
+                setPart(e => ({ ...e, _id: id }))
+                setRobot({
+                    ...robot,
+                    parts: [
+                        ...robot.parts,
+                        { ...part, _id: id }
+                    ]
+                })
             }
-        }
-    };
-
-    const handleTypeUpdate = async (event: SelectChangeEvent<string>) => {
-        if (isNewPart)
-            setPart((prev) => ({ ...prev, type: event.target.value as ConnectionContextType }));
-        if (!isNewPart && part._id) {
-            try {
-                await updatePart({ type: event.target.value as ConnectionContextType });
-            } catch (err) {
-                alert.error("An error has occured while updating part type");
+            else {
+                await partApi.update(robot._id, part._id!, updateModel);
+                setRobot({
+                    ...robot,
+                    parts: robot.parts.map(e => e._id === part._id ? part : e)
+                })
             }
+        } catch (err) {
+            alert.error(`An error has occured while ${isNewPart ? 'creating' : 'updating'} the part`);
         }
-    };
+    }
 
-    const handleCategoryUpdate = async (event: SelectChangeEvent<string>) => {
-        if (isNewPart)
-            setPart((prev) => ({
-                ...prev,
-                category: event.target.value as RobotPartCategory,
-            }));
-        if (!isNewPart && part._id) {
-            try {
-                await updatePart({ category: event.target.value as RobotPartCategory });
-            } catch (err) {
-                alert.error("An error has occured while updating part category");
-            }
-        }
-    };
-
-    const handleRos2PackageUpdate = async (
-        event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-        if (isNewPart) {
-            setPart((prev) => ({
-                ...prev,
-                ros2Package: event.target.value,
-            }));
-        }
-        if (!isNewPart && part._id) {
-            try {
-                await updatePart({ ros2Package: event.target.value });
-            } catch (err) {
-                alert.error("An error has occured while updating part ros package");
-            }
-        }
-    };
-
-    const handleRos2NodeUpdate = async (
-        event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-        const value = event.target.value
-        if (isNewPart)
-            setPart((prev) => ({
-                ...prev,
-                ros2Node: value,
-            }));
-        else if (!isNewPart && part._id) {
-            try {
-                await updatePart({ ros2Node: value });
-            } catch (err) {
-                alert.error("An error has occured while updating part ros node");
-            }
-        }
-    };
+    function handleShareClick(): void {
+        if (!organization || !robot)
+            return
+        navigator.clipboard.writeText(`${window.location.protocol}//${window.location.hostname}/organization/${organization._id}/robot/${robot._id}/part/${part._id}`)
+        alert.info("The link to this robot part has been copied to your clipboard")
+    }
 
     const handleBreadcrumbsClick = (view: OrganizationViewType) => {
         if (!robot || !organization)
@@ -235,7 +249,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
         const newLocation = view === OrganizationViewType.Robot ? `/organization/${organization._id}/robot/${robot._id}`
             : `/organization/${organization._id}`
 
-        if (isNewPart) {
+        if (isNewPart && isPartUpdated) {
             prompt("Do you want to save the part", async (confirmed: boolean) => {
                 if (confirmed) {
                     try {
@@ -256,6 +270,12 @@ const RobotPartView = (props: RobotPartViewProps) => {
                     navigate(newLocation, { replace: true })
                 }
             });
+        } else if (isPartUpdated) {
+            prompt("Do you want to save the part", async (confirmed: boolean) => {
+                if (confirmed)
+                    await onSave()
+                navigate(newLocation, { replace: true })
+            })
         } else {
             navigate(newLocation, { replace: true })
         }
@@ -283,29 +303,48 @@ const RobotPartView = (props: RobotPartViewProps) => {
 
     return (
         <div className={classes.root}>
-            <Breadcrumbs aria-label="breadcrumb">
-                <Link
-                    underline="hover"
-                    color="inherit"
-                    onClick={() => handleBreadcrumbsClick(OrganizationViewType.Summary)}
-                >
-                    {organization?.name}
-                </Link>
-                <Link
-                    underline="hover"
-                    color="inherit"
-                    onClick={() => handleBreadcrumbsClick(OrganizationViewType.Robot)}
-                >
-                    {robot?.name}
-                </Link>
-                <Typography color="text.primary">{isNewPart ? "New Part" : part.name}</Typography>
-            </Breadcrumbs>
-            <EditText
-                defaultValue={part.name}
-                inputClassName={classes.partNameTextfield}
-                onSave={handleNameUpdate}
-                className={classes.partNameTextfield}
-            />
+            <div className={classes.robotPartHeader}>
+                <Breadcrumbs aria-label="breadcrumb">
+                    <Link
+                        underline="hover"
+                        color="inherit"
+                        onClick={() => handleBreadcrumbsClick(OrganizationViewType.Summary)}
+                    >
+                        {organization?.name}
+                    </Link>
+                    <Link
+                        underline="hover"
+                        color="inherit"
+                        onClick={() => handleBreadcrumbsClick(OrganizationViewType.Robot)}
+                    >
+                        {robot?.name}
+                    </Link>
+                    <Typography color="text.primary">{isNewPart ? "New Part" : part.name}</Typography>
+                </Breadcrumbs>
+                <EditText
+                    defaultValue={part.name}
+                    inputClassName={classes.partNameTextfield}
+                    onSave={e => setPart(prev => ({ ...prev, name: e.value }))}
+                    className={classes.partNameTextfield}
+                />
+                <div>
+                    <IconButton disabled={!isPartUpdated} onClick={onSave} color="secondary">
+                        <Tooltip arrow title="Save Part">
+                            <SaveIcon />
+                        </Tooltip>
+                    </IconButton>
+                    <IconButton onClick={handleDeleteClick} color="secondary">
+                        <Tooltip arrow title="Delete Part">
+                            <DeleteIcon />
+                        </Tooltip>
+                    </IconButton>
+                    <IconButton onClick={handleShareClick} disabled={isNewPart} color="secondary">
+                        <Tooltip arrow title="Share Part">
+                            <ShareIcon />
+                        </Tooltip>
+                    </IconButton>
+                </div>
+            </div>
             <div className={classes.partInfos}>
                 <ClickableImageUpload
                     src={part.imgUrl ?? ""}
@@ -320,7 +359,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
                         disabled
                         value={part?.type?.length ? part.type : ConnectionContextType.Ros2}
                         label="Type"
-                        onChange={handleTypeUpdate}
+                        onChange={(e) => setPart(prev => ({ ...prev, type: e.target.value as ConnectionContextType }))}
                     >
                         <MenuItem value={ConnectionContextType.Ros2}>ROS2</MenuItem>
                         <MenuItem value={ConnectionContextType.Tcp}>TCP</MenuItem>
@@ -333,7 +372,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
                         value={part.category}
                         label="Category"
                         fullWidth
-                        onChange={handleCategoryUpdate}
+                        onChange={(e) => setPart(prev => ({ ...prev, category: e.target.value as RobotPartCategory }))}
                     >
                         <MenuItem value={RobotPartCategory.Actuator}>Actuator</MenuItem>
                         <MenuItem value={RobotPartCategory.Vison}>Vision</MenuItem>
@@ -351,7 +390,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
                             label="ROS Package"
                             fullWidth
                             value={part.ros2Package}
-                            onChange={handleRos2PackageUpdate}
+                            onChange={(e) => setPart(prev => ({ ...prev, ros2Package: e.target.value }))}
                         />
                         <TextField
                             className={classes.textfield}
@@ -359,7 +398,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
                             label="ROS Node"
                             fullWidth
                             value={part.ros2Node}
-                            onChange={handleRos2NodeUpdate}
+                            onChange={(e) => setPart(prev => ({ ...prev, ros2Node: e.target.value }))}
                         />
                     </div>
                 </div>
@@ -382,48 +421,50 @@ const RobotPartView = (props: RobotPartViewProps) => {
                         <Tab label="Actions" />
                         <Tab label="Adapters" />
                     </Tabs>
-                    <div className={classes.tableContainer}>
-                        <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 0)} in={activeTab === 0}>
-                            <div style={{ width: '90%' }}>
-                                <TopicTable
-                                    robotId={robot?._id ?? ''}
-                                    partId={part._id as string}
-                                />
-                            </div>
-                        </Slide>
-                        <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 1)} in={activeTab === 1}>
-                            <div style={{ width: '90%', position: 'absolute' }}>
-                                <PublisherTable
-                                    robotId={robot?._id ?? ''}
-                                    partId={part._id as string}
-                                />
-                            </div>
-                        </Slide>
-                        <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 2)} in={activeTab === 2}>
-                            <div style={{ width: '90%', position: 'absolute' }}>
-                                <SubscriberTable
-                                    robotId={robot?._id ?? ''}
-                                    partId={part._id as string}
-                                />
-                            </div>
-                        </Slide>
-                        <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 3)} in={activeTab === 3}>
-                            <div style={{ width: '90%', position: 'absolute' }}>
-                                <ServiceTable
-                                    robotId={robot?._id ?? ''}
-                                    partId={part._id as string}
-                                />
-                            </div>
-                        </Slide>
-                        <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 4)} in={activeTab === 4}>
-                            <div style={{ width: '90%', position: 'absolute' }}>
-                                <ActionTable
-                                    robotId={robot?._id ?? ''}
-                                    partId={part._id as string}
-                                />
-                            </div>
-                        </Slide>
-                    </div>
+                    {isRosSystemLoaded && (
+                        <div className={classes.tableContainer}>
+                            <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 0)} in={activeTab === 0}>
+                                <div style={{ width: '90%' }}>
+                                    <TopicTable
+                                        robotId={robot?._id ?? ''}
+                                        partId={part._id as string}
+                                    />
+                                </div>
+                            </Slide>
+                            <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 1)} in={activeTab === 1}>
+                                <div style={{ width: '90%', position: 'absolute' }}>
+                                    <PublisherTable
+                                        robotId={robot?._id ?? ''}
+                                        partId={part._id as string}
+                                    />
+                                </div>
+                            </Slide>
+                            <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 2)} in={activeTab === 2}>
+                                <div style={{ width: '90%', position: 'absolute' }}>
+                                    <SubscriberTable
+                                        robotId={robot?._id ?? ''}
+                                        partId={part._id as string}
+                                    />
+                                </div>
+                            </Slide>
+                            <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 3)} in={activeTab === 3}>
+                                <div style={{ width: '90%', position: 'absolute' }}>
+                                    <ServiceTable
+                                        robotId={robot?._id ?? ''}
+                                        partId={part._id as string}
+                                    />
+                                </div>
+                            </Slide>
+                            <Slide appear={false} unmountOnExit direction={computePlacement(activeTab === 4)} in={activeTab === 4}>
+                                <div style={{ width: '90%', position: 'absolute' }}>
+                                    <ActionTable
+                                        robotId={robot?._id ?? ''}
+                                        partId={part._id as string}
+                                    />
+                                </div>
+                            </Slide>
+                        </div>
+                    )}
                 </>
             )}
 

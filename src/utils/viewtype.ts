@@ -4,5 +4,6 @@ export enum ViewType {
     OperationView = '/operation',
     Organization = '/organization',
     Neutron = '/neutron',
-    Settings = '/settings'
+    Settings = '/settings',
+    Admin = '/admin'
 }

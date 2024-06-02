@@ -3,7 +3,7 @@ import { makeStyles } from "@mui/styles"
 import { ForwardedRef, HTMLAttributes, forwardRef, useState } from "react"
 import { VisualNode } from "../.."
 import useNodeSpecifics from "../../../../../utils/useNodeSpecifics"
-import { IRos2Service } from "@hugoperier/neutron-core"
+import { IRos2Service } from "@neutron-robotics/neutron-core"
 
 const useStyles = makeStyles(() => ({
     panelRoot: {

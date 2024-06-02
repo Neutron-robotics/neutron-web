@@ -1,6 +1,6 @@
 /* eslint-disable eqeqeq */
 import { makeStyles } from "@mui/styles"
-import { useContext, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import { getMyRobots } from "../api/robot"
 import { IRobotWithStatus } from "../api/models/robot.model"
 import RobotConnectionModal from "../components/Connection/RobotConnectionModal"
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom"
 import { ConnectionContext } from "../contexts/ConnectionContext"
 import { ViewType } from "../utils/viewtype"
 import { useShortPolling } from "../components/controls/useShortPolling"
+import axios from "axios"
 
 const useStyles = makeStyles(() => ({
     robotWidget: {
@@ -55,9 +56,8 @@ const HomeView = (props: HomeViewProps) => {
     function handleCloseConnectionModal(): void {
         setRobotToConnect(undefined)
     }
-
     return (
-        <div>
+        <div style={{ height: '100%', width: '100%' }}>
             {robotToConnect && <RobotConnectionModal robot={robotToConnect} open={robotToConnect !== undefined} onClose={handleCloseConnectionModal} />}
             <div className={classes.robotWidget}>
                 <h2>Robots</h2>
@@ -65,6 +65,7 @@ const HomeView = (props: HomeViewProps) => {
                     {robots.map((robot) => <RobotCard key={robot._id} robot={robot} onConnectButtonClick={handleConnectButtonClick} />)}
                 </div>
             </div>
+            {/* <iframe  src="https://kibana.hugosoft.dev/app/dashboards#/view/fe2b9b78-4aa0-45b0-9a97-49e07e2b6b5b?embed=true&_g=(refreshInterval%3A(pause%3A!t%2Cvalue%3A60000)%2Ctime%3A(from%3Anow-4h%2Cto%3Anow))" height="100%" width="100%"></iframe> */}
         </div>
     )
 }

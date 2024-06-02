@@ -20,12 +20,18 @@ const useStyles = makeStyles(() => ({
     buttonGroup: {
         display: "flex",
         justifyContent: "space-between",
+        outline: 'none !important'
     }
 }))
 
 export interface RobotBaseControls {
+    // The speed of the robot, between 0 and 100
     speed: number
-    matrix: number[]
+    // The x velocity ratio of the robot, either 1, 0 (no velocity) or -1 (backward)
+    x: number
+    // The rotation factor is representing, for a two wheeled robot, the wheel that will go faster
+    // than the other. This can be used for yawing the base. The value range is -10 to 10.
+    rotationFactor: number
 }
 
 interface IRobotBaseComponentSpecifics {
@@ -41,6 +47,7 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
     const [rotateFactor, setRotateFactor] = useState(0)
     const [direction, setDirection] = useState(0)
     const [speed, setSpeed] = useState(30)
+    const [baseSpeed, setbaseSpeed] = useState<number | undefined>(undefined)
     const firstUpdate = useRef(true);
 
     const handleStop = useCallback(() => {
@@ -57,12 +64,14 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
             return
 
         const controls: RobotBaseControls = {
-            speed,
-            matrix: [direction, 0, 0, 0, 0, rotateFactor / 10]
+            speed: baseSpeed ?? speed,
+            x: direction,
+            rotationFactor: rotateFactor,
         }
+        console.log('controls', controls)
         onControl(controls)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [direction, rotateFactor, speed])
+    }, [direction, rotateFactor, speed, baseSpeed])
 
     useEffect(() => {
         const id = v4()
@@ -82,12 +91,26 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
         if (Math.abs(v) === 1)
             setRotateFactor((prev) => prev + v!)
         else
-            setRotateFactor(v)
+            setRotateFactor(Math.round(v))
     }
 
     const handleDirectionChange = (v?: number) => {
         if (!v) return
-        setDirection(v)
+
+        if (v > 0 && v < 1) {
+            const baseSpeed = v * speed;
+            setbaseSpeed(Math.round(baseSpeed))
+            setDirection(1)
+        }
+        else if (v < 0 && v > -1) {
+            const baseSpeed = Math.abs(v) * speed;
+            setbaseSpeed(Math.round(baseSpeed))
+            setDirection(-1)
+        }
+        else {
+            setbaseSpeed(undefined)
+            setDirection(v)
+        }
     }
 
     const handleForward = async () => {
@@ -112,7 +135,7 @@ const RobotBaseComponent = (props: RobotBaseComponentProps) => {
     }
 
     return (
-        <div className={classes.root}>
+        <div tabIndex={-1} className={classes.root}>
             <span>Controls</span>
             <div className={classes.buttonGroup}>
                 <InputIconButton

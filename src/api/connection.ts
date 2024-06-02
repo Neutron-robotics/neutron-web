@@ -47,6 +47,15 @@ const getById = async (connectionId: string): Promise<INeutronConnectionDTO> => 
     return res.data.connection as INeutronConnectionDTO
 }
 
+const getByRobotId = async (robotId: string): Promise<INeutronConnectionDTO[]> => {
+  const res = await api.get(`connection/robot/${robotId}`)
+
+    if (res.status !== 200) {
+        throw new Error("Could not get connections")
+    }
+    return res.data.connection as INeutronConnectionDTO[]
+}
+
 const getMyConnections = async (status?: 'active' | 'inactive'): Promise<INeutronConnectionDTO[]> => {
   const res = await api.get(`connection/${status ? `?status=${status}` : ''}`)
 
@@ -109,4 +118,4 @@ const connectRobotAndCreateConnection = async (robotId: string, partsId?: string
   return registrationInfos;
 };
 
-export { create, join, getById, getMyConnections, close, connectRobotAndCreateConnection };
+export { create, join, getById, getMyConnections, getByRobotId, close, connectRobotAndCreateConnection };

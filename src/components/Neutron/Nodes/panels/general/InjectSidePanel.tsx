@@ -10,7 +10,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import { v4 } from "uuid"
 import cronstrue from 'cronstrue';
 import useNodeSpecifics from "../../../../../utils/useNodeSpecifics"
-import { IRepeatCron, IRepeatInterval, InjectNodeSpecifics } from "@hugoperier/neutron-core";
+import { IRepeatCron, IRepeatInterval, InjectNodeSpecifics } from "@neutron-robotics/neutron-core";
 
 const useStyles = makeStyles(() => ({
     panelRoot: {

@@ -1,4 +1,4 @@
-import { ILoggerMessage, LiteEvent, Logger } from "@hugoperier/neutron-core";
+import { ILoggerMessage, LiteEvent, Logger } from "@neutron-robotics/neutron-core";
 import React, { createContext, ReactNode, useState } from "react";
 
 type ContextProps = {

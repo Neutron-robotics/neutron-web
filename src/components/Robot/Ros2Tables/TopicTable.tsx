@@ -1,4 +1,4 @@
-import { Box, Button, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { Autocomplete, Box, Button, TextField } from "@mui/material";
 import {
     GridRowsProp,
     GridRowModesModel,
@@ -20,14 +20,15 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
-import { useEffect, useState } from "react";
+import { SyntheticEvent, useEffect, useState } from "react";
 import { v4 } from "uuid";
 import ButtonDialog from "../../controls/ButtonDialog";
 import * as ros2Api from '../../../api/ros2'
 import { useAlert } from "../../../contexts/AlertContext";
 import useCachedState from "../../../utils/useCachedState";
-import { IMessageType, IRos2Message, IRos2Topic } from "@hugoperier/neutron-core";
+import { IMessageType, IRos2Message, IRos2Topic, stdMsgTypes } from "@neutron-robotics/neutron-core";
 import AddMessageTypeDialog from "./AddMessageTypeDialog";
+import { getFirstPartBeforeSeparator, getFirstPartBeforeSeparatorOrDefault, getLastPartAfterSeparator } from "../../../utils/string";
 
 interface ITopicTableProps {
     robotId: string
@@ -38,40 +39,55 @@ interface RenderTypeEditProps extends GridRenderCellParams<any, string> {
     messageTypes: IMessageType[]
 }
 
-interface RenderTypeProps extends GridRenderCellParams<any, string> {
-    messageTypes: IMessageType[]
-}
-
 const RenderTypeEdit = (props: RenderTypeEditProps) => {
     const { id, field, messageTypes, row } = props;
     const apiRef = useGridApiContext();
+    const [inputValue, setInputValue] = useState('');
 
     useEffect(() => {
-        apiRef.current.setEditCellValue({ id, field, value: messageTypes.length ? row.type ?? messageTypes[0]?._id : '' });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        // apiRef.current.setEditCellValue({ id, field, value: messageTypes.length ? row.type ?? messageTypes[0]?._id : '' });
     }, [])
 
-    function handleSelectChange(event: SelectChangeEvent<string>): void {
-        apiRef.current.setEditCellValue({ id, field, value: event.target.value });
+    const messageTypesSorted = messageTypes.sort((a, b) => {
+        if (a.name.includes('/') && !b.name.includes('/')) {
+            return 1; // Place 'b' before 'a'
+        } else if (!a.name.includes('/') && b.name.includes('/')) {
+            return -1; // Place 'a' before 'b'
+        }
+
+        return a.name.localeCompare(b.name);
+    });
+
+    function handleChangeEvent(event: SyntheticEvent<Element, Event>, value: IMessageType | null): void {
+        if (value === null)
+            return
+
+        apiRef.current.setEditCellValue({ id, field, value });
     }
 
     return (
-        <Select onChange={handleSelectChange} defaultValue={messageTypes.length ? row.type ?? messageTypes[0]?._id : ''} value={row.type ?? messageTypes[0]?._id} fullWidth>
-            {messageTypes.map((e) => (
-                <MenuItem key={e._id} value={e._id}>
-                    {e.name}
-                </MenuItem>
-            ))}
-        </Select>
-    );
+        <Autocomplete
+            options={messageTypesSorted}
+            groupBy={(option) => getFirstPartBeforeSeparatorOrDefault(option.name, '/', "Unknown Package")}
+            getOptionLabel={(option) => option.name}
+            isOptionEqualToValue={(opt, value) => opt._id === value._id}
+            fullWidth
+            value={row.type}
+            inputValue={inputValue}
+            onInputChange={(event, newInputValue) => setInputValue(newInputValue)}
+            onChange={handleChangeEvent}
+            renderInput={(params) => <TextField {...params} />}
+        />
+    )
 };
 
-const RenderType = (props: RenderTypeProps) => {
-    const { messageTypes, value } = props;
+const RenderType = (props: GridRenderCellParams<any, IMessageType | undefined>) => {
+    const { value } = props;
+    const messageName = value?.name ?? ''
 
     return (
         <div>
-            {messageTypes.find(e => e._id === value)?.name ?? 'Unknown'}
+            {getLastPartAfterSeparator(messageName, '/')}
         </div>
     )
 }
@@ -79,13 +95,20 @@ const RenderType = (props: RenderTypeProps) => {
 const TopicTable = (props: ITopicTableProps) => {
     const { robotId, partId } = props
     const [messageTypes, setMessageTypes] = useCachedState<IRos2Message[]>(`messageTypes-${robotId}-${partId}`, [])
+    const [standardMessageTypes, setStandardMessageTypes] = useCachedState<IRos2Message[]>(`messageTypes-standard`, [])
     const [topics, setTopics] = useCachedState<IRos2Topic[]>(`topics-${robotId}-${partId}`, [])
     const [rows, setRows] = useState<IRos2Topic[]>([]);
     const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
     const alert = useAlert()
 
+    const allMessages = [...messageTypes, ...standardMessageTypes].reduce<IRos2Message[]>((acc, cur) => {
+        if (acc.find(e => e._id === cur._id))
+            return acc
+        return [...acc, cur]
+    }, [])
+
     useEffect(() => {
-        setRows(topics.map(e => ({ ...e, id: e._id, type: e.messageType._id })))
+        setRows(topics.map(e => ({ ...e, id: e._id, type: e.messageType })))
     }, [topics])
 
     const handleRowEditStop: GridEventListener<"rowEditStop"> = (
@@ -98,7 +121,7 @@ const TopicTable = (props: ITopicTableProps) => {
     };
 
     const handleCreateTypeClick = async (data: IRos2Message) => {
-        if (messageTypes.includes(data)) {
+        if (allMessages.includes(data)) {
             alert.warn("The message already exist...")
         }
 
@@ -149,12 +172,12 @@ const TopicTable = (props: ITopicTableProps) => {
 
     const processRowUpdate = async (newRow: GridRowModel) => {
         const updatedRow = { ...newRow, isNew: false } as any;
-        const messageType = messageTypes.find(e => e._id === updatedRow.type) as IMessageType
+        const messageType = allMessages.find(e => e._id === updatedRow.messageType._id) as IMessageType
         if (newRow.isNew) {
             try {
                 const topicId = await ros2Api.createTopic(robotId, partId, {
                     name: updatedRow.name,
-                    messageTypeId: updatedRow.type
+                    messageTypeId: updatedRow.messageType._id
                 })
                 const topic: IRos2Topic = {
                     _id: topicId,
@@ -175,7 +198,7 @@ const TopicTable = (props: ITopicTableProps) => {
                     topic: {
                         _id: updatedRow.id,
                         messageType: {
-                            _id: updatedRow.type,
+                            _id: updatedRow.messageType._id,
                         },
                         name: updatedRow.name,
                     }
@@ -207,16 +230,16 @@ const TopicTable = (props: ITopicTableProps) => {
             flex: 1,
         },
         {
-            field: "type",
+            field: "messageType",
             headerName: "Topic type",
             width: 150,
             flex: 1,
             editable: true,
             renderEditCell: (params: GridRenderEditCellParams) => (
-                <RenderTypeEdit {...params} messageTypes={messageTypes} />
+                <RenderTypeEdit {...params} messageTypes={allMessages} />
             ),
             renderCell: (params: GridRenderCellParams) => (
-                <RenderType {...params} messageTypes={messageTypes} />
+                <RenderType {...params} />
             )
         },
         {
@@ -300,7 +323,6 @@ const TopicTable = (props: ITopicTableProps) => {
                         setRows,
                         setRowModesModel,
                         handleCreateTypeClick,
-                        messageTypesLength: messageTypes.length
                     },
                 }}
             />
@@ -309,7 +331,6 @@ const TopicTable = (props: ITopicTableProps) => {
 };
 
 interface EditToolbarProps {
-    messageTypesLength: number
     setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
     setRowModesModel: (
         newModel: (oldModel: GridRowModesModel) => GridRowModesModel
@@ -318,11 +339,11 @@ interface EditToolbarProps {
 }
 
 function EditToolbar(props: EditToolbarProps) {
-    const { messageTypesLength, setRows, setRowModesModel, handleCreateTypeClick } = props;
+    const { setRows, setRowModesModel, handleCreateTypeClick } = props;
 
     const handleClick = () => {
         const id = v4();
-        setRows((oldRows) => [...oldRows, { id, name: "", age: "", isNew: true }]);
+        setRows((oldRows) => [...oldRows, { id, isNew: true }]);
         setRowModesModel((oldModel) => ({
             ...oldModel,
             [id]: { mode: GridRowModes.Edit, fieldToFocus: "name" },
@@ -333,7 +354,7 @@ function EditToolbar(props: EditToolbarProps) {
         <GridToolbarContainer
             sx={{ display: "flex !important", justifyContent: "space-between" }}
         >
-            <Button color="primary" disabled={messageTypesLength === 0} startIcon={<AddIcon />} onClick={handleClick}>
+            <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
                 Add record
             </Button>
             <ButtonDialog

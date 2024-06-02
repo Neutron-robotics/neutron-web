@@ -1,4 +1,4 @@
-import { Box, Button, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { Autocomplete, Box, Button, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
 import {
     GridRowsProp,
     GridRowModesModel,
@@ -20,14 +20,15 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
-import { useEffect, useState } from "react";
+import { SyntheticEvent, useEffect, useState } from "react";
 import { v4 } from "uuid";
 import * as ros2Api from '../../../api/ros2'
 import { useAlert } from "../../../contexts/AlertContext";
 import useCachedState from "../../../utils/useCachedState";
-import { IRos2Action, IRos2ActionMessage } from "@hugoperier/neutron-core";
+import { IRos2Action, IRos2ActionMessage } from "@neutron-robotics/neutron-core";
 import ButtonDialog from "../../controls/ButtonDialog";
 import AddActionTypeDialog from "./AddActionTypeDialog";
+import { getFirstPartBeforeSeparatorOrDefault, getLastPartAfterSeparator } from "../../../utils/string";
 
 interface IActionTableProps {
     robotId: string
@@ -38,40 +39,55 @@ interface RenderTypeEditProps extends GridRenderCellParams<any, string> {
     actionTypes: IRos2ActionMessage[]
 }
 
-interface RenderTypeProps extends GridRenderCellParams<any, string> {
-    actionTypes: IRos2ActionMessage[]
-}
-
 const RenderTypeEdit = (props: RenderTypeEditProps) => {
     const { id, field, actionTypes, row } = props;
     const apiRef = useGridApiContext();
+    const [inputValue, setInputValue] = useState('');
 
-    useEffect(() => {
-        apiRef.current.setEditCellValue({ id, field, value: actionTypes.length ? row.actionTypeId ?? actionTypes[0]?._id : '' });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    // useEffect(() => {
+    //     apiRef.current.setEditCellValue({ id, field, value: actionTypes.length ? row.actionTypeId ?? actionTypes[0]?._id : '' });
+    // }, [])
 
-    function handleSelectChange(event: SelectChangeEvent<string>): void {
-        apiRef.current.setEditCellValue({ id, field, value: event.target.value });
+    const messageTypesSorted = actionTypes.sort((a, b) => {
+        if (a.name.includes('/') && !b.name.includes('/')) {
+            return 1; // Place 'b' before 'a'
+        } else if (!a.name.includes('/') && b.name.includes('/')) {
+            return -1; // Place 'a' before 'b'
+        }
+
+        return a.name.localeCompare(b.name);
+    });
+
+    function handleChangeEvent(event: SyntheticEvent<Element, Event>, value: IRos2ActionMessage | null): void {
+        if (value === null)
+            return
+
+        apiRef.current.setEditCellValue({ id, field, value });
     }
 
     return (
-        <Select onChange={handleSelectChange} defaultValue={actionTypes.length ? row.actionTypeId ?? actionTypes[0]?._id : ''} value={row.actionTypeId ?? actionTypes[0]?._id} fullWidth>
-            {actionTypes.map((e) => (
-                <MenuItem key={e._id} value={e._id}>
-                    {e.name}
-                </MenuItem>
-            ))}
-        </Select>
-    );
+        <Autocomplete
+            options={messageTypesSorted}
+            groupBy={(option) => getFirstPartBeforeSeparatorOrDefault(option.name, '/', "Unknown Package")}
+            getOptionLabel={(option) => option.name}
+            isOptionEqualToValue={(opt, value) => opt._id === value._id}
+            fullWidth
+            value={row.type}
+            inputValue={inputValue}
+            onInputChange={(event, newInputValue) => setInputValue(newInputValue)}
+            onChange={handleChangeEvent}
+            renderInput={(params) => <TextField {...params} />}
+        />
+    )
 };
 
-const RenderType = (props: RenderTypeProps) => {
-    const { actionTypes, row } = props;
+const RenderType = (props: GridRenderCellParams<any, IRos2ActionMessage | undefined>) => {
+    const { value } = props;
+    const actionName = value?.name ?? ''
 
     return (
         <div>
-            {actionTypes.find(e => e._id === row.actionTypeId)?.name ?? 'Unknown'}
+             {getLastPartAfterSeparator(actionName, '/')}
         </div>
     )
 }
@@ -79,13 +95,19 @@ const RenderType = (props: RenderTypeProps) => {
 const ActionTable = (props: IActionTableProps) => {
     const { robotId, partId } = props
     const [actionTypes, setActionType] = useCachedState<IRos2ActionMessage[]>(`actionTypes-${robotId}-${partId}`, [])
+    const [standardActionTypes, setStandardActionTypes] = useCachedState<IRos2ActionMessage[]>(`actionType-standard`, [])
     const [actions, setActions] = useCachedState<IRos2Action[]>(`actions-${robotId}-${partId}`, [])
     const [rows, setRows] = useState<IRos2Action[]>([]);
     const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
     const alert = useAlert()
+    const allActionTypes = [...actionTypes, ...standardActionTypes].reduce<IRos2ActionMessage[]>((acc, cur) => {
+        if (acc.find(e => e._id === cur._id))
+            return acc
+        return [...acc, cur]
+    }, [])
 
     useEffect(() => {
-        setRows(actions.map(e => ({ ...e, id: e._id, actionTypeId: e.actionType._id })))
+        setRows(actions.map(e => ({ ...e, id: e._id, actionTypeId: e.actionType })))
     }, [actions])
 
     const handleRowEditStop: GridEventListener<"rowEditStop"> = (
@@ -98,7 +120,7 @@ const ActionTable = (props: IActionTableProps) => {
     };
 
     const handleCreateActionTypeClick = async (data: IRos2ActionMessage) => {
-        if (actionTypes.includes(data)) {
+        if (allActionTypes.includes(data)) {
             alert.warn("The action type already exist...")
         }
 
@@ -151,12 +173,12 @@ const ActionTable = (props: IActionTableProps) => {
 
     const processRowUpdate = async (newRow: GridRowModel) => {
         const updatedRow = { ...newRow, isNew: false } as any;
-        const actionType = actionTypes.find(e => e._id === updatedRow.actionTypeId) as IRos2ActionMessage
+        const actionType = allActionTypes.find(e => e._id === updatedRow.actionType._id) as IRos2ActionMessage
         if (newRow.isNew) {
             try {
                 const actionId = await ros2Api.createAction(robotId, partId, {
                     name: updatedRow.name,
-                    actionTypeId: updatedRow.actionTypeId,
+                    actionTypeId: updatedRow.actionType._id,
                 })
                 const action: IRos2Action = {
                     _id: actionId,
@@ -177,7 +199,7 @@ const ActionTable = (props: IActionTableProps) => {
                         _id: updatedRow.id,
                         name: updatedRow.name,
                         actionType: {
-                            _id: updatedRow.actionTypeId,
+                            _id: updatedRow.actionType._id,
                         },
                     }
                 } as any)
@@ -208,16 +230,16 @@ const ActionTable = (props: IActionTableProps) => {
             flex: 1,
         },
         {
-            field: "actionTypeId",
+            field: "actionType",
             headerName: "Action type",
             width: 150,
             flex: 1,
             editable: true,
             renderEditCell: (params: GridRenderEditCellParams) => (
-                <RenderTypeEdit {...params} actionTypes={actionTypes} />
+                <RenderTypeEdit {...params} actionTypes={allActionTypes} />
             ),
             renderCell: (params: GridRenderCellParams) => (
-                <RenderType {...params} actionTypes={actionTypes} />
+                <RenderType {...params} />
             )
         },
         {
@@ -301,7 +323,6 @@ const ActionTable = (props: IActionTableProps) => {
                         setRows,
                         setRowModesModel,
                         handleCreateActionTypeClick,
-                        actionTypesLength: actionTypes.length
                     },
                 }}
             />
@@ -310,7 +331,6 @@ const ActionTable = (props: IActionTableProps) => {
 };
 
 interface EditToolbarProps {
-    actionTypesLength: number
     setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
     setRowModesModel: (
         newModel: (oldModel: GridRowModesModel) => GridRowModesModel
@@ -319,11 +339,11 @@ interface EditToolbarProps {
 }
 
 function EditToolbar(props: EditToolbarProps) {
-    const { actionTypesLength, setRows, setRowModesModel, handleCreateActionTypeClick } = props;
+    const { setRows, setRowModesModel, handleCreateActionTypeClick } = props;
 
     const handleClick = () => {
         const id = v4();
-        setRows((oldRows) => [...oldRows, { id, name: "", age: "", isNew: true }]);
+        setRows((oldRows) => [...oldRows, { id, isNew: true }]);
         setRowModesModel((oldModel) => ({
             ...oldModel,
             [id]: { mode: GridRowModes.Edit, fieldToFocus: "name" },
@@ -334,7 +354,7 @@ function EditToolbar(props: EditToolbarProps) {
         <GridToolbarContainer
             sx={{ display: "flex !important", justifyContent: "space-between" }}
         >
-            <Button disabled={actionTypesLength === 0} color="primary" startIcon={<AddIcon />} onClick={handleClick}>
+            <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
                 Add record
             </Button>
             <ButtonDialog

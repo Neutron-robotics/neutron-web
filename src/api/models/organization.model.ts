@@ -2,7 +2,7 @@ export interface CreateOrganizationModel {
     name: string,
     company: string,
     description: string,
-    imgUrl: string
+    imgUrl?: string
 }
 
 export interface UserRelationModel {

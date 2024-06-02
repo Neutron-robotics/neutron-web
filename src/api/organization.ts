@@ -1,3 +1,4 @@
+import { OrganizationPermissions } from "../utils/organization"
 import api from "./api"
 import { CreateOrganizationModel, OrganizationModel } from "./models/organization.model"
 import { IRobot } from "./models/robot.model"
@@ -48,7 +49,7 @@ const update = async (name: string, model: Partial<CreateOrganizationModel>) => 
     }
 }
 
-const promote = async (name: string, role: string, userEmail: string) => {
+const promote = async (name: string, role: OrganizationPermissions, userEmail: string) => {
     const res = await api.post(`organization/${name}/promote`, {
         role,
         user: userEmail
