@@ -1,6 +1,7 @@
 import { Card, CardActionArea, CardContent, CardMedia, Typography } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import { INeutronGraph, INeutronGraphWithOrganization, INeutronGraphWithRobots } from "../../../api/models/graph.model"
+import { buildFileUri } from "../../../api/file"
 
 const useStyles = makeStyles(() => ({
 
@@ -23,7 +24,7 @@ const NeutronGraphCard = (props: NeutronGraphCardProps) => {
                 <CardMedia
                     component="img"
                     height="100"
-                    image={graph.imgUrl ?? `/assets/no-thumbnail.png`}
+                    image={graph.imgUrl ? buildFileUri(graph.imgUrl) : `/assets/no-thumbnail.png`}
                     alt="graph view"
                 />
                 <CardContent>

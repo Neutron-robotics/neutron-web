@@ -127,8 +127,8 @@ const LoginView = (props: ILoginViewProps) => {
                 <Button className={classes.submitButton} type="submit" variant="contained">Sign In</Button>
             </form>
             <div className={classes.alternativeSignIn}>
-                <div onClick={handleForgotPasswordClick} className={classes.link}>Forgot password?</div>
-                <div onClick={handleSignUp} className={classes.link}>Sign up</div>
+                {/* <div onClick={handleForgotPasswordClick} className={classes.link}>Forgot password?</div>
+                <div onClick={handleSignUp} className={classes.link}>Sign up</div> */}
             </div>
         </div>
     )

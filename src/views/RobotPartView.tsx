@@ -28,7 +28,7 @@ import { EditText } from "react-edit-text";
 import * as partApi from "../api/robotpart";
 import * as ros2Api from "../api/ros2";
 import ClickableImageUpload from "../components/controls/imageUpload";
-import { uploadFile } from "../api/file";
+import { buildFileUri, uploadFile } from "../api/file";
 import { capitalize } from "../utils/string";
 import { CreateRobotPartModel } from "../api/models/part.model";
 import TopicTable from "../components/Robot/Ros2Tables/TopicTable";
@@ -347,7 +347,7 @@ const RobotPartView = (props: RobotPartViewProps) => {
             </div>
             <div className={classes.partInfos}>
                 <ClickableImageUpload
-                    src={part.imgUrl ?? ""}
+                    src={part.imgUrl?.length ? buildFileUri(part.imgUrl) : ""}
                     alt={"part-icon"}
                     onImageClick={handleRobotImageUpload}
                     defaultImg="default-robotpart.png"

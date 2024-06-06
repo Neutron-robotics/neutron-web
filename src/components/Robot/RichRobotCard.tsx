@@ -4,6 +4,7 @@ import { makeStyles } from "@mui/styles"
 import RobotPartIcon from "../Organization/RobotPartIcon"
 import SatelliteAltIcon from '@mui/icons-material/SatelliteAlt';
 import PodcastsIcon from '@mui/icons-material/Podcasts';
+import { buildFileUri } from "../../api/file";
 
 const useStyles = makeStyles(() => ({
     robotCard: {
@@ -57,7 +58,7 @@ const RichRobotCard = (props: RichRobotCardProps) => {
             onClick={() => onClick(robot)}
         >
             <div className={classes.robotInfos}>
-                <img alt="robot-avatar" src={robot.imgUrl?.length ? robot.imgUrl : `/assets/default-robot.svg`} />
+                <img alt="robot-avatar" src={robot.imgUrl?.length ? buildFileUri(robot.imgUrl) : `/assets/default-robot.svg`} />
                 <div>
                     <div className={classes.title}>{robot.name}</div>
                     <div className={classes.partGrid}>

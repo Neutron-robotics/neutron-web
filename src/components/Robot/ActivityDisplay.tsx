@@ -13,6 +13,7 @@ import * as robotApi from '../../api/robot'
 import moment from "moment"
 import { IRobot } from "../../api/models/robot.model"
 import { generateDashboardURL } from "../../utils/elasticsearch"
+import { buildFileUri } from "../../api/file"
 
 const useStyles = makeStyles(() => ({
     activity: {
@@ -121,7 +122,7 @@ const ActivityDisplay = (props: ActivityDisplayProps) => {
                     {robotIds.length > 1 && (
                         <div>
                             <Tooltip title={robots[connection.robotId]?.name}>
-                                <img className={classes.robotIcon} alt="robot-avatar" src={robots[connection.robotId]?.imgUrl?.length ? robots[connection.robotId].imgUrl : `/assets/default-robot.svg`} />
+                                <img className={classes.robotIcon} alt="robot-avatar" src={robots[connection.robotId]?.imgUrl?.length ? buildFileUri(robots[connection.robotId].imgUrl) : `/assets/default-robot.svg`} />
                             </Tooltip>
                         </div>
                     )}

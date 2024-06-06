@@ -3,7 +3,7 @@ import ClickableImageUpload from "../components/controls/imageUpload"
 import { EditText, EditTextarea, onSaveProps } from "react-edit-text"
 import { makeStyles } from "@mui/styles";
 import { useEffect, useState } from "react"
-import { uploadFile } from "../api/file"
+import { buildFileUri, uploadFile } from "../api/file"
 import { ICreateRobotModel, IRobot, IRobotPart, IRobotStatus, defaultRobot } from "../api/models/robot.model"
 import { useAlert } from "../contexts/AlertContext"
 import useConfirmationDialog from "../components/controls/useConfirmationDialog"
@@ -270,7 +270,7 @@ const RobotView = (props: RobotViewProps) => {
             </div>
             <div className={classes.robotsInfos}>
                 <ClickableImageUpload
-                    src={robotModel.imgUrl?.length ? robotModel.imgUrl : robot.imgUrl ?? ""}
+                    src={robotModel.imgUrl?.length ? buildFileUri(robotModel.imgUrl) : ""}
                     alt={"robot-icon"}
                     onImageClick={handleRobotImageUpload}
                     defaultImg="default-robot.svg"

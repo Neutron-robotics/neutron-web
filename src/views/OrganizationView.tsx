@@ -9,7 +9,7 @@ import { EditTextarea, onSaveProps } from "react-edit-text";
 import { OrganizationPermissions, UserRanked, isOrganizationUserAdmin } from "../utils/organization";
 import { useAlert } from "../contexts/AlertContext";
 import ClickableImageUpload from "../components/controls/imageUpload";
-import { uploadFile } from "../api/file";
+import { buildFileUri, uploadFile } from "../api/file";
 import RobotTable from "../components/Organization/RobotTable";
 import { IRobot } from "../api/models/robot.model";
 import { useAuth } from "../contexts/AuthContext";
@@ -247,7 +247,7 @@ const OrganizationView = (props: OrganizationViewProps) => {
                 </Select>
                 <div className={classes.organizationInfos}>
                     <ClickableImageUpload
-                        src={activeOrganization.imgUrl ?? '/assets/no-thumbnail.png'}
+                        src={activeOrganization.imgUrl?.length ? buildFileUri(activeOrganization.imgUrl) : '/assets/no-thumbnail.png'}
                         alt={"company-icon"}
                         onImageClick={handleOrganizationImageUpload}
                     />

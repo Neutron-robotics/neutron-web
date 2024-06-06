@@ -11,7 +11,7 @@ interface TitleRouteProps extends PropsWithChildren {
 
 const TitleRoute = (props: TitleRouteProps) => {
     useEffect(() => {
-        document.title = `${import.meta.env.VITE_APPLICATION_TITLE} | ${props.title}`;
+        document.title = `Neutron Web | ${props.title}`;
     }, [props.title]);
 
     return props.children;

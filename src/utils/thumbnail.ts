@@ -1,7 +1,8 @@
+import { buildFileUri } from "../api/file";
 import { UserDTO } from "../api/models/user.model";
 
 function userIconOrGenerated(user: UserDTO) {
-  if (user.imgUrl?.length > 0) return user.imgUrl;
+  if (user.imgUrl?.length > 0) return buildFileUri(user.imgUrl);
 
   const userInitials = `${user.firstName.charAt(0).toUpperCase()}${user.lastName
     .charAt(0)

@@ -9,6 +9,7 @@ import { getUser } from "../../api/user"
 import { userIconOrGenerated } from "../../utils/thumbnail"
 import { useNavigate } from "react-router-dom"
 import { ViewType } from "../../utils/viewtype"
+import { buildFileUri } from "../../api/file"
 
 const useStyles = makeStyles(() => ({
     connectionClosed: {
@@ -72,7 +73,7 @@ const ConnectionClosed = (props: ConnectionClosedProps) => {
     return (
         <div className={classes.connectionClosed}>
             <h1>Connection finished</h1>
-            <img width={100} alt="robot-avatar" src={robot.imgUrl?.length ? robot.imgUrl : `/assets/default-robot.svg`} />
+            <img width={100} alt="robot-avatar" src={robot.imgUrl?.length ? buildFileUri(robot.imgUrl) : `/assets/default-robot.svg`} />
             <div className={classes.connectionContent}>
                 <h3>{robot.name}</h3>
                 <div className={classes.flex}>

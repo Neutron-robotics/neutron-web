@@ -16,6 +16,7 @@ import { ViewType } from "../../utils/viewtype"
 import RobotConnectionStepStatusDisplay from "./RobotConnectionStepStatusDisplay"
 import { useAlert } from "../../contexts/AlertContext"
 import { RobotStatusDisplay, robotStatusColorDict } from "../Robot/RobotStatusDisplay"
+import { buildFileUri } from "../../api/file"
 
 const useStyles = makeStyles(() => ({
     groupStatus: {
@@ -177,7 +178,7 @@ const JoinRobotConnection = (props: JoinRobotConnectionProps) => {
                     <span>{robot.status.location?.name ?? 'Unknown'}</span>
                 </div>
             </div>
-            <img className={classes.image} src={robot.imgUrl ?? ""} width={150} alt="robot-icon" />
+            <img className={classes.image} src={robot.imgUrl.length ? buildFileUri(robot.imgUrl) : "/assets/default-robot.svg"} width={150} alt="robot-icon" />
             <div className={classes.groupNetwork}>
                 <div>
                     <div className={classes.networkField}>

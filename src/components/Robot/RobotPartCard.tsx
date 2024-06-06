@@ -2,6 +2,7 @@ import { makeStyles } from "@mui/styles"
 import { IRobotPart } from "../../api/models/robot.model"
 import { ButtonBase } from "@mui/material"
 import { capitalize } from "../../utils/string"
+import { buildFileUri } from "../../api/file"
 
 const useStyles = makeStyles(() => ({
     partCard: {
@@ -37,7 +38,7 @@ const RobotPartCard = (props: RobotCardProps) => {
             className={classes.partCard}
             onClick={() => onClick(robotPart)}
         >
-            <img alt="part-avatar" src={robotPart.imgUrl?.length ? robotPart.imgUrl : `/assets/default-robotpart.png`} />
+            <img alt="part-avatar" src={robotPart.imgUrl?.length ? buildFileUri(robotPart.imgUrl) : `/assets/default-robotpart.png`} />
             <div className={classes.cardContent}>
                 <span>{robotPart.name}</span>
                 <span>{capitalize(robotPart.type)}</span>

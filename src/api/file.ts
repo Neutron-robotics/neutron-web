@@ -13,4 +13,10 @@ const uploadFile = async (file: File): Promise<string> => {
   return response.data.url;
 };
 
-export { uploadFile };
+const buildFileUri = (fileName: string) => {
+  const baseUrl = import.meta.env.VITE_NEUTRON_SERVER_URL;
+  const url = new URL(`/file/${fileName}`, baseUrl);
+  return url.toString();
+}
+
+export { uploadFile, buildFileUri };

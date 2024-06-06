@@ -3,6 +3,7 @@ import { RobotStatusDisplay, RobotStatusPropertiesDisplay } from "../Robot/Robot
 import { IconButton } from "@mui/material"
 import { IRobotWithStatus } from "../../api/models/robot.model"
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import { buildFileUri } from "../../api/file";
 
 const useStyles = makeStyles(() => ({
     robotPreview: {
@@ -34,7 +35,7 @@ const RobotCard = (props: RobotCardProps) => {
     return (
         <div className={classes.robotPreview} key={robot._id}>
             <img
-                src={robot.imgUrl?.length ? robot.imgUrl : `/assets/default-robot.svg`}
+                src={robot.imgUrl?.length ? buildFileUri(robot.imgUrl) : `/assets/default-robot.svg`}
                 alt={"robot-icon"}
                 className={classes.thumbnail}
             />

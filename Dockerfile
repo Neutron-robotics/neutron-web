@@ -3,11 +3,9 @@ FROM node:18-alpine AS builder
 ARG GITHUB_TOKEN
 
 ARG VITE_APP_VERSION
-ARG VITE_APP_NAME
 ARG VITE_NEUTRON_SERVER_URL
 
 ENV VITE_APP_VERSION=$VITE_APP_VERSION
-ENV VITE_APP_NAME=$VITE_APP_NAME
 ENV VITE_NEUTRON_SERVER_URL=$VITE_NEUTRON_SERVER_URL
 
 ENV GITHUB_TOKEN $GITHUB_TOKEN
@@ -32,6 +30,31 @@ RUN npm run build
 FROM nginx:alpine AS server
 
 COPY --from=builder /app/dist /usr/share/nginx/html
+
+RUN echo 'http { \
+    include mime.types; \
+    set_real_ip_from 0.0.0.0/0; \
+    real_ip_recursive on; \
+    real_ip_header X-Forward-For; \
+    limit_req_zone $binary_remote_addr zone=mylimit:10m rate=10r/s; \
+    server { \
+        listen 80; \
+        server_name localhost; \
+        root /proxy; \
+        limit_req zone=mylimit burst=70 nodelay; \
+        location / { \
+            root /usr/share/nginx/html; \
+            index index.html index.htm; \
+            try_files $uri /index.html; \
+        } \
+        error_page 500 502 503 504 /50x.html; \
+        location = /50x.html { \
+            root /usr/share/nginx/html; \
+        } \
+    } \
+} \
+events {}' > /etc/nginx/nginx.conf
+
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
