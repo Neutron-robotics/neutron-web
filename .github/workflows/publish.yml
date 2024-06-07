@@ -59,6 +59,6 @@ jobs:
           tags: ${{ env.REGISTRY }}hugosoft/neutron-web:latest
           build-args: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-            VITE_APP_VERSION=v1.0.0
+            VITE_APP_VERSION=0.1.1
             VITE_APP_NAME=neutron-web
             VITE_NEUTRON_SERVER_URL=http://localhost:3003/
