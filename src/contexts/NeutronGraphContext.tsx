@@ -101,7 +101,7 @@ export const NeutronGraphProvider = ({ children }: { children: ReactNode }) => {
     const createRobotConnection = async (robot: IRobot): Promise<NeutronConnectionContext> => {
         const connectionInfos = await connectionApi.connectRobotAndCreateConnection(robot._id)
         const context = makeConnectionContext(robot.context, {
-            hostname: connectionInfos.hostname,
+            hostname: "ws.neutron-robotics.com", //connectionInfos.hostname,
             port: connectionInfos.port,
             clientId: connectionInfos.registerId,
             wss: import.meta.env.PROD

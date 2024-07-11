@@ -121,7 +121,7 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
         const connectionInfos = await startPromise
 
         const context = makeConnectionContext(robot.context, {
-            hostname: connectionInfos.hostname,
+            hostname: "ws.neutron-robotics.com", //connectionInfos.hostname,
             port: connectionInfos.port,
             clientId: connectionInfos.registerId,
             wss: import.meta.env.PROD
@@ -158,7 +158,7 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
 
         const connectionInfos = await connectionApi.join(connectionId)
         const context = makeConnectionContext(robot.context, {
-            hostname: connectionInfos.hostname,
+            hostname: "ws.neutron-robotics.com", //connectionInfos.hostname,
             port: connectionInfos.port,
             clientId: connectionInfos.registerId,
             wss: import.meta.env.PROD
