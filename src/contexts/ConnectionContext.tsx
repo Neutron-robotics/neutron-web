@@ -124,6 +124,7 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
             hostname: connectionInfos.hostname,
             port: connectionInfos.port,
             clientId: connectionInfos.registerId,
+            wss: import.meta.env.PROD
         })
         await context.connect()
 
@@ -160,6 +161,7 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
             hostname: connectionInfos.hostname,
             port: connectionInfos.port,
             clientId: connectionInfos.registerId,
+            wss: import.meta.env.PROD
         })
         await context.connect()
 

@@ -104,6 +104,7 @@ export const NeutronGraphProvider = ({ children }: { children: ReactNode }) => {
             hostname: connectionInfos.hostname,
             port: connectionInfos.port,
             clientId: connectionInfos.registerId,
+            wss: import.meta.env.PROD
         })
         await context.connect()
         robotConnectionInfos.current = {
