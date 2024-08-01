@@ -82,6 +82,10 @@ const adminView: MenuOption = {
         {
             title: 'Organizations',
             viewType: ViewType.Admin
+        } as SubMenuListProps,
+        {
+            title: 'Test',
+            viewType: ViewType.Admin
         } as SubMenuListProps
     ],
     subItemsComponentTemplate: SubMenuList,

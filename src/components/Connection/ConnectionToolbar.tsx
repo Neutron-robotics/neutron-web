@@ -174,8 +174,14 @@ const ConnectionToolBar = (props: ConnectionToolBarProps) => {
         context.removedEvent.on(handleRemovedEvent)
         context.promotedEvent.on(handlePromotedEvent)
 
-        context.pollRobotStatus()
-        context.getInfo()
+        try {
+            context.pollRobotStatus()
+            context.getInfo()
+        }
+        catch (err: any) {
+            console.log("Failed to get robot informations", err)
+            alert.error("The connection with the robot is having issues")
+        }
         return () => {
             context.connectionUpdated.off(handleConnectionUpdated)
             context.robotUpdated.off(handleRobotStatusUpdated)

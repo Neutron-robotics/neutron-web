@@ -46,6 +46,7 @@ const RouteManager = () => {
                             <Route path="/neutron" element={<TitleRoute title="Graphs"><NeutronGraphProvider> <NeutronView /></NeutronGraphProvider></TitleRoute>} />
                             <Route path="/admin/Users" element={<TitleRoute title="Admin"><AdminView /></TitleRoute>} />
                             <Route path="/admin/Organizations" element={<TitleRoute title="Admin"><AdminView /></TitleRoute>} />
+                            <Route path="/admin/Test" element={<TitleRoute title="Test"><AdminView /></TitleRoute>} />
                             <Route path="/settings/account" element={<TitleRoute title="Settings - Account"><SettingsView /></TitleRoute>} />
                             <Route path="*" element={<TitleRoute title="Not Found"><NotFound /></TitleRoute>} />
                         </Routes>
